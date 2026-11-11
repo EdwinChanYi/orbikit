@@ -1,0 +1,120 @@
+# gateway 接入网关配置：TCP / WebSocket 长连接、HTTP 短连接、聊天室消息推送。
+# 支持 ${ENV} 形式引用环境变量。
+
+# pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6063"
+debug_addr: ""
+# 优雅退出的最长等待时间（关闭连接、通知 chatroom 用户下线）
+shutdown_timeout: 10s
+# 服务端主动下发包（推送、心跳）包头里的 clientVersion。
+# 旧版客户端会丢弃 clientVersion 与自身不一致的包，需与客户端配置保持一致。
+client_version: 100000000
+# 单个包体最大字节数，超出即断开连接
+max_body_len: 262144
+
+# 下游 gRPC 地址；多实例可用 "dns:///host:port" 做客户端负载均衡
+core_addr: "localhost:9001"
+chatroom_addr: "localhost:9002"
+# 单次下游 gRPC 调用超时（编辑麦位为其 2 倍）
+rpc_timeout: 20s
+# true 时下发的房间消息要求客户端回执（CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE）
+message_receipt: false
+
+tcp:
+  # TCP 长连接监听地址，为空则不启用
+  addr: ":8000"
+  # 包体编解码：xxtea（兼容旧客户端）或 plain（不加密）
+  codec: xxtea
+  # 连接在该时长内没有任何上行数据即断开；0 表示不检测（旧客户端心跳间隔较长）
+  idle_timeout: 0s
+  # TCP keep-alive 周期
+  keepalive: 3m
+
+ws:
+  # WebSocket 长连接监听地址，为空则不启用
+  addr: ":8001"
+  # 升级路径；每个二进制消息必须恰好是一个完整的包（20 字节包头 + 包体）
+  path: /ws
+  # 包体编解码：plain（建议配合 wss 使用）或 xxtea
+  codec: plain
+  # 无上行消息且未响应 ping 超过该时长即断开；服务端每 1/3 周期发送一次 ping；0 表示不检测
+  idle_timeout: 60s
+  # 允许的浏览器 Origin（如 "https://example.com"），为空表示不限制
+  allowed_origins: []
+  # 同时配置证书与私钥时启用 wss
+  tls_cert_file: ""
+  tls_key_file: ""
+
+http:
+  # HTTP 短连接监听地址，为空则不启用；另提供 GET /healthz
+  addr: ":8080"
+
+session:
+  # 服务端心跳（NOOPING）下发间隔，0 表示不发送
+  heartbeat_interval: 5s
+  # 建连后必须在该时长内完成 AUTH，0 表示不限制
+  auth_timeout: 30s
+  # 单次批量写超时
+  write_timeout: 5s
+  # 单连接待发送数据上限，超出（客户端读取过慢）即断开
+  max_pending_bytes: 4194304
+
+log:
+  # 日志级别：debug / info / warn / error
+  level: info
+  # 日志文件路径，为空则输出到标准输出
+  file: ""
+  # 单个日志文件最大 MB
+  max_size_mb: 1024
+  # 日志保留天数
+  max_age_days: 30
+  # true 使用便于阅读的控制台格式，false 使用 JSON
+  console: true
+
+redis:
+  # 单个地址为单机模式，多个地址为集群模式；需与 chatroom 使用同一 Redis
+  addrs: ["localhost:6379"]
+  password: "${REDIS_PASSWORD}"
+  db: 0
+  pool_size: 64
+
+kafka:
+  brokers: ["localhost:9092"]
+  # 每个网关实例必须使用唯一的 consumer group 才能收到全部广播；
+  # 为空时自动生成 gateway-<hostname>-<随机串>
+  group_id: ""
+
+# 消费的 topic，需与 chatroom 的生产配置一致
+topics:
+  # 房间广播（servicepb.ChatroomBcst），按 included_uid 推送给本机在线成员
+  broadcast: roomkit.room.broadcast
+  # 应用内全服广播（servicepb.ChatroomBcst），推送给本机该应用的全部在线用户
+  fullserver: roomkit.room.fullserver
+  # 被踢出房间通知（servicepb.ChatRoomMemberBeKickedBcst）
+  kicked: roomkit.room.kicked
+  # 杂项事件（servicepb.ChatRoomMiscEventMsg）：封禁断线、请求上传日志
+  event: roomkit.room.event
+
+# 发送文本消息前的内容审核
+moderation:
+  # none：不审核；keyword：本地关键词；webhook：调用外部 HTTP 服务
+  type: none
+  keyword:
+    # 词库文件，每行一个词，空行和 # 开头的行忽略
+    file: "configs/keywords.txt"
+    # reject：命中即拒绝发送；replace：命中的字符替换后发送
+    mode: reject
+    # replace 模式下的替换字符
+    replacement: "*"
+    # 是否区分大小写
+    case_sensitive: false
+  webhook:
+    # POST JSON {"app_id","uid","room_id","text"}，
+    # 期望返回 {"allowed":bool,"text":"可选，替换后的文本","reason":"可选"}
+    url: "http://localhost:8090/moderation/text"
+    # 单次调用超时
+    timeout: 3s
+    # 附加请求头，例如鉴权
+    headers:
+      Authorization: "Bearer ${MODERATION_TOKEN}"
+    # 调用失败（超时、非 2xx、响应无法解析）时：allow 放行原文，reject 拒绝发送
+    on_error: reject
