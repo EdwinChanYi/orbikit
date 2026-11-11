@@ -1,0 +1,57 @@
+# docker compose 专用配置，由 configs/webhook.yaml 派生，仅主机名不同。
+# webhook 服务配置：消费聊天室广播，把消息签名后 POST 到各应用登记的回调地址。
+# 支持 ${ENV} 形式引用环境变量。
+
+# MsgCopy gRPC 监听地址（core 在应用配置变更时调用 AppInfoUpdated）
+grpc_addr: ":9004"
+# pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6064"
+debug_addr: ""
+# 退出时等待队列中消息投递完成的最长时间，超时后丢弃剩余消息
+shutdown_timeout: 10s
+
+log:
+  # 日志级别：debug / info / warn / error
+  level: info
+  # 日志文件路径，为空则输出到标准输出
+  file: ""
+  max_size_mb: 1024
+  max_age_days: 30
+  # true 使用便于阅读的控制台格式，false 使用 JSON
+  console: true
+
+kafka:
+  brokers: ["kafka:9092"]
+  # 共享消费组：多个 webhook 实例分摊消费，每条消息只投递一次
+  group_id: "webhook"
+
+topics:
+  # 聊天室广播 topic，消息体为 servicepb.ChatroomBcst
+  broadcast: "orbikit.room.broadcast"
+
+core:
+  # core 服务 gRPC 地址，用于按 appId 拉取抄送配置（Core.GetAppSecret）
+  target: "dns:///core:9001"
+  # 单次调用 core 的超时
+  timeout: 3s
+
+cache:
+  # 应用抄送配置的本地缓存时长，过期后重新向 core 拉取
+  expire: 60s
+  # core 返回应用不存在时，记住该结果的时长
+  not_found_expire: 1m
+
+delivery:
+  # 每个应用的并发投递 worker 数（不同应用互不阻塞）
+  workers_per_app: 32
+  # 每个应用的待投递队列长度，队列满时丢弃新消息并记录告警日志
+  queue_size: 10000
+  # 单次 HTTP 请求超时
+  timeout: 2s
+  # 失败后的最大重试次数（不含首次）；仅网络错误、HTTP 429 和 5xx 会重试
+  max_retries: 2
+  # 首次重试前的等待时间，之后每次翻倍
+  retry_backoff: 200ms
+  # 重试等待时间上限
+  max_retry_backoff: 2s
+  # 是否跳过回调地址的 TLS 证书校验（仅用于自签名证书的测试环境）
+  insecure_skip_verify: false
