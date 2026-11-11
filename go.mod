@@ -5,7 +5,6 @@ go 1.22
 require (
 	github.com/IBM/sarama v1.43.3
 	github.com/gorilla/websocket v1.5.3
-	github.com/panjf2000/ants/v2 v2.10.0
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/sony/sonyflake v1.2.0
 	github.com/xxtea/xxtea-go v1.0.0
@@ -45,7 +44,6 @@ require (
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
