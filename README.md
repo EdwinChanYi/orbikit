@@ -69,6 +69,16 @@ go run ./examples/gateway-client -transport ws -app <app_id> -uid 10001 \
 
 再开一个终端，用另一个 uid 重复上面两步，就能看到两个客户端互相收到房间消息。
 
+也可以直接用浏览器。再开一个终端：
+
+```bash
+go run ./examples/web
+```
+
+打开 <http://localhost:8090>，两个浏览器窗口用不同昵称进入同一个房间号即可对话。页面走的是网关的 WebSocket 协议，`examples/web` 只负责创建应用、签发令牌。
+
+协议和架构说明在 [docs/protocol.md](docs/protocol.md)、[docs/architecture.md](docs/architecture.md)。
+
 ## 消息抄送 webhook
 
 在应用上配置回调地址（`msg_cp_url` 房间事件、`text_cp_url` 文本消息、`custom_cp_url` 自定义消息）后，webhook 服务会把对应消息以 `POST application/json` 发送过去，请求头：
@@ -92,7 +102,8 @@ internal/<svc>/   各服务实现
 pkg/              公共组件：配置、日志、Redis、Kafka、MySQL、gRPC、ID 生成
 configs/          本机运行的示例配置（localhost）
 deploy/           docker compose 及其配置
-examples/         gateway-client 命令行客户端、quickstart 业务服务器示例
+examples/         gateway-client 命令行客户端、quickstart、浏览器 demo
+docs/             架构与协议说明
 ```
 
 ## 本地开发
@@ -108,10 +119,10 @@ make tools proto   # 安装 buf 与插件并重新生成 api/gen
 
 ## 路线图
 
-- [ ] 协议与架构文档、服务端 API 文档
-- [ ] Web 端 demo（WebSocket + protobuf）
+- [x] 协议与架构文档
+- [x] Web 端 demo（WebSocket + protobuf）
+- [x] 应用配置变更改为 Redis 广播通知
 - [ ] 历史消息存储与查询
-- [ ] 应用配置变更改为 Redis 广播通知，去掉逐实例配置
 - [ ] 对象存储抽象（恢复客户端日志上传）
 - [ ] 压测报告
 

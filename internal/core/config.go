@@ -4,7 +4,7 @@ package core
 import (
 	"time"
 
-	"github.com/EdwinChanYi/orbikit/internal/core/notify"
+	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
@@ -21,10 +21,10 @@ type Config struct {
 	// ShutdownTimeout bounds graceful shutdown.
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 
-	Log    log.Config    `yaml:"log"`
-	MySQL  mysqlx.Config `yaml:"mysql"`
-	Redis  redisx.Config `yaml:"redis"`
-	Notify notify.Config `yaml:"notify"`
+	Log    log.Config       `yaml:"log"`
+	MySQL  mysqlx.Config    `yaml:"mysql"`
+	Redis  redisx.Config    `yaml:"redis"`
+	Notify appnotify.Config `yaml:"notify"`
 }
 
 // DefaultConfig returns the defaults applied before the config file is loaded.
@@ -35,6 +35,6 @@ func DefaultConfig() Config {
 		ShutdownTimeout: 10 * time.Second,
 		Log:             log.Config{Level: "info"},
 		Redis:           redisx.Config{Addrs: []string{"localhost:6379"}, PoolSize: 64},
-		Notify:          notify.Config{Timeout: 5 * time.Second},
+		Notify:          appnotify.Config{Channel: appnotify.DefaultChannel},
 	}
 }

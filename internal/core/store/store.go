@@ -232,22 +232,22 @@ func (s *Store) CreateGdApp(ctx context.Context, p GdAppParams) (*GdAppInfo, err
 // types are only changed when non-empty; every other field is overwritten.
 func gdAppUpdateColumns(p GdAppParams) map[string]any {
 	cols := map[string]any{
-		"gd_app_id":                      p.GdAppID,
-		"match_level":                    p.MatchLevel,
-		"need_match_base":                p.NeedMatchBase,
-		"no_strict_types":                p.NoStrictTypes,
-		"mark_star":                      p.MarkStar,
-		"mark_star1":                     p.MarkStar1,
-		"star_types1":                    p.StarTypes1,
-		"mark_star2":                     p.MarkStar2,
-		"star_types2":                    p.StarTypes2,
-		"msg_len_max":                    p.MsgLenMax,
-		"msg_digital_count_max":          p.MsgDigitalCountMax,
+		"gd_app_id":                     p.GdAppID,
+		"match_level":                   p.MatchLevel,
+		"need_match_base":               p.NeedMatchBase,
+		"no_strict_types":               p.NoStrictTypes,
+		"mark_star":                     p.MarkStar,
+		"mark_star1":                    p.MarkStar1,
+		"star_types1":                   p.StarTypes1,
+		"mark_star2":                    p.MarkStar2,
+		"star_types2":                   p.StarTypes2,
+		"msg_len_max":                   p.MsgLenMax,
+		"msg_digital_count_max":         p.MsgDigitalCountMax,
 		"business_moderation_check_url": p.BusinessModerationCheckUrl,
-		"dupli_text_count":               p.DupliTextCount,
-		"text_count_expire":              p.TextCountExpire,
-		"is_black_dupli_user":            p.IsBlackDupliUser,
-		"is_add_word_store":              p.IsAddWordStore,
+		"dupli_text_count":              p.DupliTextCount,
+		"text_count_expire":             p.TextCountExpire,
+		"is_black_dupli_user":           p.IsBlackDupliUser,
+		"is_add_word_store":             p.IsAddWordStore,
 	}
 	if p.Name != "" {
 		cols["name"] = p.Name

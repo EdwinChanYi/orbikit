@@ -20,10 +20,12 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/webhook"
 	"github.com/EdwinChanYi/orbikit/internal/webhook/delivery"
 	"github.com/EdwinChanYi/orbikit/internal/webhook/server"
+	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 func main() {
@@ -54,9 +56,19 @@ func run(cfgPath string) error {
 	}
 	defer coreConn.Close()
 
+	rdb, err := redisx.New(ctx, cfg.Redis)
+	if err != nil {
+		return err
+	}
+	defer rdb.Close()
+
 	apps := delivery.NewAppCache(
 		&delivery.CoreSource{Client: servicepb.NewCoreClient(coreConn), Timeout: cfg.Core.Timeout},
 		cfg.Cache.Expire, cfg.Cache.NotFoundExpire)
+	go appnotify.New(rdb, cfg.Notify).Run(ctx, func(req *servicepb.AppInfoUpdatedRequest) {
+		server.Apply(apps, req)
+	})
+
 	copier := delivery.NewCopier(apps, delivery.NewLimiters(), delivery.NewSender(cfg.Delivery.SenderConfig))
 	dispatcher := delivery.NewDispatcher(cfg.Delivery.WorkersPerApp, cfg.Delivery.QueueSize, copier.Handle)
 

@@ -13,11 +13,8 @@ func TestExampleConfigLoads(t *testing.T) {
 	if err := config.Load("../../configs/core.yaml", &cfg); err != nil {
 		t.Fatal(err)
 	}
-	if cfg.GRPCAddr != ":9001" || cfg.CacheExpire != time.Minute || cfg.Notify.Timeout != 5*time.Second {
+	if cfg.GRPCAddr != ":9001" || cfg.CacheExpire != time.Minute || cfg.Notify.Channel != "orbikit:app_config" {
 		t.Fatalf("unexpected config %+v", cfg)
-	}
-	if len(cfg.Notify.WebhookTargets) != 1 || cfg.Notify.WebhookTargets[0] != "localhost:9004" || len(cfg.Notify.CorePeers) != 0 {
-		t.Fatalf("notify = %+v", cfg.Notify)
 	}
 	if want := "root:pw@tcp(localhost:3306)/orbikit?charset=utf8mb4&parseTime=true&loc=Local"; cfg.MySQL.DSN != want {
 		t.Fatalf("dsn = %s", cfg.MySQL.DSN)

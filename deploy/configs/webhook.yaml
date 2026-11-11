@@ -9,6 +9,17 @@ debug_addr: ""
 # 退出时等待队列中消息投递完成的最长时间，超时后丢弃剩余消息
 shutdown_timeout: 10s
 
+redis:
+  # 与 core 使用同一个 Redis，用来接收应用配置变更广播
+  addrs: ["redis:6379"]
+  password: "${REDIS_PASSWORD}"
+  db: 0
+  pool_size: 32
+
+notify:
+  # 必须与 core 的 notify.channel 一致
+  channel: orbikit:app_config
+
 log:
   # 日志级别：debug / info / warn / error
   level: info

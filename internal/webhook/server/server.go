@@ -25,6 +25,20 @@ func New(apps *delivery.AppCache) *Server {
 	return &Server{apps: apps}
 }
 
+// Apply stores the pushed copy settings, replacing any cached copy.
+func Apply(apps *delivery.AppCache, req *servicepb.AppInfoUpdatedRequest) {
+	apps.Put(req.GetAppId(), &delivery.AppConfig{
+		Secret:      req.GetAppSecret(),
+		MsgCpURL:    req.GetMsgCpUrl(),
+		TextCpURL:   req.GetTextCpUrl(),
+		CustomCpURL: req.GetCustomCpUrl(),
+		Types:       delivery.ParseTypes(req.GetTypes()),
+		QPS:         req.GetQps(),
+		TextQPS:     req.GetTextQps(),
+		CustomQPS:   req.GetCustomQps(),
+	})
+}
+
 // AppInfoUpdated 应用配置变更，刷新本地抄送配置缓存
 func (s *Server) AppInfoUpdated(_ context.Context, req *servicepb.AppInfoUpdatedRequest) (*servicepb.AppInfoUpdatedReply, error) {
 	log.L().Info("rpc AppInfoUpdated",
@@ -38,16 +52,7 @@ func (s *Server) AppInfoUpdated(_ context.Context, req *servicepb.AppInfoUpdated
 		zap.Int64("text_qps", req.GetTextQps()),
 		zap.Int64("custom_qps", req.GetCustomQps()))
 
-	s.apps.Put(req.GetAppId(), &delivery.AppConfig{
-		Secret:      req.GetAppSecret(),
-		MsgCpURL:    req.GetMsgCpUrl(),
-		TextCpURL:   req.GetTextCpUrl(),
-		CustomCpURL: req.GetCustomCpUrl(),
-		Types:       delivery.ParseTypes(req.GetTypes()),
-		QPS:         req.GetQps(),
-		TextQPS:     req.GetTextQps(),
-		CustomQPS:   req.GetCustomQps(),
-	})
+	Apply(s.apps, req)
 	return &servicepb.AppInfoUpdatedReply{
 		Ret: &servicepb.UnifiedResponse{ErrorCode: servicepb.ErrorCode_SUCCESS, ErrorMsg: "success"},
 	}, nil

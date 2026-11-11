@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/EdwinChanYi/orbikit/internal/webhook/delivery"
+	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 // Config is the webhook service configuration.
@@ -18,12 +20,14 @@ type Config struct {
 	// ShutdownTimeout bounds draining queued deliveries on exit.
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 
-	Log      log.Config     `yaml:"log"`
-	Kafka    KafkaConfig    `yaml:"kafka"`
-	Topics   TopicsConfig   `yaml:"topics"`
-	Core     CoreConfig     `yaml:"core"`
-	Cache    CacheConfig    `yaml:"cache"`
-	Delivery DeliveryConfig `yaml:"delivery"`
+	Log      log.Config       `yaml:"log"`
+	Redis    redisx.Config    `yaml:"redis"`
+	Notify   appnotify.Config `yaml:"notify"`
+	Kafka    KafkaConfig      `yaml:"kafka"`
+	Topics   TopicsConfig     `yaml:"topics"`
+	Core     CoreConfig       `yaml:"core"`
+	Cache    CacheConfig      `yaml:"cache"`
+	Delivery DeliveryConfig   `yaml:"delivery"`
 }
 
 // KafkaConfig selects the cluster and the shared consumer group.
@@ -64,6 +68,8 @@ func DefaultConfig() Config {
 		GRPCAddr:        ":9004",
 		ShutdownTimeout: 10 * time.Second,
 		Log:             log.Config{Level: "info"},
+		Redis:           redisx.Config{Addrs: []string{"localhost:6379"}, PoolSize: 32},
+		Notify:          appnotify.Config{Channel: appnotify.DefaultChannel},
 		Kafka: KafkaConfig{
 			Config:  kafkax.Config{Brokers: []string{"localhost:9092"}},
 			GroupID: "webhook",

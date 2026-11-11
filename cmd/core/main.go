@@ -19,9 +19,9 @@ import (
 	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 	"github.com/EdwinChanYi/orbikit/internal/core"
 	"github.com/EdwinChanYi/orbikit/internal/core/logic"
-	"github.com/EdwinChanYi/orbikit/internal/core/notify"
 	"github.com/EdwinChanYi/orbikit/internal/core/server"
 	"github.com/EdwinChanYi/orbikit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
@@ -69,17 +69,15 @@ func run(cfgPath string) error {
 	}
 	defer rdb.Close()
 
-	notifier, err := notify.New(cfg.Notify)
-	if err != nil {
-		return err
-	}
-	defer notifier.Close()
-
+	bus := appnotify.New(rdb, cfg.Notify)
 	apps := logic.NewAppService(st, cfg.CacheExpire)
+	go bus.Run(ctx, func(req *servicepb.AppInfoUpdatedRequest) {
+		apps.InvalidateApp(req.GetAppId())
+	})
 	srv := server.New(st, apps,
 		logic.NewTokenService(rdb, apps),
 		logic.NewRestrainService(st, rdb),
-		notifier)
+		bus)
 
 	gs := grpcx.NewServer()
 	servicepb.RegisterCoreServer(gs, srv)

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>orbikit</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <p class="mark">orbikit</p>
+      <h1>房间 <span id="room-label">1001</span></h1>
+      <p id="status" class="status">未连接</p>
+    </header>
+    <section id="lobby">
+      <label>昵称<input id="nick" maxlength="24" placeholder="怎么称呼你" autocomplete="nickname" /></label>
+      <label>房间号<input id="room" type="number" min="1" value="1001" /></label>
+      <button id="join" type="button">进入房间</button>
+      <p id="lobby-error" class="error"></p>
+    </section>
+    <section id="chat" hidden>
+      <ol id="log"></ol>
+      <form id="composer">
+        <input id="text" maxlength="500" placeholder="说点什么" autocomplete="off" />
+        <button type="submit">发送</button>
+      </form>
+    </section>
+  </main>
+  <script src="protobuf.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

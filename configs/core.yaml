@@ -35,12 +35,8 @@ redis:
   db: 0
   pool_size: 64
 
-# 应用配置变更后的通知目标。每个实例都要单独列出：
-# dns:/// 形式的负载均衡地址只会命中其中一个实例。
+# 应用配置变更的 Redis 广播频道。core 发布，所有 core 与 webhook 实例订阅，
+# 不再需要逐个填写实例地址。Redis Cluster 的 pub/sub 只在单个节点内传播，
+# 集群部署时请让发布和订阅落在同一节点，或使用单机 Redis。
 notify:
-  # 单次通知调用超时
-  timeout: 5s
-  # 所有 webhook 实例的 gRPC 地址（调用 MsgCopy.AppInfoUpdated 刷新抄送配置）
-  webhook_targets: ["localhost:9004"]
-  # 其他 core 实例的 gRPC 地址（调用 Core.UpdateAppCacheInfo 清缓存），不含本实例
-  core_peers: []
+  channel: orbikit:app_config

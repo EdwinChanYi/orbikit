@@ -26,4 +26,7 @@ func TestExampleConfigLoads(t *testing.T) {
 	if cfg.Cache.Expire != time.Minute || cfg.Cache.NotFoundExpire != time.Minute || cfg.Core.Timeout != 3*time.Second {
 		t.Fatalf("cache/core = %+v %+v", cfg.Cache, cfg.Core)
 	}
+	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" || cfg.Notify.Channel != "orbikit:app_config" {
+		t.Fatalf("redis/notify = %+v %+v", cfg.Redis, cfg.Notify)
+	}
 }

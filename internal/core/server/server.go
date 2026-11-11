@@ -16,10 +16,9 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
-// Notifier propagates app changes to other instances.
+// Notifier broadcasts app changes. Every core and webhook instance receives them.
 type Notifier interface {
-	AppInfoUpdated(ctx context.Context, req *servicepb.AppInfoUpdatedRequest)
-	AppCacheInvalidated(ctx context.Context, appID, traceID string)
+	Publish(ctx context.Context, req *servicepb.AppInfoUpdatedRequest)
 }
 
 // Server implements servicepb.CoreServer.

@@ -59,7 +59,7 @@ func (s *Server) CreateApp(ctx context.Context, req *servicepb.CreateAppRequest)
 	reply.Ret = successResponse()
 	reply.Info = appToPB(app)
 
-	s.notifier.AppInfoUpdated(ctx, appUpdatedRequest(app, req.GetMsgTraceId()))
+	s.publish(ctx, app, req.GetMsgTraceId())
 	return reply, nil
 }
 
@@ -132,9 +132,15 @@ func (s *Server) UpdateAppInfo(ctx context.Context, req *servicepb.UpdateAppInfo
 	reply.Info = appToPB(app)
 
 	s.apps.InvalidateApp(app.AppId)
-	s.notifier.AppInfoUpdated(ctx, appUpdatedRequest(app, req.GetMsgTraceId()))
-	s.notifier.AppCacheInvalidated(ctx, app.AppId, req.GetMsgTraceId())
+	s.publish(ctx, app, req.GetMsgTraceId())
 	return reply, nil
+}
+
+func (s *Server) publish(ctx context.Context, app *store.AppInfo, traceID string) {
+	if s.notifier == nil {
+		return
+	}
+	s.notifier.Publish(ctx, appUpdatedRequest(app, traceID))
 }
 
 // GetAppSecret 获取应用密钥与抄送配置

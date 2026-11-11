@@ -100,6 +100,7 @@ services:
       args: { SERVICE: webhook }
     command: ["-config", "/app/configs/webhook.yaml"]
     depends_on:
+      redis: { condition: service_healthy }
       kafka-init: { condition: service_completed_successfully }
       core: { condition: service_started }
 
