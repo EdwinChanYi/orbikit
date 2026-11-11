@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package roomkit.service;
+
+option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+
+// 错误码 由 3 部分组成 0 000 00000
+// 0     第一部分表示错误报出 [来源] 1 平台级系统故障 2 平台级业务流程异常 3
+// 表示业务故障 000   第二部分表示错误报错 [模块] 000 默认 APP中心 001 聊天室
+// 002 00000 第三部分表示具体错误代码 模块内自定
+
+enum ErrorCode {
+    SUCCESS = 0;
+    SERVER_INTERNAL_ERROR = 100099999; // 服务器内部错误
+    MARSHAL_ERROR = 10010000; //序列化错误
+    UNMARSHAL_ERROR = 100100001; //反序列化错误
+    PARAM_ERROR = 100100002; // 参数空 或 未知错误
+
+    CORE_SERVICE_ERROR = 200100000;
+    CORE_APP_NAME_EXISTS_ERROR = 200100001;
+    CORE_APP_ID_NOT_EXISTS = 200100002;
+    CORE_LOGIN_TOKEN_NOT_EXISTS = 200100003;
+    CORE_USER_IS_RESTRAIN = 200100004;
+
+    CHATROOM_SERVICE_ERROR = 200200000; // 聊天室 service 错误
+    CHATROOM_EXISTS = 200200001; // 房间已经存在
+    CHATROOM_MIC_MIC_COUNT_ERROR = 200200002; // mic位数必须大于 0
+    CHATROOM_NOT_EXISTS = 200200003; // 房间不存在
+    CHATROOM_USER_NOT_IN_TARGET_ROOM = 200200004; // 用户没有在指定房间
+    CHATROOM_UP_MIC_ERROR_MIC_HAS_BEEN_LOCKED = 200200005; // MIC位已经被锁
+    CHATROOM_UP_MIC_ERROR_MIC_HAS_USER = 200200006; // MIC位已经有用户
+    CHATROOM_MIC_INDEX_NOT_EXISTS = 200200007; // MIC位不存在
+    CHATROOM_DOWN_MIC_ERROR_MIC_HAS_NOT_USER = 200200008; // MIC位没有用户
+    CHATROOM_DOWN_MIC_ERROR_USER_NOT_IN_TARGET_INDEX = 200200009; // MIC位没有用户
+    CHATROOM_OPENED = 200200010; // 房间已经开启
+    CHATROOM_CLOSED = 200200011; // 房间已经关闭
+    CHATROOM_ALREADY_IN_ROOM = 200200012; // 已经在房间
+    CHATROOM_NOT_IN_ROOM = 200200013; // 不在房间
+    CHATROOM_USER_PERMISSION_ERROR = 200200014; // 用户权限不对
+    CHATROOM_MIC_HAS_NOT_USER = 200200015; // 麦位没有用户
+    CHATROOM_ENTER_TOKEN_ERROR = 200200016; // 用户登录token错误
+    CHATROOM_MIC_SPACE_NOT_EXISTS = 200200017; // 用户mic空间不存在
+    CHATROOM_MEMBER_MESSAGE_NOT_EXISTS = 200200018; //成员信息不存在
+    CHATROOM_MEMBER_NOT_MODIFY_PERMISSION = 200200019; //用户没有修改房间信息的权限
+    CHATROOM_MEMBER_NOT_KICK_PERMISSION = 200200020; //用户没有踢人权限
+    CHATROOM_MEMBER_NOT_PERMISSION = 200200021; //用户没有权限，或者用户不存在
+    CHATROOM_ROLE_NOT_EXISTS_ERROR = 200200022; // 角色不存在
+    CHATROOM_USER_IS_MUTED = 200200023; // 角色不存在
+    CHATROOM_MSG_DUPLICATE_ERROR = 200200024; // 角色不存在
+    CHATROOM_CHATROOM_IS_MUTED = 200200025; // 角色不存在
+    CHATROOM_ROBOT_UID_EXISTS = 200200026; // reboot uid 已经存在
+    CHATROOM_MEMBER_BLOCK =200200027;//成员被拉黑
+    CHATROOM_MEMBER_KIKY= 200200028;//成员被踢
+    CHATROOM_MEMBER_OPTEXT_NOT_EXISTS=200200029;//成员操作ext不存在
+    CHATROOM_ROBOT_UID_INFO_NOT_EXISTS = 200200030; // reboot信息找不到
+    CHATROOM_APPLAY_TOKEN_ROLEIDS_NOT_EXISTS = 200200031; //没有提供用户角色
+    CHATROOM_SET_DUPLICATE_ROLE = 200200032; //设置了重复的角色
+    CHATROOM_ROLE_EXIST = 200200033; //创建了重复的角色
+    CHATROOM_ROOM_USER_LOCKED = 200200034; // 拿不到用户锁
+    CHATROOM_MESSAGE_MORE_LIMIT = 200200035;  // 消息超出限制
+    ROOM_ROUTER_NOT_AVAILABLE_UPSTREAM = 200300000; //chatroom router 找不到可用的chatroom
+
+}
+
+message UnifiedResponse {
+    ErrorCode error_code = 1; //错误码
+    string error_msg = 2; //错误信息
+    uint64 msg_id = 3;
+}
+
+message EchoRequest {
+    string msg = 1;
+}
+
+message EchoReply {
+    string service_name = 1;
+    string msg = 2;
+}

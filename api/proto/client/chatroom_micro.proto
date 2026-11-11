@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package roomkit.client.chatroom_micro;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import "chatroom_member.proto";
+import public "base_service.proto";
+
+//麦位变更通知实体
+message ChatroomMicroNotification {
+    repeated ChatroomMicro micros   = 2; //麦序实体数组（不要改位置）
+    MicroPositionOperate operate    = 3; // 麦位操作
+    int32 old_position              = 4; // 旧麦位
+    int32 new_position              = 5; // 新麦位
+}
+
+//单个麦位的实体
+message ChatroomMicro {
+    int32 position                                                                = 1; // 麦的序号
+    MicroPositionStatus position_status                                           = 2; // 麦位的状态
+    MicroPositionMicStatus micro_status                                           = 3; // 麦位的麦克风状态
+    roomkit.client.chatroom_member.ChatroomMemberBaseInfo chatroom_member = 4; // 房间用户信息对象，带CustomInfo
+    map<string,string> ext                                                        = 5; // 麦序扩展字段，一般交由服务端修改最好
+}
+
+// 查询麦序 CmdId : CHATROOM_POSITION_INFO
+message QueryChatroomMicroReq {
+    int64 room_id = 1; // 房间ID
+}
+message QueryChatroomMicroResp {
+    repeated ChatroomMicro room_micros         = 1; // 房间麦序
+    roomkit.client.UnifiedResponse ret = 2; // 响应信息
+}
+
+// 更新麦位令牌
+message UpdateChatroomMicroTokenReq {
+    string token = 1; // 麦位令牌
+    int64 room_id  = 2; // 房间ID
+}
+message UpdateChatroomMicroTokenResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 邀请上麦（需要 EDIT_MICRO 权限）CmdId : CHATROOM_POSITION_INVITE
+message InviteChatroomMicroReq {
+    int32 position = 1; // 邀请上的麦的序号
+    int64 user_id  = 2; // 邀请谁上麦
+    int64 room_id  = 3; // 房间ID
+}
+message InviteChatroomMicroResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 踢人下麦（需要 EDIT_MICRO 权限）CmdId : CHATROOM_POSITION_KICK
+message KickChatroomMicroReq {
+    int64 room_id  = 1; // 房间ID
+    int64 user_id  = 2; // 踢谁
+    int64 position = 3; // 麦位
+}
+message KickChatroomMicroResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 上麦（需要看是否能上）CmdId : CHATROOM_POSITION_UP
+message UpChatroomMicroReq {
+    int32 position = 1; // 要上的麦的序号
+    int64 room_id = 2; //要上麦的房间ID
+}
+
+message UpChatroomMicroResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 下麦 CmdId : CHATROOM_POSITION_DOWN
+message DownChatroomMicroReq {
+    int64 room_id = 1; // 房间id
+    int32 position = 2; // 要上的麦的序号
+}
+
+message DownChatroomMicroResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 麦序状态
+enum MicroPositionStatus {
+    UNDEFINED                 = 0; // 未定义
+    MICRO_POSITION_STATE_FREE = 1; // 空闲
+    MICRO_POSITION_STATE_LOCK = 2; // 上锁
+}
+
+enum MicroPositionMicStatus {
+    UNDEFINED_STATUS                = 0; // 未定义
+    MICRO_POSITION_AUDIO_STATE_OPEN = 1; // 开麦
+    MICRO_POSITION_AUDIO_STATE_MUTE = 2; // 禁麦
+}
+
+// 麦位操作
+enum MicroPositionOperate {
+    UNDEFINED_OPERATE               = 0; // 未定义
+    MICRO_POSITION_OPERATE_UP       = 1; // 上麦
+    MICRO_POSITION_OPERATE_DOWN     = 2; // 下麦
+    MICRO_POSITION_OPERATE_SWITCH   = 3; // 切麦
+    MICRO_POSITION_OPERATE_INVITED  = 4; // 被抱上麦
+    MICRO_POSITION_OPERATE_KICKED   = 5; // 被踢下麦
+    MICRO_POSITION_OPERATE_BLOCKED  = 6; // 锁麦
+    MICRO_POSITION_OPERATE_MUTED    = 7; // 禁麦
+}
+
+// 修改麦序信息 CmdId : CHATROOM_POSITION_EDIT
+message EditMicroPositionInfoReq {
+    int32 position                                 = 1; // 麦序位置
+    int64 room_id                                  = 2; //房间ID
+    MicroPositionStatus position_status            = 3; // 修改麦位状态,需要确定权限
+    MicroPositionMicStatus position_micro_status   = 4; // 修改麦序状态,需要确定权限
+    map<string,string> ext                         = 5; // 修改ext信息,需要确定权限
+}
+// 修改麦序信息返回
+message EditMicroPositionInfoRes {
+    repeated ChatroomMicro room_micros          = 1; // 房间麦序信息
+    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+}

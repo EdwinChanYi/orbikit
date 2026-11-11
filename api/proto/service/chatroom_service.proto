@@ -1,0 +1,1178 @@
+syntax = "proto3";
+
+package roomkit.service;
+
+option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+
+import "service_comm.proto";
+
+// 权限列表
+enum Privilege {
+    UNDEFINED = 0; // 未定义
+    EDIT_CHATROOM_INFO = 1; // 修改房间信息
+    MUTE = 2; // 禁言
+    BLOCK = 3; // 拉黑
+    SET_MANAGER = 4; // 设置/取消管理员
+    KICK = 5; // 踢人
+    EDIT_MICRO = 6; // 修改成员麦序
+    EDIT_MICRO_STATUS = 7; // 修改麦序信息
+    MUTE_MESSAGE = 8; // 全房间禁言
+    MUTE_CAN_MESSAGE = 9; // 房间禁言的时候还可以说话
+}
+
+message UpdateAppCustomInfoKeyFilterRequest {
+    string app_id = 1;
+    repeated string custom_info_key_filter = 8;
+    string msg_trace_id = 9;
+}
+
+message UpdateAppCustomInfoKeyFilterReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 创建房间
+message CreateChatroomRequest {
+    string app_id = 1;
+    ChatroomInfo chatroom_info = 2;
+    bool need_open = 3;
+    repeated SpaceInfos space = 4;
+    string msg_trace_id = 5;
+}
+
+message CreateChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 封/解封 房间
+message BlockChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int32 action = 3;
+    string msg_trace_id = 4;
+}
+
+message BlockChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message RolePermission {
+    int32 action_type = 1;
+    bool can_do_action = 2;
+    int32 initiative_level = 3;
+    int32 passivity_level = 4;
+}
+
+// 创建角色
+message CreateRoleRequest {
+    string app_id = 1;
+    string name = 2;
+    int64 role_id = 3;
+    repeated RolePermission permissions = 4;
+    string msg_trace_id = 5;
+    bool keep_on_closed = 6;
+}
+
+message CreateRoleReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+message QueryRoleRequest {
+    string app_id = 1;
+    repeated int64 role_id = 2;
+    string msg_trace_id = 3;
+}
+message role {
+    int64 role_id = 1;
+    string role_name = 2;
+    repeated RolePermission permissions = 3;
+    bool keep_on_closed = 4;
+}
+message QueryRoleReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated role roles = 2;
+}
+message ModifyRoleRequest {
+    string app_id = 1;
+    int64 role_id = 2;
+    repeated RolePermission permissions = 3;
+    string msg_trace_id = 4;
+    bool keep_on_closed = 5;
+}
+message ModifyRoleReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message RemoveUserRoleRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    int64 room_id = 3;
+    int64 role_id = 4;
+    string msg_trace_id = 5;
+}
+message RemoveUserRoleReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 设置用户角色
+message SetRoleRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    repeated int64 role_id = 4;
+    string msg_trace_id = 5;
+}
+
+message SetRoleReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 开启房间
+message OpenChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    repeated SpaceInfos space = 3;
+    string msg_trace_id = 4;
+}
+
+message OpenChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 关闭房间
+message CloseChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    string msg_trace_id = 3;
+}
+
+message CloseChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message ApplyEnterChatroomTokenRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberInfo member_info = 4;
+    string msg_trace_id = 5;
+}
+
+message ApplyEnterChatroomTokenReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string token = 2;
+}
+
+// 进入房间
+message EnterChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    string token = 4;
+    string msg_trace_id = 5;
+}
+
+message ChatroomInfo {
+    int64 chatroom_id = 1; // 聊天室ID
+    string name = 2; // 聊天室名
+    string announcement = 3; // 公告
+    int64 owner_uid = 4; // 房主
+    map<string, string> ext = 5; // 服务端设置的房间扩展字段，客户端不能设置
+    int64 online_count = 6; // 当前在线人数
+    bool is_mute_all = 7; // 聊天室是否正在全员禁言标记，禁言后只有管理员可以发言
+    repeated string custom_info_key_filter = 8;
+    int64 robot_count=9;
+}
+
+message ChatroomMemberInfo {
+    int64 uid = 1; // 用户id
+    string nickname = 2; // 聊天室内的昵称字段，由用户进聊天室时提交。
+    string avatar = 3; // 聊天室内的头像字段，由用户进聊天室时提交。
+    map<string, string> custom_info = 4; // 该字段是业务服务器在开房间的时候设的用户信息Keys，聊天室服务器会去业务数据库代理查询该用户在业务的服务器该Keys下的数据
+    map<string, string> chatroom_remote_ext = 5; // 聊天室人员扩展字段,由业务服务器设置
+    repeated int32 role_id = 6; // 聊天室角色，可以自定义
+    bool is_in_block_list = 7; // 是否在黑名单中
+    bool is_in_kick_list = 8;
+    bool is_in_mute_list = 9;
+    bool is_online = 10; // 是否在线，仅特殊成员（房主、管理员、被拉黑、被禁言、被踢）才可能离线,
+    // 对游客用户而言只能是在线
+    int64 enter_time = 11; // 进入聊天室的时间点(毫秒)
+    map<string, string> search_keys = 12;
+    bool is_reboot = 13;
+    int64 mute_begin = 14;
+    int64 mute_finish = 15;
+    int64 kick_begin = 16;
+    int64 kick_finish = 17;
+}
+
+message EnterChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    ChatroomInfo room_info = 2;
+    ChatroomMemberInfo yourself_info = 3;
+}
+
+// 离开房间
+message LeaveChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    string msg_trace_id = 4;
+}
+
+message LeaveChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 锁/解锁 mic位
+message BlockMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    int32 action = 5;
+    string msg_trace_id = 6;
+}
+
+message BlockMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated MicInfo mic_info = 2;
+}
+
+// 设置/解除 mic禁言
+message MuteMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    int32 action = 5;
+    string msg_trace_id = 6;
+}
+
+message MuteMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated MicInfo mic_info = 2;
+}
+
+// 查询所有mic位信息
+message QueryMicInfoRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    string msg_trace_id = 3;
+    int64 uid = 4;
+}
+
+message MicInfo {
+    int32 position = 1; // 麦的序号
+    bool is_locked = 2; // 麦位的状态
+    bool is_muted = 3; // 麦位的麦克风状态
+    ChatroomMemberInfo member_info = 4; // 房间用户信息对象，带CustomInfo
+    map<string, string> ext = 5; // 麦序扩展字段，一般交由服务端修改最好
+}
+
+message QueryMicInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated MicInfo mic_info = 2;
+}
+
+// 更新麦位令牌
+message UpdateMicTokenRequest {
+    string token = 1; // 麦位令牌
+    string app_id = 2;
+    int64 room_id = 3; // 房间号
+    int64 uid = 4;
+    string msg_trace_id = 5;
+}
+
+message UpdateMicTokenReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message SpaceInfos {
+    int32 index = 1;
+    bool is_locked = 2;
+    bool is_mute = 3;
+    bool is_user = 4;
+    int64 uid = 5;
+    map<string, string> ext = 6;
+}
+
+message UpdateMicSpaceRequest {
+    int64 room_id = 1;
+    string app_id = 2;
+    repeated SpaceInfos space = 3;
+    string msg_trace_id = 4;
+}
+
+message UpdateMicSpaceReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+message SpaceInfosExt {
+    int32 index = 1;
+    map<string, string> ext = 6;
+}
+message UpdateMicSpaceExtRequest {
+    int64 room_id = 1;
+    string app_id = 2;
+    repeated SpaceInfosExt spacesExt = 3;
+    string msg_trace_id = 4;
+}
+message UpdateMicSpaceExtReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+message InviteMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    int64 invite_uid = 5;
+    string msg_trace_id = 6;
+}
+
+message InviteMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message KickMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    int64 kic_uid = 5;
+    map<string, string> ext = 6;
+    string msg_trace_id = 7;
+}
+
+message KickMicMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message UpMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    string msg_trace_id = 5;
+}
+
+message UpMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message DownMicRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 mic_index = 4;
+    string msg_trace_id = 5;
+}
+
+message DownMicReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message SubscribeChatroomBroadcastRequest {
+    uint32 machine_id = 1;
+    string msg_trace_id = 2;
+}
+
+enum ClientType {
+    CLIENT_TYPE_UNDEFINED = 0; // 未知设备
+    CLIENT_TYPE_ANDROID = 1; // 安卓
+    CLIENT_TYPE_IOS = 2; // iOS
+    CLIENT_TYPE_PC = 3; // WINDOWS
+    CLIENT_TYPE_MACOS = 4; // MACOS
+    CLIENT_TYPE_WEB = 5; // WEB
+    CLIENT_TYPE_RESTFUL = 6; // RESTFUL API
+    CLIENT_TYPE_SYSTEM = 8; // system msg
+}
+
+enum ChatroomMsgType {
+    CHATROOM_MSG_TYPE_UNDEFINED = 0;
+    CHATROOM_MSG_TYPE_TEXT = 1;
+    CHATROOM_MSG_TYPE_CUSTOM = 2;
+    CHATROOM_MSG_TYPE_EVENT = 3;
+    CHATROOM_MSG_TYPE_ALL = 255;
+}
+
+enum ChatroomEventType {
+    CHATROOM_EVENTTYPE_UNDEFINED = 0; // 未定义
+    CHATROOM_EVENTTYPE_ENTER = 1; // 成员进入聊天室
+    CHATROOM_EVENTTYPE_EXIT = 2; // 成员离开聊天室
+    CHATROOM_EVENTTYPE_ADDBLACK = 3; // 成员被拉黑
+    CHATROOM_EVENTTYPE_REMOVEBLACK = 4; // 成员被取消拉黑
+    CHATROOM_EVENTTYPE_ADDMUTE = 5; // 成员被设置禁言
+    CHATROOM_EVENTTYPE_REMOVEMUTE = 6; // 成员被取消禁言
+    CHATROOM_EVENTTYPE_ADDMANAGER = 7; // 设置为管理员
+    CHATROOM_EVENTTYPE_REMOVEMANAGER = 8; // 移除管理员
+    CHATROOM_EVENTTYPE_CLOSED = 9; // 聊天室被关闭
+    CHATROOM_EVENTTYPE_INFOUPDATED = 10; // 聊天室信息更新
+    CHATROOM_EVENTTYPE_KICKED = 11; // 聊天室成员被踢
+    CHATROOM_EVENTTYPE_UNKICKED = 12; // 聊天室成员被解除踢出
+    CHATROOM_EVENTTYPE_MEMBERUPDATEINFO = 13; // 成员更新了聊天室的角色信息
+    CHATROOM_EVENTTYPE_MICROCHANGE = 14; // 麦位人员变更
+    CHATROOM_EVENTTYPE_MICROSTATUSCHANGE = 15; // 麦序信息变更,除人以外的变更都属于这个
+    CHATROOM_EVENTTYPE_ROOMMUTED = 16; // 聊天室被集体禁言了，只有拥有权限者可以发言,其他人都处于禁言状态
+    CHATROOM_EVENTTYPE_ROOMUNMUTED = 17; // 聊天室取消禁言
+    CHATROOM_EVENTTYPE_ROLECHANGE = 18; //成员角色变更
+    CHATROOM_EVENTTYPE_USERONLINE=19;//用户下线
+    CHATROOM_EVENTTYPE_USEROFFLINE=20;//用户上线
+}
+
+message ChatroomEvent {
+    ChatroomEventType type = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    int64 to = 3;
+    ChatroomMemberInfo from_member_info = 4;
+    ChatroomMemberInfo to_member_info = 5;
+    map<string, bytes> event_content = 6;
+    map<string, string> notify_data = 7;
+    map<string, string> attachment = 8;
+}
+
+message ChatroomMsgRequest {
+    string app_id = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    ChatroomMemberInfo from_user_info = 3; //模拟某个发送者的时候需要带上发送者的信息（发送者在不在房间）
+    int64 to = 4; // 如果有被操作着，就是uid, 0 就是没有
+    int64 chatroom_id = 5;
+    map<string, string> ext = 6;
+    ClientType client_type = 7;
+    ChatroomMsgType msg_type = 8;
+    oneof content {
+        string text_content = 9;
+        bytes custom_content = 10;
+    }
+    string msg_id = 11;
+    string msg_trace_id = 12;
+
+}
+
+message ChatroomMsgReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string msg_id = 2;
+}
+message FullServiceBroadcastMsgRequest {
+    string app_id = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    ChatroomMemberInfo from_user_info = 3; //由业务填写，不提供查询
+    map<string, string> ext = 4;
+    ClientType client_type = 5;
+    ChatroomMsgType msg_type = 6;
+    oneof content {
+        string text_content = 7;
+        bytes custom_content = 8;
+    }
+    string msg_id = 9;
+    string msg_trace_id = 10;
+
+}
+message FullServiceBroadcastMsgReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string msg_id = 2;
+}
+message ChatroomBcst {
+    string app_id = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    int64 to = 3; // 如果有被操作着，就是uid, 0 就是没有
+    ChatroomMemberInfo from_member_info = 4;
+    ChatroomMemberInfo to_member_info = 5;
+
+    int64 chatroom_id = 6;
+    map<string, string> ext = 7;
+
+    ClientType client_type = 8;
+    ChatroomMsgType msg_type = 9;
+
+    oneof content {
+        string text_content = 10;
+        bytes custom_content = 11;
+        ChatroomEvent event_content = 12;
+    }
+
+    string msg_id = 13;
+
+    repeated int64 included_uid = 14;
+    repeated int64 excluded_uid = 15;
+
+    int64 create_time = 16;
+    string msg_trace_id = 17;
+}
+
+message MicroOperation {
+    int32 operate = 1; // MicroPositionOperate
+    int32 old_position = 2; // 原麦位
+    int32 new_position = 3; // 现麦位
+}
+
+message MsgCopyPostData {
+    string app_id = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    int64 to = 3; // 如果有被操作着，就是uid, 0 就是没有
+    ChatroomMemberInfo from_member_info = 4;
+    ChatroomMemberInfo to_member_info = 5;
+
+    int64 chatroom_id = 6;
+    map<string, string> ext = 7;
+
+    ClientType client_type = 8;
+    ChatroomMsgType msg_type = 9;
+
+    string text_content = 10;
+    bytes custom_content = 11;
+    MsgCopyChatroomEvent event_content = 12;
+
+    string msg_id = 13;
+
+    repeated int64 included_uid = 14;
+    repeated int64 excluded_uid = 15;
+
+    int64 create_time = 16;
+    string msg_trace_id = 17;
+}
+
+message MsgCopyChatroomEvent {
+    ChatroomEventType type = 1;
+    int64 from = 2; // 0 系统 > 0 用户uid
+    int64 to = 3;
+    ChatroomMemberInfo from_member_info = 4;
+    ChatroomMemberInfo to_member_info = 5;
+    map<string, string> notify_data = 6;
+    map<string, string> attachment = 7;
+    repeated MicInfo mic_infos = 8;
+    ChatroomInfo room_info = 9;
+    MicroOperation mic_op = 10;
+}
+
+
+message BatchLeaveChatroomRequest {
+    string app_id = 1;
+    repeated int64 room_id = 2;
+    int64 uid = 3;
+    bool is_room_id=4;
+    string msg_trace_id = 5;
+}
+
+message BatchLeaveChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message MuteChatroomRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    int32 action = 4;
+    map<string, string> ext = 5;
+    string msg_trace_id = 6;
+}
+
+message MuteChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+message BlockChatroomMemberRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 from = 3;
+    int64 to = 4;
+    int32 action = 5;
+    map<string, string> ext = 7;
+    string msg_trace_id = 8;
+}
+
+message BlockChatroomMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message KickChatroomMemberRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 from = 3;
+    int64 to = 4;
+    int64 time = 5; // 踢出时间
+    int32 action = 6;
+    map<string, string> ext = 7;
+    string msg_trace_id = 8;
+    map<string, string> notify_ext = 9; // 被踢通知扩展自定义字段,广播给用户不进行持久化
+}
+
+message KickChatroomMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message MuteChatroomMemberRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 from = 3;
+    int64 to = 4;
+    int64 time = 5; // 踢出时间
+    int32 action = 6;
+    map<string, string> ext = 7;
+    string msg_trace_id = 8;
+}
+
+message MuteChatroomMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum ChatroomMemberFetchMemberType {
+    CHATROOM_MEMBER_FETCH_MEMBER_UNDEFINED = 0; // 未定义
+    CHATROOM_MEMBER_FETCH_MEMBER_BLOCK = 1; // 黑名单用户 需要有设置黑名单权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_MUTE = 2; // 禁言名单 需要有设置禁言的权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_KICK = 3; // 被持续踢出的用户 踢人的时候设置duration为0的时候是查询不到的
+    // 需要有踢人权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_NORMAL = 4; // 房间内目前在线的普通成员 (包括禁言的普通成员)
+}
+
+enum ChatroomMemberFetchSortType {
+    CHATROOM_MEMBER_FETCH_SORT_UNDEFINED = 0; // 未定义
+    CHATROOM_MEMBER_FETCH_SORT_DESC = 1; // 以进入时间逆序返回 (后进入的在前)
+    CHATROOM_MEMBER_FETCH_SORT_ASC = 2; // 以进入时间顺序返回 (后进入的在后)
+}
+
+message HumanInfo {
+    int64 uid = 1;
+    int64 enter_time = 2;
+    string nickname = 3;
+    string avatar = 4;
+    repeated int32 role_id = 5;
+    bool is_in_block_list = 6;
+    bool is_in_mute_list = 7;
+    int64 muted_finish_at = 8;
+}
+
+message FetchHumanChatroomMemberRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberFetchSortType sort_type = 4;
+    int64 enter_time = 5;
+    int32 limit = 6;
+    string msg_trace_id = 7;
+    bool is_detail = 8;
+    bool is_online = 9;
+}
+
+message FetchHumanChatroomMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated HumanInfo members = 2;
+}
+
+message FetchChatroomMemberByTypeRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberFetchSortType sort_type = 4;
+    repeated ChatroomMemberFetchMemberType type = 5;
+    int64 enter_time = 6;
+    int32 limit = 7;
+    bool found_robot = 8;
+    string msg_trace_id = 9;
+}
+
+message FetchChatroomMemberByRoleRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberFetchSortType sort_type = 4;
+    repeated int64 role = 5;
+    bool is_online = 6;
+    int64 enter_time = 7;
+    int32 limit = 8;
+    bool found_robot = 9;
+    string msg_trace_id = 10;
+}
+message FetchChatroomMemberByIdRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberFetchSortType sort_type = 4;
+    repeated int64 query_id = 5;
+    string msg_trace_id = 6;
+}
+
+message FetchChatroomMemberByKeywordRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    ChatroomMemberFetchSortType sort_type = 4;
+    string keyword = 5;
+    int64 enter_time = 6;
+    int32 limit = 7;
+    string msg_trace_id = 8;
+}
+
+message MemberOpTime {
+    int64 begin_time = 1;
+    int64 end_time = 2;
+}
+
+message FetchChatroomMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated ChatroomMemberInfo members = 2;
+    map<int64, MemberOpTime> muted_time = 3;
+    map<int64, MemberOpTime> kicked_time = 4;
+}
+
+message EditChatroomInfoRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    ChatroomInfo chat_room_info = 3;
+    string msg_trace_id = 4;
+}
+
+message EditChatroomInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message EditChatroomInfoByMemberRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    string name = 4;
+    string announcement = 5;
+    string msg_trace_id = 6;
+}
+
+message EditChatroomInfoByMemberReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message FetchOpExtRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    int64 uid = 3;
+    string msg_trace_id = 4;
+}
+
+message FetchOpExtReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    map<string, string> ext = 2;
+}
+
+message GetChatroomInfoRequest {
+    string app_id = 1;
+    int64 room_id = 2;
+    string msg_trace_id = 3;
+}
+
+message GetChatroomInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    ChatroomInfo room_info = 2;
+}
+
+message UserOnlineRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    uint64 conn_uuid = 3;
+    string msg_trace_id = 4;
+}
+
+message UserOnlineReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message UserOfflineRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    uint64 conn_uuid = 3;
+    string msg_trace_id = 4;
+}
+
+message UserOfflineReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message AddRobotUserInfoRequest {
+    string app_id = 1;
+    ChatroomMemberInfo info = 2;
+    string msg_trace_id = 3;
+}
+
+message AddRobotUserInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message RemoveRobotUserInfoRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    string msg_trace_id = 3;
+}
+
+message RemoveRobotUserInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message AddRobotToChatroomRequest {
+    string app_id = 1;
+    int64 chatroom_id = 2;
+    int64 uid = 3;
+    repeated int32 role_id = 4;
+    string msg_trace_id = 5;
+    bool is_broadcast = 6;
+}
+
+message AddRobotToChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message RoomRobotInfo {
+    int64 uid = 1;
+    repeated int32 role_id = 2;
+}
+
+message BatchAddRobotToChatroomRequest {
+    string app_id = 1;
+    int64 chatroom_id = 2;
+    repeated RoomRobotInfo robots = 3;
+    bool is_broadcast = 4;
+    string msg_trace_id = 5;
+}
+
+message BatchAddRobotToChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message RemoveRobotFromChatroomRequest {
+    string app_id = 1;
+    int64 chatroom_id = 2;
+    int64 uid = 3;
+    string msg_trace_id = 4;
+}
+
+message RemoveRobotFromChatroomReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message GetChatroomIdByChatroomMemberCountRequest {
+    string app_id = 1;
+    bool is_desc = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+    string msg_trace_id = 5;
+}
+
+message ChatroomMemberCountInfo {
+    int64 chatroom_id = 1;
+    int32 online_count = 2;
+    int32 robot_count=3;
+}
+
+message GetChatroomIdByChatroomMemberCountReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated ChatroomMemberCountInfo room_info = 2;
+}
+
+message GetChatroomIdByUsedMicCountRequest {
+    string app_id = 1;
+    bool is_desc = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+    string msg_trace_id = 5;
+}
+
+message GetChatroomIdByUsedMicCountReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated ChatroomMemberCountInfo room_info = 2;
+}
+
+message GetUserCurrentChatroomListRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    string msg_trace_id = 3;
+}
+
+message GetUserCurrentChatroomListReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated ChatroomMemberCountInfo room_info = 2;
+}
+
+message UpdateUserChatroomInfoRequest {
+    int64 chatroom_id = 1;
+    string app_id = 2;
+    ChatroomMemberInfo user_info = 3;
+    string msg_trace_id = 4;
+}
+
+message UpdateUserChatroomInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message ChatRoomIdentityInfo {
+    string ip_addr = 1;
+    uint64 machine_id = 2;
+}
+
+message RestraintUserOperRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    int32 action = 3;
+    string msg_trace_id = 4;
+}
+
+message RestraintUserOperReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+// 踢人原因
+enum ChatroomKickReason {
+    KICK_BY_UNDEFINED           = 0; // 未定义
+    KICK_BY_CHATROOM_INVALID    = 1; // 房间被解散
+    KICK_BY_PERSON              = 2; // 被有权限的人踢出房间
+    KICK_BY_CONFLICT_LOGIN      = 3; // 多端登陆被踢
+    KICK_BY_BLACKLIST           = 4; // 被拉黑
+}
+
+// 聊天室被踢结果
+message ChatRoomMemberBeKickedBcst {
+    int64 room_id                   = 1; // 房间ID
+    ChatroomKickReason kicked_reason = 2; // 被踢理由
+    int64 duration                   = 3; // 被踢出时长（秒)
+    map<string, string> remote_ext   = 4; // 当ChatroomKickReason为KICK_BY_PERSON时这个生效,并且duration大于0聊天室服务器服务器才会持久化(如果用持续踢人存储原因,可以在查询列表的时候重新查出来)
+    map<string, string> notify_ext   = 5; // 被踢通知扩展字段,如为什么踢，由踢人的用户传入
+    string app_id = 6;
+    repeated int64 to_uid = 7; // 发送给谁
+    string msg_trace_id = 8;
+}
+
+enum ChatRoomMiscEventType {
+    MISC_EVENT_UNDEFINED  = 0;
+    MISC_EVENT_USER_RESTRAIN = 1; //用户被封号
+    MISC_EVENT_UPLOAD_CLIENT_LOG = 2; // 上传客户端日志
+}
+
+message RestrainUserMsg {
+    int64 uid = 1;
+}
+
+message UploadClientLogMsg {
+    int64 uid = 1;
+    int32 log_type = 2; // 日志类型：roomkit.client.LogType
+    int64 log_date = 3; // 日志日期，unixtime 精确到日，单位：毫秒
+    string upload_token = 4; // 上传令牌
+}
+
+message ChatRoomMiscEventMsg {
+    ChatRoomMiscEventType type = 1;
+    string app_id = 2;
+    oneof  content {
+        RestrainUserMsg restrain_info = 3;
+        UploadClientLogMsg upload_log = 5;
+    }
+    string msg_trace_id = 4;
+}
+
+message PingHandleReq {
+    int64 time_stamp = 1;
+}
+
+message PingHandleResp {
+    int64 time_stamp = 1;
+}
+
+message OnMicInfo {
+    int64 room_id = 1;
+    int32 up_mic_id = 2;
+    int64 up_at = 3; //上mic时毫秒时戳
+    int64 down_at = 4; //下mic时毫秒时戳
+    enum OffReason {
+        NONE = 0;
+        USER_QUERY = 1;
+        LEAVE_ROOM = 2;
+        KICKED_ROOM = 3; //被提出房间和close房间
+        BLOCKED_ROOM = 4;
+        KICKED_MIC = 5;
+        OFFLINE_EXPIRE = 6;
+        MIC_CHANGED = 7;
+    }
+    OffReason reason = 5;
+    int32 down_mic_id = 6;
+}
+
+message UserMicTimeRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    enum SortType {
+        NONE = 0;
+        DESC = 1;
+        ASC = 2;
+    }
+    SortType sort_type = 3; //按照上mic时间降序或者升序
+    int32 page_size = 4;
+    int64  last_up_time = 5; //最后一条记录上mic毫秒时戳，第一次查询给0
+    string msg_trace_id = 6;
+}
+
+message UserMicTimeReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated OnMicInfo mic_info = 2;
+}
+
+message AtRoomInfo {
+    int64 room_id = 1;
+    int64 enter_at = 2; //进房毫秒时戳
+    int64 leave_at = 3; //退房毫秒时戳
+    enum LeaveReason {
+        NONE = 0;
+        USER_QUERY = 1;
+        OFF_LINE = 2;
+        KICKED = 3;
+        BLOCKED = 4;
+        CLOSE_ROOM = 5;
+    }
+    LeaveReason reason = 4;
+}
+
+message UserAtRoomTimeRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    enum SortType {
+        NONE = 0;
+        DESC = 1;
+        ASC = 2;
+    }
+    SortType sort_type = 3; //按照进房时间降序或者升序
+    int32 page_size = 4;
+    int64 last_enter_time = 5; //最后一条记录进房毫秒时戳，第一次给0
+    string msg_trace_id = 6;
+}
+
+message UserAtRoomTimeReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated AtRoomInfo room_info = 2;
+}
+
+message UploadClientLogRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    int32 log_type = 3; // 日志类型：1 - 聊天室日志，2 - 直播 SDK 日志
+    int64 log_date = 4; // 日志日期，unixtime 精确到日，单位：毫秒
+    string db_id = 5; // 数据库 ID
+    string msg_trace_id = 6;
+}
+
+message UploadClientLogReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string request_id = 2;
+}
+
+message UploadClientLogStatusRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    string msg_trace_id = 3;
+}
+message UploadClientLogStatusReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+service Chatroom {
+    rpc SendChatroomMsg (ChatroomMsgRequest) returns (ChatroomMsgReply) {
+    }
+    rpc SendFullServiceBroadcastMsg(FullServiceBroadcastMsgRequest) returns(FullServiceBroadcastMsgReply){
+    }
+    rpc GetUserCurrentChatroomList (GetUserCurrentChatroomListRequest) returns (GetUserCurrentChatroomListReply) {
+    }
+    rpc CreateChatroom (CreateChatroomRequest) returns (CreateChatroomReply) {
+    }
+    rpc SetRole (SetRoleRequest) returns (SetRoleReply) {
+    }
+    rpc RemoveUserRole (RemoveUserRoleRequest) returns (RemoveUserRoleReply) {
+    }
+    rpc CreateRole (CreateRoleRequest) returns (CreateRoleReply) {
+    }
+    rpc QueryRole (QueryRoleRequest) returns (QueryRoleReply) {
+    }
+    rpc ModifyRole (ModifyRoleRequest) returns (ModifyRoleReply) {
+    }
+    rpc OpenChatroom (OpenChatroomRequest) returns (OpenChatroomReply) {
+    }
+    rpc CloseChatroom (CloseChatroomRequest) returns (CloseChatroomReply) {
+    }
+    rpc ApplyEnterChatroomToken (ApplyEnterChatroomTokenRequest) returns (ApplyEnterChatroomTokenReply) {
+    }
+    rpc EnterChatroom (EnterChatroomRequest) returns (EnterChatroomReply) {
+    }
+    rpc LeaveChatroom (LeaveChatroomRequest) returns (LeaveChatroomReply) {
+    }
+    rpc BatchLeaveChatroom (BatchLeaveChatroomRequest) returns (BatchLeaveChatroomReply) {
+    }
+    rpc MuteChatroom (MuteChatroomRequest) returns (MuteChatroomReply) {
+    }
+    rpc BlockChatroomMember (BlockChatroomMemberRequest) returns (BlockChatroomMemberReply) {
+    }
+    rpc KickChatroomMember (KickChatroomMemberRequest) returns (KickChatroomMemberReply) {
+    }
+    rpc MuteChatroomMember (MuteChatroomMemberRequest) returns (MuteChatroomMemberReply) {
+    }
+    rpc FetchHumanChatroomMember (FetchHumanChatroomMemberRequest) returns (FetchHumanChatroomMemberReply) {
+    }
+    rpc FetchChatroomMemberByType (FetchChatroomMemberByTypeRequest) returns (FetchChatroomMemberReply) {
+    }
+    rpc FetchChatroomMemberByRole (FetchChatroomMemberByRoleRequest) returns (FetchChatroomMemberReply) {
+    }
+    rpc FetchChatroomMemberById (FetchChatroomMemberByIdRequest) returns (FetchChatroomMemberReply) {
+    }
+    rpc FetchChatroomMemberByKeyword (FetchChatroomMemberByKeywordRequest) returns (FetchChatroomMemberReply) {
+    }
+    rpc EditChatroomInfo (EditChatroomInfoRequest) returns (EditChatroomInfoReply) {
+    }
+    rpc EditChatroomInfoByMember (EditChatroomInfoByMemberRequest) returns (EditChatroomInfoByMemberReply) {
+    }
+    rpc FetchOpExt (FetchOpExtRequest) returns (FetchOpExtReply) {
+    }
+    rpc GetChatroomInfo (GetChatroomInfoRequest) returns (GetChatroomInfoReply) {
+    }
+    rpc InviteMic (InviteMicRequest) returns (InviteMicReply) {
+    }
+    rpc KickMic (KickMicRequest) returns (KickMicMicReply) {
+    }
+    rpc UpdateMicSpace (UpdateMicSpaceRequest) returns (UpdateMicSpaceReply) {
+    }
+    rpc UpdateMicSpaceExt (UpdateMicSpaceExtRequest) returns (UpdateMicSpaceExtReply) {
+    }
+    rpc BlockMic (BlockMicRequest) returns (BlockMicReply) {
+    }
+    rpc MuteMic (MuteMicRequest) returns (MuteMicReply) {
+    }
+    rpc QueryMicInfo (QueryMicInfoRequest) returns (QueryMicInfoReply) {
+    }
+    rpc UpdateMicToken (UpdateMicTokenRequest) returns (UpdateMicTokenReply) {
+    }
+    rpc UpMic (UpMicRequest) returns (UpMicReply) {
+    }
+    rpc DownMic (DownMicRequest) returns (DownMicReply) {
+    }
+    rpc UserOnline (UserOnlineRequest) returns (UserOnlineReply) {
+    }
+    rpc UserOffline (UserOfflineRequest) returns (UserOfflineReply) {
+    }
+    rpc AddRobotUserInfo (AddRobotUserInfoRequest) returns (AddRobotUserInfoReply) {
+    }
+    rpc RemoveRobotUserInfo (RemoveRobotUserInfoRequest) returns (RemoveRobotUserInfoReply) {
+    }
+    rpc AddRobotToChatroom (AddRobotToChatroomRequest) returns (AddRobotToChatroomReply) {
+    }
+    rpc BatchAddRobotToChatroom (BatchAddRobotToChatroomRequest) returns (BatchAddRobotToChatroomReply) {
+    }
+    rpc RemoveRobotFromChatroom (RemoveRobotFromChatroomRequest) returns (RemoveRobotFromChatroomReply) {
+    }
+    rpc GetChatroomIdByChatroomMemberCount (GetChatroomIdByChatroomMemberCountRequest) returns (GetChatroomIdByChatroomMemberCountReply) {
+    }
+    rpc GetChatroomIdByUsedMicCount (GetChatroomIdByUsedMicCountRequest) returns (GetChatroomIdByUsedMicCountReply) {
+    }
+    rpc UpdateAppCustomInfoKeyFilter (UpdateAppCustomInfoKeyFilterRequest) returns (UpdateAppCustomInfoKeyFilterReply) {
+    }
+    rpc UpdateUserChatroomInfo (UpdateUserChatroomInfoRequest) returns (UpdateUserChatroomInfoReply) {
+    }
+    rpc RestraintUserOper (RestraintUserOperRequest) returns (RestraintUserOperReply) {
+    }
+    rpc UserMicTime (UserMicTimeRequest) returns (UserMicTimeReply) {
+    }
+    rpc UserAtRoomTime (UserAtRoomTimeRequest) returns (UserAtRoomTimeReply) {
+    }
+    rpc UploadClientLog(UploadClientLogRequest) returns (UploadClientLogReply) {
+    }
+    rpc UploadClientLogStatus(UploadClientLogStatusRequest) returns (UploadClientLogStatusReply) {
+    }
+}

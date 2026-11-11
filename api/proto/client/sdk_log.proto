@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package roomkit.client;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import public "base_service.proto";
+
+enum LogType{
+    UNDEFINED                = 0; //未定义
+    TYPE_IM                  = 1;//IM 日志
+    TYPE_MEDIA               = 2; // 直播sdk 日志
+    TYPE_MEDIA_DUMP               = 3; // 直播sdk dump 文件
+}
+
+//上传日志错误结果
+enum UploadLogResult{
+    RESULT_UNDEFINED                = 0; //未定义
+    RESULT_OK                       = 1; //成功
+    RESULT_FILE_NOT_FOUND           = 2; //找不到文件
+    RESULT_OBJECT_STORAGE_ERROR     = 3; //对象存储错误
+
+}
+
+//服务器下发上传日志广播
+message UploadLogBroadcast {
+    int64 uid      = 1; //需要服务器发uid过来，SDK内部不知道uid
+    int64 time     = 2; //需要日志的时间
+    LogType type   = 3; //日志类型
+    string upload_token = 4; // 上传七牛的token
+    int64 id       = 5; //广播唯一id
+}
+
+//报告日志上传情况给服务器
+message UploadLogReportReq {
+    UploadLogResult result    = 1; //上传结果
+    string desc               = 2; //文字详细描述
+    string device_id          = 3; //设备id
+    int64 id       = 4; //广播唯一id
+    string file_url               = 5; //文件在七牛的url
+}
+
+//请求结果
+message UploadLogReportResp {
+    roomkit.client.UnifiedResponse ret         = 1; // 响应信息
+}

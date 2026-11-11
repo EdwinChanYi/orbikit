@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package roomkit.client.chatroom_kick;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import public "base_service.proto";
+
+// 踢人请求 CmdId : CHATROOM_MEMBER_KICK
+message ChatroomMemberKickReq {
+    int64 room_id                  = 1; // 房间ID
+    int64 user_id                  = 2; // 用户ID
+    int64 duration                 = 3; // 踢出时长（秒）
+    map<string, string> remote_ext = 4; // 当ChatroomKickReason为KICK_BY_PERSON时这个生效,并且duration大于0聊天室服务器服务器才会持久化(如果用持续踢人存储原因,可以在查询列表的时候重新查出来)
+    map<string, string> notify_ext = 5; // 被踢通知扩展字段,如为什么踢
+}
+
+message ChatRoomMemberKickResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 踢人原因
+enum ChatroomKickReason {
+    KICK_BY_UNDEFINED           = 0; // 未定义
+    KICK_BY_CHATROOM_INVALID    = 1; // 房间被解散
+    KICK_BY_PERSON              = 2; // 被有权限的人踢出房间
+    KICK_BY_CONFLICT_LOGIN      = 3; // 多端登陆被踢
+    KICK_BY_BLACKLIST           = 4; // 被拉黑
+}
+
+// 聊天室被踢结果
+message ChatRoomMemberBeKickedBcst {
+    int64 room_id                   = 1; // 房间ID
+    ChatroomKickReason kicked_reason = 2; // 被踢理由
+    int64 duration                   = 3; // 被踢出时长（秒)
+    map<string, string> remote_ext   = 4; // 当ChatroomKickReason为KICK_BY_PERSON时这个生效,并且duration大于0聊天室服务器服务器才会持久化(如果用持续踢人存储原因,可以在查询列表的时候重新查出来)
+    map<string, string> notify_ext   = 5; // 被踢通知扩展字段,如为什么踢，由踢人的用户传入
+} 

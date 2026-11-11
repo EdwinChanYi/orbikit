@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package roomkit.client.message;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import "base_service.proto";
+import "base_service_notification.proto";
+
+enum MessageQueryOrder {
+    MESSAGE_SEARCH_ORDER_DESC   = 0; // 从新消息往旧消息查询(限定时间段且存在limit情况下，取较为新的一段)
+    MESSAGE_SEARCH_ORDER_ASC    = 1; // 从旧消息往新消息查询(限定时间段且存在limit情况下，取较为旧的一段)
+}
+
+// 检索服务器历史消息选项 (服务器)
+message MessageQueryOptionReq {
+    int64 start_time                    = 1; // 检索消息起始时间, 需要检索的起始时间,没有则传入0。
+    int64 end_time                      = 2; // 消息的结束时间，需要检索的结束时间,没有则传入0。
+    int32 limit                         = 3; // 限制条数 最多100
+    repeated MessageType message_types  = 4; // 查询的消息类型  消息类型组合，消息类型组合，默认为 nil ，搜索全类型。取值范围为: MessageType 枚举类型
+    repeated int64 from_ids             = 5; // 消息发出者帐号列表
+    MessageQueryOrder order             = 6; // 检索顺序
+    Session session                     = 7; // 对话
+}
+
+message MessageQueryResp {
+    roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+    repeated Message results                    = 2; // 返回的消息结果
+}
+
+// 检索服务器历史消息选项 (服务器)
+message MessageQueryOptionV2Req {
+    int64 start_time                    = 1; // 检索消息起始时间, 需要检索的起始时间,没有则传入0。
+    int64 end_time                      = 2; // 消息的结束时间，需要检索的结束时间,没有则传入0。
+    int32 limit                         = 3; // 限制条数 最多100
+    repeated MessageType message_types  = 4; // 查询的消息类型  消息类型组合，消息类型组合，默认为 nil ，搜索全类型。取值范围为: MessageType 枚举类型
+    repeated int64 from_ids             = 5; // 消息发出者帐号列表
+    MessageQueryOrder order             = 6; // 检索顺序
+    Session session                     = 7; // 对话
+}
+
+message MessageQueryV2Resp {
+    roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+    repeated Message results                    = 2; // 返回的消息结果
+}
+
+// 会话类型
+enum SessionType {
+    SESSION_TYPE_UNDEFINED = 0; // 未定义
+    SESSION_TYPE_CHATROOM  = 1; // 聊天室消息
+    SESSION_TYPE_SYSTEM    = 2; //系统通知消息
+    SESSION_TYPE_P2P       = 3; //单聊消息
+    SESSION_TYPE_TEAM      = 4; //群消息
+
+}
+
+// 会话对象
+message Session {
+    int64 session_id            = 2; // 回话的ID 根据session_type 对应不同的id
+    SessionType session_type    = 3; // 回话类型
+}
+
+// 消息优先级
+enum MessagePriority{
+    UNDEFINED       = 0;
+    LV_1            = 1;
+    LV_2            = 2;
+    LV_3            = 3;
+    LV_4            = 4;
+    LV_5            = 5;
+    LV_6            = 6;
+    LV_7            = 7;
+    LV_8            = 8;
+    LV_9            = 9;
+    LV_10           = 10;
+
+}
+// 消息设置
+message MessageSetting {
+    bool history_enabled        = 1; // 消息是否允许在消息历史中拉取,默认为YES
+    bool route_enabled          = 2; // 是否需要抄送 默认为YES，即默认会抄送消息给开发者的服务器(如果有配置的话)
+    MessagePriority priority    = 3; // 服务器处理消息的优先级（服务定义优先级可以定义比当前的多，但是要包含当前优先级 ）
+    bool receipt_for_receive    = 4; // 消息是否需要收到回执
+    // bool receipt_for_read       = 5; // 是否需要已读回执
+}
+
+// 消息类型
+enum MessageType {
+    MESSAGE_TYPE_UNDEFINED      = 0; // 未定义
+    MESSAGE_TYPE_TEXT           = 1; // 文本消息类型
+    MESSAGE_TYPE_TIPS           = 2; // 消息提醒类型
+    MESSAGE_TYPE_NOTIFICATION   = 3; // 通知消息类型
+    MESSAGE_TYPE_IMAGE          = 4; // 图片消息类型
+    MESSAGE_TYPE_AUDIO          = 5; // 视频消息类型
+    MESSAGE_TYPE_VIDEO          = 6; // 视频消息类型
+    MESSAGE_TYPE_LOCATION       = 7; // 位置消息类型
+    MESSAGE_TYPE_FILE           = 8; // 文件消息类型
+    MESSAGE_TYPE_AVCHAT         = 9; // 音视频通话消息类型
+    MESSAGE_TYPE_ROBOT          = 10; // 机器人消息类型
+    MESSAGE_TYPE_CUSTOM         = 100; // 消息类型
+}
+
+// 消息投递状态
+enum MessageDeliveryStatus {
+    MESSAGE_DELIVERY_STATUS_UNDEFINED = 0; // 未定义
+    MESSAGE_DELIVERY_STATUS_FAILED    = 1; // 发送失败
+    MESSAGE_DELIVERY_STATUS_SUCCESS   = 2; // 发送成功
+}
+
+// 消息对象
+message Message {
+    MessageType message_type                                = 1; // 消息类型
+    int64 from                                              = 2; // 消息来源
+    Session session                                         = 3; // 会话
+    string message_id                                       = 4; // 消息id标识 唯一id
+    string text                                             = 6; // 消息文本 消息中除 MESSAGE_TYPE_TEXT 和 MESSAGE_TYPE_CUSTOM 外，其他消息 text 字段都为 nil
+    oneof ext {
+        // 消息附件内容,如果 MessageType 为 MESSAGE_TYPE_NOTIFICATION 则对应的PB为ChatroomNotificationContent
+        bytes message_object = 7;
+        roomkit.client.notification.NotificationContent notification = 8;
+    }
+    bool hit_client_antispam                                = 9;  // 是否命中反垃圾,因为聊天室目前还没有做发垃圾,这个字段仅仅用来透传,客户端从云信检测的结果
+    MessageSetting setting                                  = 10; // 消息设置
+    map<string, string> local_ext                           = 11; // 客户端本地扩展,客户端可以设置这个字段，这个字段只在内存存储,不会发送至对端,上层需要保证 NSDictionary 可以转换为 JSON // 不需要
+    map<string, string> remote_ext                          = 12; // 服务器扩展,客户端可以设置这个字段,这个字段将在本地存储且发送至对端,上层需要保证 NSDictionary 可以转换为 JSON
+    int64 timestamp                                         = 13; // 消息发送时间
+    roomkit.client.ClientType sender_client_type    = 14; // 发送者客户端类型
+    map<string, string> custom_info                         = 15; // 客户端无权修改 .用户在当前聊天室的拓展信息(服务端设置在chatroom member上的customInfo)
+}
+
+// 发送消息 CmdId : CHATROOM_SEND_MESSAGE
+message SendMessageReq {
+    Message message = 1; // 消息实体
+}
+
+message SendMessageResp {
+    roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+}
+
+// 消息广播 CmdId : CHATROOM_RECEIVE_MESSAGE
+message MessageBcst {
+    Message message = 1; // 消息实体
+}
+
+// //当消息需要已读回执时候，消息显示出去的时候sdk需要调此接口告知服务器
+// message MessageReceiptForReadReq {
+//     String messageId = 1; // 消息id
+//     int64 userId     = 2; // 收到消息的人的userId
+// }
+
+// message MessageReceiptForReadResp {
+//     roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+// }
+
+
+//当消息需要客户端已收到回执时候，消息收到的时候sdk需要调此接口告知服务器  cmdid CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE
+message MessageReceiptForReceiveReq {
+    string message_id = 1; // 消息id
+}
+
+message MessageReceiptForReceiveResp {
+    roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+}

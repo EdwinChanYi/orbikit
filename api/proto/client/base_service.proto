@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package roomkit.client;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import "error_code.proto";
+
+//设备类型
+enum ClientType {
+  CLIENT_TYPE_UNDEFINED = 0; // 未知设备
+  CLIENT_TYPE_ANDROID   = 1; // 安卓
+  CLIENT_TYPE_IOS       = 2; // iOS
+  CLIENT_TYPE_PC        = 3; // WINDOWS
+  CLIENT_TYPE_MACOS     = 4; // MACOS
+  CLIENT_TYPE_WEB       = 5; // WEB
+  CLIENT_TYPE_RESTFUL   = 6; // RESTFUL API
+  CLIENT_TYPE_SYSTEM    = 8;
+}
+
+message UnifiedResponse {
+  roomkit.client.ErrorCode error_code = 1; // 错误码
+  string error_msg                            = 2; // 错误信息
+}
+
+// CmdId : ECHO
+message EchoReq {
+  string data = 1;
+}
+
+message EchoResp {
+  UnifiedResponse ret = 1; // 响应信息
+  string data         = 2; // 发送的二进制
+}
+
+// CmdId : ECHO_BCST
+message EchoBcst {
+  string data = 1;
+}
+
+// CmdId : AUTH
+message AuthReq {
+  string app_id                   = 1; // 上层初始化ID
+  string auth_token               = 2; // 授权token,由业务服务器向聊天室服务器请求再返回给服务端
+  string device_id                = 3; // 设备号 uuid
+  map<string, string> ext         = 4; // 上层初登录时传进的扩展字段,冗余用
+  map<string, string> check_field = 5; //iOS用bundleId Android用packageId Key为：IdentifyId
+  ClientType type                 = 6; //客户端类型
+}
+
+message AuthResp {
+  UnifiedResponse ret     = 1; // 响应信息
+  string auth_token       = 2; // 授权token,由业务服务器向聊天室服务器请求再返回给服务端
+  string mask_key         = 3; // 加密Key
+}
+
+enum LoginStep {
+  LOGIN_STEP_UNDEFINED         = 0; // 未定义
+  LOGIN_STEP_LINKING           = 1; // 连接中
+  LOGIN_STEP_LINK_OK           = 2; // 连接成功
+  LOGIN_STEP_LINK_FAILED       = 3; // 连接失败
+  LOGIN_STEP_LOGINING          = 4; // 登录中
+  LOGIN_STEP_LOGIN_OK          = 5; // 登录成功
+  LOGIN_STEP_LOGIN_FAILED      = 6; // 登录失败
+  LOGIN_STEP_LOSE_CONNECTION   = 7; // 连接断开
+}
+
+//被踢出登录态
+enum LoginKickReason {
+  LOGIN_KICK_REASON_BY_UNDEFINED  = 0; // 未定义
+  LOGIN_KICK_REASON_BY_CLIENT     = 1; // 被另外一个客户端踢下线 (互斥客户端一端登录挤掉上一个登录中的客户端)
+  LOGIN_KICK_REASON_BY_SERVER     = 2; // 被服务器踢下线
+}
+
+// 退出登录请求 CmdId : LOGOUT
+message LoginOutReq {
+  int32 reserve = 1; // 保留字段，暂时没用
+}
+
+// 退出登录响应 CmdId : LOGOUT
+message LoginOutResp {
+  roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 被踢通知 CmdId : CHATROOM_HAS_BEEN_KICKED
+message LoginKickedBcst {
+  LoginKickReason reason = 1;
+}
+
+// 缓存 response到redis
+message CacheResponseData {
+    bytes real_payload = 1;
+    int32 repeated_cnt = 2;
+}
+
+//垃圾检测类型
+enum GDType {
+  GD_TYPE_UNDEFINED = 0;
+  GD_TYPE_TEXT = 1;
+  GD_TYPE_PICTURE = 2;
+  GD_TYPE_AUDIO = 3;
+  GD_TYPE_VIDEO = 4;
+}
+
+//垃圾检测结果保存
+message GarbageDetectInfo {
+  GDType type = 1;
+  string resp_body = 2;
+  string org_text = 3;
+  string org_picture = 4;
+  //...
+}
+
+//用来查询用户长连接信息的
+message ShowUserConnReq {
+  string app_id = 1;
+  int64 uid = 2;
+}
+
+//用来查询用户长连接信息的
+message ShowUserConnResp {
+  UnifiedResponse ret     = 1; // 响应信息
+  repeated UserConnInfo users = 2;
+}
+//用户长连接信息
+message UserConnInfo {
+  string app_id = 1;
+  string uid = 2;
+  uint64 conn_id = 3;
+}

@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package roomkit.client;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+enum CmdId {
+  NOT_USED                            = 0;   // 前方高能,不能用这个
+  NOOPING                             = 6;   // 心跳
+  AUTH                                = 800; // mars long link auth
+  LOGOUT                              = 801; // 登出
+  KICK                                = 802; // 被下线
+  ECHO_BCST                           = 998; // just for testing
+  ECHO                                = 999; // just for testing
+  
+  CHATROOM_BUSINESS_BEGIN             = 1000; // reserve, don't use, from 1001 to 1999 from chatroom
+  
+  
+  // -------- cmdId 类型为 客户端主动请求，服务端接收消息   begin --------
+
+  // -------- chat room business --------
+  CHATROOM_ENTER                                    = 1001; // 进入聊天室
+  CHATROOM_OUT                                      = 1002; // 退出聊天室
+  CHATROOM_MUTE                                     = 1003; // 房间全体禁言操作
+  CHATROOM_BATCH_OUT                                = 1005; // 批量退出
+
+  CHATROOM_GET_INFO                                 = 1010; // 查询房间信息
+  CHATROOM_EDIT_INFO                                = 1011; // 修改房间信息
+  CHATROOM_GET_LAST_OPERATION_EXT                   = 1012; // 查询最后一个被操作时候的remoteExt
+  
+  CHATROOM_POSITION_UP                              = 1020; // 上麦
+  CHATROOM_POSITION_DOWN                            = 1021; // 下麦
+  CHATROOM_POSITION_INVITE                          = 1022; // 邀请上麦
+  CHATROOM_POSITION_KICK                            = 1023; // 踢下麦
+  CHATROOM_POSITION_EDIT                            = 1024; // 修改麦序信息
+  CHATROOM_POSITION_INFO                            = 1025; // 查询麦序
+  CHATROOM_POSITION_TOKEN_UPDATE                    = 1026; // 更新麦位令牌
+
+  CHATROOM_FETCH_MEMBER_BY_TYPE                     = 1030; // 根据类型查询房间成员
+  CHATROOM_FETCH_MEMBER_BY_IDS                      = 1031; // 根据IDS查询房间成员
+  CHATROOM_FETCH_MEMBER_BY_KEYWORDS                 = 1032; // 根据关键字查询房间成员
+  CHATROOM_FETCH_MEMBER_BY_ROLE                     = 1033; // 根据自定义的角色查询房间成员
+
+//  CHATROOM_MEMBER_MANAGER                           = 1040; // 房间管理员操作
+  CHATROOM_MEMBER_KICK                              = 1041; // 踢出聊天室
+  CHATROOM_MEMBER_BLOCK                             = 1042; // 聊天室黑名单操作
+  CHATROOM_MEMBER_MUTE                              = 1043; // 聊天室禁言操作
+
+  // -------- message business --------
+  CHATROOM_SEND_MESSAGE                             = 1050; // 发房间消息
+  CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE              = 1051; // 房间消息已收到回执
+
+  MESSAGE_HISTORY_QUERY                             = 2010; //消息历史查询
+  MESSAGE_HISTORY_QUERY_V2                             = 2011; //消息历史查询
+  // -------- log business --------
+  UPLOAD_LOG_REPORT                                 = 996; // 向服务器报告日志上传情况 sdk_log.proto
+
+
+  //-------- cmdId 类型为 客户端主动请求，服务端接收消息   end --------
+
+
+  //-------- cmdId 类型为 服务端主动发消息，客户端接收消息   begin --------
+
+  UPLOAD_LOG_BROADCAST                              = 997; // 服务端发送这个指令下来，客户端上传Mars日志 sdk_log.proto
+
+  CHATROOM_IN_STATUS_BCST                           = 1004; // 登录后广播当前人在房间的状态 chatroom.proto -> ChatroomInStatusBcst
+
+  CHATROOM_HAS_BEEN_KICKED                          = 1060; // 被踢出房间 具体看 chatroom_kick.proto
+
+  CHATROOM_RECEIVE_MESSAGE                          = 1070; // 接收房间消息 message.proto
+
+  //-------- cmdId 类型为 服务端主动发消息，客户端接收消息   end --------
+}

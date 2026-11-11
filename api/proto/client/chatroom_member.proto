@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package roomkit.client.chatroom_member;
+
+option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+
+import public "base_service.proto";
+
+// 权限列表
+enum Privilege {
+    UNDEFINED           = 0; // 未定义
+    EDIT_CHATROOM_INFO  = 1; // 修改房间信息
+    MUTE                = 2; // 禁言
+    BLOCK               = 3; // 拉黑
+    KICK                = 5; // 踢人
+    EDIT_MICRO          = 6; // 修改成员麦序
+    EDIT_MICRO_STATUS   = 7; // 修改麦序信息
+    MUTE_MESSAGE        = 8; // 全房间禁言
+    MUTE_CAN_MESSAGE    = 9; // 房间禁言的时候还可以说话
+}
+
+// 查询成员列表的时候的查询的成员类型
+enum ChatroomMemberFetchMemberType {
+    CHATROOM_MEMBER_FETCH_MEMBER_UNDEFINED  = 0; // 未定义
+    CHATROOM_MEMBER_FETCH_MEMBER_BLOCK      = 1; // 黑名单用户 需要有设置黑名单权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_MUTE       = 2; // 禁言名单 需要有设置禁言的权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_KICK       = 3; // 被持续踢出的用户 踢人的时候设置duration为0的时候是查询不到的 需要有踢人权限的人才能查询
+    CHATROOM_MEMBER_FETCH_MEMBER_NORMAL     = 4; // 房间内目前在线的普通成员 (包括禁言的普通成员)
+}
+
+// 查询成员排序
+enum ChatroomMemberFetchSortType {
+    CHATROOM_MEMBER_FETCH_SORT_UNDEFINED = 0; // 未定义
+    CHATROOM_MEMBER_FETCH_SORT_DESC      = 1; // 以进入时间逆序返回 (后进入的在前)
+    CHATROOM_MEMBER_FETCH_SORT_ASC       = 2; // 以进入时间顺序返回 (后进入的在后)
+}
+
+// 根据用户类型查询聊天室成员列表 CmdId : CHATROOM_FETCH_MEMBER_BY_TYPE
+message GetChatroomMemberByTypeReq {
+    int64 room_id                                   = 1; // 房间ID
+    repeated ChatroomMemberFetchMemberType type     = 2; // 需要获取查询类型
+    ChatroomMemberFetchSortType sort_type           = 3; // 获取的成员排序规则(以进入时间作为排序),默认为0,不排序
+    int64 enter_time                                = 4; // 时间锚点 一般传列表最后一个member的进入时间
+    int32 limit                                     = 5; // 获取聊天室成员个数,如果传0 默认20,不足传入值则返回剩余所有
+    bool found_robot                                = 6; // 标志此次查询是否查询机器人，传列表最后一个member的is_robot字段
+}
+message GetChatroomMemberByTypeResp {
+    repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
+    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+}
+
+//根据角色查询成员
+message GetChatroomMemberByRoleReq {
+    int64 room_id                           = 1; // 房间ID
+    repeated int32 role                     = 2; // 需要获取查询类型
+    ChatroomMemberFetchSortType sort_type   = 3; // 获取的成员排序规则(以进入时间作为排序),默认为0,不排序
+    bool is_online                          = 4; // 是否查询在线的,如果查询离线，因为是自定义角色，所以只能查控制台设置为需要持久化存储的离线角色
+    int64 enter_time                        = 5; // 时间锚点 一般传列表最后一个member的进入时间
+    int32 limit                             = 6; // 获取聊天室成员个数,如果传0 默认20,不足传入值则返回剩余所有
+    bool found_robot                        = 7; // 标志此次查询是否查询机器人，传列表最后一个member的is_robot字段
+    bool is_include_offline                 = 8; // 为了解决兼容 is_online 字段的问题
+}
+message GetChatroomMemberByRoleResp {
+    repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
+    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+}
+
+
+// 根据用户ID查询聊天室成员 CmdId : CHATROOM_FETCH_MEMBER_BY_IDS
+message GetChatroomMemberByIdsReq {
+    int64 room_id                           = 1; // 房间ID
+    repeated int64 user_ids                 = 2; // 用户ID数组
+    ChatroomMemberFetchSortType sort_type   = 3; // 获取的成员排序规则(以进入时间作为排序),默认为0,不排序
+}
+
+message GetChatroomMemberByIdsResp {
+    repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
+    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+}
+
+// 根据用户ID或者昵称关键字进行前置模糊查询聊天室成员 CmdId : CHATROOM_FETCH_MEMBER_BY_KEYWORDS
+message GetChatroomMemberByKeywordReq {
+    int64 room_id                           = 1; // 房间ID
+    string keyword                          = 2; // 关键字(注意!!! 只能匹配用户ID或者用户昵称,并且只能进行前置模糊匹配)
+    ChatroomMemberFetchSortType sort_type   = 3; // 获取的成员排序规则(以进入时间作为排序),默认为0,不排序
+    int32 limit                             = 4; // 获取聊天室成员个数,如果传0 默认20,不足传入值则返回剩余所有
+}
+
+message GetChatroomMemberByKeywordResp {
+    repeated ChatroomMemberInfo members        = 1; // 查询结果(成员列表)
+    roomkit.client.UnifiedResponse ret = 2; // 响应信息
+}
+
+// 禁言状态
+message MuteStatus {
+    bool is_mute     = 1; // 是否禁言
+    int64 end_time   = 2; // 禁言结束时间(毫秒)
+}
+
+// 被踢状态
+message KickStatus {
+    bool is_kick     = 1; // 是否被踢中
+    int64 end_time   = 2; // 被踢结束时间(毫秒)
+}
+
+// 房间成员对象实体
+message ChatroomMemberBaseInfo {
+    int64 user_id                           = 1; // 用户id
+    string room_nickname                    = 2; // 聊天室内的昵称字段，由用户进聊天室时提交。
+    string room_avatar                      = 3; // 聊天室内的头像字段，由用户进聊天室时提交。
+    map<string,string> custom_info          = 4; // 该字段是业务服务器在开房间的时候设的用户信息Keys，聊天室服务器会去业务数据库代理查询该用户在业务的服务器该Keys下的数据
+    map<string,string> chatroom_remote_ext  = 5; // 聊天室人员扩展字段,由业务服务器设置
+    map<string,string> search_keys          = 6; // 模糊搜索使用的字段,Key/Value为随意值 ,建议是兔兔号+昵称
+    repeated int32 role                     = 7; // 聊天室角色，业务可自定义，多重身份。
+//    map<int32,bool> privileges              = 7; // role的角色权限 key为Privilege枚举的int32类型 value是布尔值
+    bool is_in_block_list                   = 8; // 是否在黑名单中
+    MuteStatus mute_status                  = 9; // 禁言状态
+    KickStatus kick_status                  = 10; // 被踢状态
+    bool is_online                          = 11; // 是否在线，仅特殊成员（房主、被拉黑、被禁言、被踢）才可能离线, 对游客用户而言只能是在线
+    int64 enter_time_interval               = 12; // 进入聊天室的时间点(毫秒)
+    bool is_robot                           = 13; //是否为查询机器人
+}
+
+// 成员信息
+message ChatroomMemberInfo {
+    ChatroomMemberBaseInfo member   = 1; // 成员
+    map<string, string> remote_ext  = 2; // 操作成员对象的时候传入的自定义字段
+}
+
+// 房间成员操作对象
+message ChatroomMemberUpdatedField {
+    int64 room_id                 = 1; // 房间ID
+    int64 user_id                 = 2; // 用户ID
+    bool enable                   = 3; // 设置是否有效，YES是设置（赋予） NO是反设置（取消)
+    map<string,string> remote_ext = 4; // 该字段用来透传信息,聊天室服务器会做持久化,查询成员的时候一并返回
+    map<string,string> notify_ext = 5; // 操作通知事件扩展
+}
+
+// 这里没有所谓的管理员
+// 设置管理员 CmdId : CHATROOM_MEMBER_MANAGER
+//message SettingChatroomManagerReq {
+//    ChatroomMemberUpdatedField data = 1; // 用户操作对象
+//    int64 role_id = 2;  //管理员的角色ID，取决与业务配置的哪个角色是管理员
+//}
+//
+//message SettingChatroomManagerResp {
+//    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+//}
+
+// 设置黑名单 CmdId : CHATROOM_MEMBER_BLOCK
+message SettingChatroomInBlackReq {
+    ChatroomMemberUpdatedField data = 1; // 用户操作对象
+}
+
+message SettingChatroomInBlackResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}
+
+// 设置禁言 CmdId : CHATROOM_MEMBER_MUTE
+message SettingMuteMessageReq {
+    ChatroomMemberUpdatedField data = 1; // 用户操作对象
+    int64 duration                  = 2; // 禁言多久，如果为0 则永久禁言
+}
+
+message SettingMuteMessageResp {
+    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+}

@@ -1,0 +1,19 @@
+# Build output
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Local config and data
+/configs/*.local.yaml
+*.sqlite
+*.db
+/log/
+*.log
+
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store

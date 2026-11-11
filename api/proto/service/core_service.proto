@@ -1,0 +1,463 @@
+syntax = "proto3";
+
+package roomkit.service;
+
+option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+
+import "service_comm.proto";
+
+message AppInfo {
+    uint64 id = 1;
+    string app_id = 2;
+    string app_secret = 3;
+    string name = 4;
+    string desc = 5;
+    uint64 created_at = 6;
+    uint64 updated_at = 7;
+    string msg_cp_url = 8;
+    string types = 9;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 10;                 // 抄送信息 QPS 限制
+    string media_app_id = 11;       // 媒体应用 ID
+    string gd_app_id = 12;          // 反垃圾应用 ID
+    string text_cp_url = 13;        // 文本消息抄送地址
+    string custom_cp_url = 14;      // 自定义消息抄送地址
+    int64 text_qps = 15;            // 文本消息 QPS 限制
+    int64 custom_qps = 16;          // 自定义消息 QPS 限制
+    string media_app_secret = 17;   // 媒体应用密钥
+}
+
+message CreateAppRequest {
+    string name = 1;
+    string desc = 2;
+    string msg_cp_url = 3;
+    string msg_trace_id = 4;
+    string types = 5;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 6;
+    string media_app_id = 7;        // 媒体应用 ID
+    string gd_app_id = 8;           // 反垃圾应用 ID
+    string media_app_secret = 9;    // 媒体应用密钥
+}
+
+message CreateAppReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    AppInfo info = 2;
+}
+
+message QueryAppInfoRequest {
+    uint64 id = 1;
+    string msg_trace_id = 2;
+}
+
+message QueryAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    AppInfo info = 2;
+}
+
+message ApplyClientLoginTokenRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    string msg_trace_id = 3;
+}
+
+message ApplyClientLoginTokenReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string login_token = 2;
+}
+
+message GetClientLoginTokenInfoRequest {
+    string login_token = 1;
+    string msg_trace_id = 2;
+}
+
+message GetClientLoginTokenInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string app_id = 2;
+    int64 uid = 3;
+}
+
+message DeleteClientLoginTokenReq {
+    string app_id = 1;
+    int64 uid = 2;
+    string login_token = 3;
+    string msg_trace_id = 4;
+}
+
+message DeleteClientLoginTokenResp {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message IsAppValidRequest {
+    string app_id = 1;
+    string msg_trace_id = 2;
+}
+
+message IsAppValidReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    bool is_valid = 2;
+}
+
+message UpdateAppInfoRequest {
+    uint64 id = 1;
+    bool is_refresh_secret = 2;
+    string name = 3;
+    string desc = 4;
+    string msg_trace_id = 5;
+    string msg_cp_url = 6;
+    string types = 7;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 8;                  // 抄送信息 QPS 限制
+    string media_app_id = 9;        // 媒体应用 ID
+    string gd_app_id = 10;          // 反垃圾应用 ID
+    string text_cp_url = 11;        // 文本消息抄送地址
+    string custom_cp_url = 12;      // 自定义消息抄送地址
+    int64 text_qps = 13;            // 文本消息 QPS 限制
+    int64 custom_qps = 14;          // 自定义消息 QPS 限制
+    string media_app_secret = 15;   // 媒体应用密钥
+}
+message UpdateAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    AppInfo info = 2;
+}
+
+message RestraintUserOperatorRequest {
+    string app_id = 1;
+    int64 uid = 2;
+    int32 action = 3;
+    string msg_trace_id = 4;
+}
+
+message RestraintUserOperatorReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+message GetAppSecretRequest {
+    string app_id = 1;
+    string msg_trace_id = 2;
+}
+message GetAppSecretReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string secret = 2;
+    string msg_cp_url = 3;
+    string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 5;                  // 抄送信息 QPS 限制
+    string media_app_id = 6;        // 媒体应用 ID
+    string gd_app_id = 7;           // 反垃圾应用 ID
+    string text_cp_url = 8;         // 文本消息抄送地址
+    string custom_cp_url = 9;       // 自定义消息抄送地址
+    int64 text_qps = 10;            // 文本消息 QPS 限制
+    int64 custom_qps = 11;          // 自定义消息 QPS 限制
+    string media_app_secret = 12;   // 媒体应用密钥
+}
+
+message AppMsgCpQPS {
+    string app_id = 1;
+    int64 qps = 2;              // 抄送信息 QPS 限制
+    int64 text_qps = 3;         // 文本消息 QPS 限制
+    int64 custom_qps = 4;       // 自定义消息 QPS 限制
+}
+
+message GetAllAppMsgCpQPSRequest {
+    string msg_trace_id = 1;
+}
+message GetAllAppMsgCpQPSReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    repeated AppMsgCpQPS qps = 2;
+}
+
+message UpdateAppCacheInfoRequest {
+    string app_id = 1;
+    string msg_trace_id = 2;
+}
+message UpdateAppCacheInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+message GdAppInfo {
+    uint64 id = 1;
+    string app_id = 2;
+    string app_secret = 3;
+    string name = 4;
+    string desc = 5;
+    uint64 created_at = 6;
+    uint64 updated_at = 7;
+    string msg_cp_url = 8;
+    string types = 9;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 10;                 // 抄送信息 QPS 限制
+    string media_app_id = 11;       // 媒体应用 ID
+    string gd_app_id = 12;          // 反垃圾应用 ID
+    string text_cp_url = 13;        // 文本消息抄送地址
+    string custom_cp_url = 14;      // 自定义消息抄送地址
+    int64 text_qps = 15;            // 文本消息 QPS 限制
+    int64 custom_qps = 16;          // 自定义消息 QPS 限制
+    uint32 match_level = 17;        // 匹配等级
+    bool need_match_base = 18;      // 是否需要匹配基础词库
+    bool mark_star = 19;            // 是否开启标星功能
+    bool mark_star1 = 20;           // 是否开启特定类型的所有敏感词标星
+    string star_types1 = 21;        // 特定类型的所有敏感词标星类型列表
+    bool mark_star2 = 22;           // 是否开启特定类型的特定敏感词标星
+    string star_types2 = 23;        // 特定类型的特定敏感词标星类型列表
+    uint32 app_type = 24;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    string no_strict_types = 25;    // 不需要返回拼音匹配结果的敏感词类型列表
+    string media_app_secret = 26;   // 媒体应用密钥
+    int32 msg_len_max = 27;         // 文本消息长度限制
+    int32 msg_digital_count_max = 28;   // 文本消息里面数字个数限制
+    string bussiness_need_check_yidun_url = 29;  // 业务判断是否需要检测易盾反垃圾url
+    int32 text_count_expire = 30;  // 文本计数时长
+    int32 dupli_text_count = 31;  // 重复计数
+    bool is_black_dupli_user = 32;  // 是否拉黑发重复消息用户
+    bool is_add_word_store = 33;  // 是否将用户重复词添加进词库
+}
+
+message CreateGdAppRequest {
+    string name = 1;
+    string desc = 2;
+    string msg_cp_url = 3;
+    string msg_trace_id = 4;
+    string types = 5;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 6;
+    string media_app_id = 7;        // 媒体应用 ID
+    string gd_app_id = 8;           // 反垃圾应用 ID
+    uint32 match_level = 9;         // 匹配等级
+    bool need_match_base = 10;      // 是否需要匹配基础词库
+    bool mark_star = 11;            // 是否开启标星功能
+    bool mark_star1 = 12;           // 是否开启特定类型的所有敏感词标星
+    string star_types1 = 13;        // 特定类型的所有敏感词标星类型列表
+    bool mark_star2 = 14;           // 是否开启特定类型的特定敏感词标星
+    string star_types2 = 15;        // 特定类型的特定敏感词标星类型列表
+    uint32 app_type = 16;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    string yx_app_key = 17;         // (已废弃)云信反垃圾 AppKey
+    string yx_app_secret = 18;      // (已废弃)云信反垃圾 AppSecret
+    string no_strict_types = 19;    // 不需要返回拼音匹配结果的敏感词类型列表
+    string media_app_secret = 20;   // 媒体应用密钥
+    int32 msg_len_max = 21;         // 文本消息长度限制
+    int32 msg_digital_count_max = 22;   // 文本消息里面数字个数限制
+    string bussiness_need_check_yidun_url = 23;  // 业务判断是否需要检测易盾反垃圾url
+    int32 text_count_expire = 24;  // 文本计数时长
+    int32 dupli_text_count = 25;  // 重复计数
+    bool is_black_dupli_user = 26;  // 是否拉黑发重复消息用户
+    bool is_add_word_store = 27;  // 是否将用户重复词添加进词库
+}
+
+message CreateGdAppReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    GdAppInfo info = 2;
+}
+message UpdateGdAppInfoRequest {
+    uint64 id = 1;
+    bool is_refresh_secret = 2;
+    string name = 3;
+    string desc = 4;
+    string msg_trace_id = 5;
+    string msg_cp_url = 6;
+    string types = 7;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 8;                  // 抄送信息 QPS 限制
+    string media_app_id = 9;        // 媒体应用 ID
+    string gd_app_id = 10;          // 反垃圾应用 ID
+    string text_cp_url = 11;        // 文本消息抄送地址
+    string custom_cp_url = 12;      // 自定义消息抄送地址
+    int64 text_qps = 13;            // 文本消息 QPS 限制
+    int64 custom_qps = 14;          // 自定义消息 QPS 限制
+    uint32 match_level = 15;        // 匹配等级
+    bool need_match_base = 16;      // 是否需要匹配基础词库
+    bool mark_star = 17;            // 是否开启标星功能
+    bool mark_star1 = 18;           // 是否开启特定类型的所有敏感词标星
+    string star_types1 = 19;        // 特定类型的所有敏感词标星类型列表
+    bool mark_star2 = 20;           // 是否开启特定类型的特定敏感词标星
+    string star_types2 = 21;        // 特定类型的特定敏感词标星类型列表
+    uint32 app_type = 22;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    string yx_app_key = 23;         // (已废弃)云信反垃圾 AppKey
+    string yx_app_secret = 24;      // (已废弃)云信反垃圾 AppSecret
+    string no_strict_types = 25;    // 不需要返回拼音匹配结果的敏感词类型列表
+    string media_app_secret = 26;   // 媒体应用密钥
+    int32 msg_len_max = 27;         // 文本消息长度限制
+    int32 msg_digital_count_max = 28;   // 文本消息里面数字个数限制
+    string bussiness_need_check_yidun_url = 29;  // 业务判断是否需要检测易盾反垃圾url
+    int32 text_count_expire = 30;  // 文本计数时长
+    int32 dupli_text_count = 31;  // 重复计数
+    bool is_black_dupli_user = 32;  // 是否拉黑发重复消息用户
+    bool is_add_word_store = 33;  // 是否将用户重复词添加进词库
+}
+message UpdateGdAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    GdAppInfo info = 2;
+}
+message GetGdAppSecretRequest {     // 根据反垃圾 app id 获取反垃圾应用信息(反垃圾服务用)
+    string app_id = 1;              // 反垃圾 app id
+    string msg_trace_id = 2;
+}
+message GetGdAppSecretReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string secret = 2;
+    string msg_cp_url = 3;
+    string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 5;                  // 抄送信息 QPS 限制
+    string media_app_id = 6;        // 媒体应用 ID
+    string gd_app_id = 7;           // 反垃圾应用 ID
+    string text_cp_url = 8;         // 文本消息抄送地址
+    string custom_cp_url = 9;       // 自定义消息抄送地址
+    int64 text_qps = 10;            // 文本消息 QPS 限制
+    int64 custom_qps = 11;          // 自定义消息 QPS 限制
+    uint32 match_level = 12;        // 匹配等级
+    bool need_match_base = 13;      // 是否需要匹配基础词库
+    bool mark_star = 14;            // 是否开启标星功能
+    bool mark_star1 = 15;           // 是否开启特定类型的所有敏感词标星
+    string star_types1 = 16;        // 特定类型的所有敏感词标星类型列表
+    bool mark_star2 = 17;           // 是否开启特定类型的特定敏感词标星
+    string star_types2 = 18;        // 特定类型的特定敏感词标星类型列表
+    uint32 app_type = 19;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    string no_strict_types = 20;    // 不需要返回拼音匹配结果的敏感词类型列表
+    string media_app_secret = 21;   // 媒体应用密钥
+    int32 msg_len_max = 22;         // 文本消息长度限制
+    int32 msg_digital_count_max = 23;   // 文本消息里面数字个数限制
+    string bussiness_need_check_yidun_url = 24;  // 业务判断是否需要检测易盾反垃圾url
+    int32 text_count_expire = 25;  // 文本计数时长
+    int32 dupli_text_count = 26;  // 重复计数
+    bool is_black_dupli_user = 27;  // 是否拉黑发重复消息用户
+    bool is_add_word_store = 28;  // 是否将用户重复词添加进词库
+}
+message GetGdAppSecretOfAppRequest {    // 根据聊天室appID获取反垃圾密码(mars用)
+    string app_id = 1;              // 聊天室 app id
+    string msg_trace_id = 2;
+}
+message GetGdAppSecretOfAppReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    string secret = 2;
+    string msg_cp_url = 3;
+    string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 5;                  // 抄送信息 QPS 限制
+    string media_app_id = 6;        // 媒体应用 ID
+    string gd_app_id = 7;           // 反垃圾应用 ID
+    string text_cp_url = 8;         // 文本消息抄送地址
+    string custom_cp_url = 9;       // 自定义消息抄送地址
+    int64 text_qps = 10;            // 文本消息 QPS 限制
+    int64 custom_qps = 11;          // 自定义消息 QPS 限制
+    string gd_app_secret = 12;      // 反垃圾app密码
+    string media_app_secret = 13;   // 媒体应用密钥
+}
+message QueryGdAppInfoRequest {
+    uint64 id = 1;
+    string msg_trace_id = 2;
+}
+
+message QueryGdAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    GdAppInfo info = 2;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+message PcAppInfo {
+    uint64 id = 1;
+    string app_id = 2;
+    string app_secret = 3;
+    string name = 4;
+    string desc = 5;
+    string gd_app_id = 6;       // 反垃圾应用 ID
+    string created_at = 7;
+    string updated_at = 8;
+    string business_url = 9;    // 业务反垃圾 URL
+    bool err_pass = 10;         // 业务出错时是否放行
+}
+
+message CreatePcAppRequest {
+    string name = 1;
+    string desc = 2;
+    string gd_app_id = 3;       // 反垃圾应用 ID
+    string yx_app_key = 4;      // 云信反垃圾 AppKey
+    string yx_app_secret = 5;   // 云信反垃圾 AppSecret
+    string msg_trace_id = 6;
+    string business_url = 7;    // 业务反垃圾 URL
+    bool err_pass = 8;          // 业务出错时是否放行
+}
+
+message CreatePcAppReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    PcAppInfo info = 2;
+}
+
+message UpdatePcAppInfoRequest {
+    uint64 id = 1;
+    bool is_refresh_secret = 2;
+    string name = 3;
+    string desc = 4;
+    string msg_trace_id = 5;
+    string business_url = 6;    // 业务反垃圾 URL
+    bool err_pass = 7;          // 业务出错时是否放行
+}
+
+message UpdatePcAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    PcAppInfo info = 2;
+}
+
+message BindPcFilterAppRequest {
+    uint64 id = 1;
+    string gd_app_id = 2;
+    string msg_trace_id = 3;
+}
+
+message BindPcFilterAppReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    PcAppInfo info = 2;
+}
+
+message QueryPcAppInfoRequest {
+    uint64 id = 1;
+    string msg_trace_id = 2;
+}
+
+message QueryPcAppInfoByAppIDRequest {
+    string app_id = 1;
+    string msg_trace_id = 2;
+}
+
+message QueryPcAppInfoReply {
+    roomkit.service.UnifiedResponse ret = 1;
+    PcAppInfo info = 2;
+}
+
+service Core {
+    rpc CreateApp (CreateAppRequest) returns (CreateAppReply) {
+    }
+    rpc QueryAppInfo (QueryAppInfoRequest) returns (QueryAppInfoReply) {
+    }
+    rpc IsAppValid (IsAppValidRequest) returns (IsAppValidReply) {
+    }
+    rpc ApplyClientLoginToken (ApplyClientLoginTokenRequest) returns (ApplyClientLoginTokenReply) {
+    }
+    rpc GetClientLoginTokenInfo (GetClientLoginTokenInfoRequest) returns (GetClientLoginTokenInfoReply) {
+    }
+    rpc DeleteClientLoginToken (DeleteClientLoginTokenReq) returns (DeleteClientLoginTokenResp) {
+    }
+    rpc UpdateAppInfo (UpdateAppInfoRequest) returns (UpdateAppInfoReply) {
+    }
+    rpc RestraintUserOperator (RestraintUserOperatorRequest) returns (RestraintUserOperatorReply) {
+    }
+    rpc GetAppSecret (GetAppSecretRequest) returns (GetAppSecretReply) {
+    }
+    rpc GetAllAppMsgCpQPS (GetAllAppMsgCpQPSRequest) returns (GetAllAppMsgCpQPSReply) {
+    }
+    rpc UpdateAppCacheInfo(UpdateAppCacheInfoRequest) returns (UpdateAppCacheInfoReply) {
+    }
+    rpc CreateGdApp (CreateGdAppRequest) returns (CreateGdAppReply) {
+    }
+    rpc UpdateGdAppInfo (UpdateGdAppInfoRequest) returns (UpdateGdAppInfoReply) {
+    }
+    rpc GetGdAppSecret (GetGdAppSecretRequest) returns (GetGdAppSecretReply) {
+    }
+    rpc QueryGdAppInfo (QueryGdAppInfoRequest) returns (QueryGdAppInfoReply) {
+    }
+    rpc GetGdAppOfAppSecret (GetGdAppSecretOfAppRequest) returns (GetGdAppSecretOfAppReply) {
+    }
+    rpc CreatePcApp (CreatePcAppRequest) returns (CreatePcAppReply) {
+    }
+    rpc UpdatePcAppInfo (UpdatePcAppInfoRequest) returns (UpdatePcAppInfoReply) {
+    }
+    rpc BindPcFilterApp (BindPcFilterAppRequest) returns (BindPcFilterAppReply) {
+    }
+    rpc QueryPcAppInfo (QueryPcAppInfoRequest) returns (QueryPcAppInfoReply) {
+    }
+    rpc QueryPcAppInfoByAppID (QueryPcAppInfoByAppIDRequest) returns (QueryPcAppInfoReply) {
+    }
+}

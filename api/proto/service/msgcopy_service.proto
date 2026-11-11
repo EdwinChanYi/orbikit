@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package roomkit.service;
+
+option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+
+import "service_comm.proto";
+
+message AppInfoUpdatedRequest {
+    string app_id = 1;
+    string app_secret = 2;
+    string msg_cp_url = 3;
+    string types = 4;           // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
+    int64 qps = 5;              // 抄送信息 QPS 限制
+	string msg_trace_id = 6;
+    string text_cp_url = 7;     // 文本消息抄送地址
+    string custom_cp_url = 8;   // 自定义消息抄送地址
+    int64 text_qps = 9;         // 文本消息 QPS 限制
+    int64 custom_qps = 10;      // 自定义消息 QPS 限制
+}
+
+message AppInfoUpdatedReply {
+    roomkit.service.UnifiedResponse ret = 1;
+}
+
+service MsgCopy {
+    rpc AppInfoUpdated (AppInfoUpdatedRequest) returns (AppInfoUpdatedReply) {
+    }
+}
