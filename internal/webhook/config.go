@@ -4,9 +4,9 @@ package webhook
 import (
 	"time"
 
-	"github.com/yourname/roomkit/internal/webhook/delivery"
-	"github.com/yourname/roomkit/pkg/kafkax"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/internal/webhook/delivery"
+	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Config is the webhook service configuration.
@@ -68,7 +68,7 @@ func DefaultConfig() Config {
 			Config:  kafkax.Config{Brokers: []string{"localhost:9092"}},
 			GroupID: "webhook",
 		},
-		Topics: TopicsConfig{Broadcast: "roomkit.room.broadcast"},
+		Topics: TopicsConfig{Broadcast: "orbikit.room.broadcast"},
 		Core:   CoreConfig{Target: "dns:///localhost:9001", Timeout: 3 * time.Second},
 		Cache:  CacheConfig{Expire: 60 * time.Second, NotFoundExpire: time.Minute},
 		Delivery: DeliveryConfig{

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client;
+package orbikit.client;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 // 错误码 由 3 部分组成 0 000 00000
 // 0     第一部分表示错误报出 [来源] 1 平台级系统故障 2 平台级业务流程异常 3 表示业务故障

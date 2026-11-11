@@ -25,7 +25,7 @@ kafka:
 
 topics:
   # 聊天室广播 topic，消息体为 servicepb.ChatroomBcst
-  broadcast: "roomkit.room.broadcast"
+  broadcast: "orbikit.room.broadcast"
 
 core:
   # core 服务 gRPC 地址，用于按 appId 拉取抄送配置（Core.GetAppSecret）

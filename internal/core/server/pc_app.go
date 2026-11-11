@@ -6,8 +6,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
 )
 
 // CreatePcApp 创建私聊应用
@@ -16,7 +16,7 @@ func (s *Server) CreatePcApp(ctx context.Context, req *servicepb.CreatePcAppRequ
 	tr := startRPC("CreatePcApp", req.GetMsgTraceId(), zapcore.InfoLevel,
 		zap.String("name", req.GetName()),
 		zap.String("gd_app_id", req.GetGdAppId()),
-		zap.String("app_key", req.GetYxAppKey()),
+		zap.String("app_key", req.GetThirdPartyAppKey()),
 		zap.String("business_url", req.GetBusinessUrl()),
 		zap.Bool("err_pass", req.GetErrPass()))
 	defer func() { tr.finish(reply, err) }()
@@ -26,8 +26,8 @@ func (s *Server) CreatePcApp(ctx context.Context, req *servicepb.CreatePcAppRequ
 		Name:        req.GetName(),
 		Desc:        req.GetDesc(),
 		GdAppID:     req.GetGdAppId(),
-		AppKey:      req.GetYxAppKey(),
-		AppSecret:   req.GetYxAppSecret(),
+		AppKey:      req.GetThirdPartyAppKey(),
+		AppSecret:   req.GetThirdPartyAppSecret(),
 		BusinessURL: req.GetBusinessUrl(),
 		ErrPass:     req.GetErrPass(),
 	})

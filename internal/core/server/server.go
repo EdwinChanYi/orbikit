@@ -10,10 +10,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/logic"
-	"github.com/yourname/roomkit/internal/core/store"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/logic"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Notifier propagates app changes to other instances.

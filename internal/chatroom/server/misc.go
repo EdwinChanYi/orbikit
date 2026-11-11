@@ -7,9 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/lock"
-	"github.com/yourname/roomkit/internal/chatroom/logic"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/lock"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/logic"
 )
 
 // UpdateAppCustomInfoKeyFilter only validates the app; per-app filters are

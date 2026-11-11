@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourname/roomkit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/config"
 )
 
 func TestExampleConfigLoads(t *testing.T) {
@@ -12,7 +12,7 @@ func TestExampleConfigLoads(t *testing.T) {
 	if err := config.Load("../../configs/webhook.yaml", &cfg); err != nil {
 		t.Fatal(err)
 	}
-	if cfg.GRPCAddr != ":9004" || cfg.Topics.Broadcast != "roomkit.room.broadcast" || cfg.Kafka.GroupID != "webhook" {
+	if cfg.GRPCAddr != ":9004" || cfg.Topics.Broadcast != "orbikit.room.broadcast" || cfg.Kafka.GroupID != "webhook" {
 		t.Fatalf("unexpected config %+v", cfg)
 	}
 	if len(cfg.Kafka.Brokers) != 1 || cfg.Kafka.Brokers[0] != "localhost:9092" {

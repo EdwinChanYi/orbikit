@@ -9,9 +9,9 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/pkg/kafkax"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 const maxLoggedBody = 256

@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 var allTypes = &AppConfig{Types: []int32{255}}

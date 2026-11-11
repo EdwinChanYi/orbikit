@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/gateway/convert"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/convert"
 )
 
 func boolAction(set bool) int32 {

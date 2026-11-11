@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/yourname/roomkit/internal/chatroom/event"
-	"github.com/yourname/roomkit/pkg/kafkax"
-	"github.com/yourname/roomkit/pkg/log"
-	"github.com/yourname/roomkit/pkg/mysqlx"
-	"github.com/yourname/roomkit/pkg/redisx"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/event"
+	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 // Config is the chatroom service configuration file.
@@ -45,10 +45,10 @@ func DefaultConfig() Config {
 		Log:             log.Config{Level: "info", Console: true},
 		Redis:           redisx.Config{Addrs: []string{"localhost:6379"}, PoolSize: 64},
 		Topics: event.Topics{
-			Broadcast:  "roomkit.room.broadcast",
-			FullServer: "roomkit.room.fullserver",
-			Kicked:     "roomkit.room.kicked",
-			Event:      "roomkit.room.event",
+			Broadcast:  "orbikit.room.broadcast",
+			FullServer: "orbikit.room.fullserver",
+			Kicked:     "orbikit.room.kicked",
+			Event:      "orbikit.room.event",
 		},
 		EnterTokenTTL:     300 * time.Second,
 		OfflineLeaveAfter: 60 * time.Second,

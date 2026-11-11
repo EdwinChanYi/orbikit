@@ -11,10 +11,10 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/lock"
-	"github.com/yourname/roomkit/internal/chatroom/model"
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/lock"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/model"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
 )
 
 const (

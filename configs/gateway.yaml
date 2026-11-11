@@ -86,13 +86,13 @@ kafka:
 # 消费的 topic，需与 chatroom 的生产配置一致
 topics:
   # 房间广播（servicepb.ChatroomBcst），按 included_uid 推送给本机在线成员
-  broadcast: roomkit.room.broadcast
+  broadcast: orbikit.room.broadcast
   # 应用内全服广播（servicepb.ChatroomBcst），推送给本机该应用的全部在线用户
-  fullserver: roomkit.room.fullserver
+  fullserver: orbikit.room.fullserver
   # 被踢出房间通知（servicepb.ChatRoomMemberBeKickedBcst）
-  kicked: roomkit.room.kicked
+  kicked: orbikit.room.kicked
   # 杂项事件（servicepb.ChatRoomMiscEventMsg）：封禁断线、请求上传日志
-  event: roomkit.room.event
+  event: orbikit.room.event
 
 # 发送文本消息前的内容审核
 moderation:

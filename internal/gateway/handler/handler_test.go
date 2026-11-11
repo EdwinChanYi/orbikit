@@ -12,10 +12,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/gateway/moderation"
-	"github.com/yourname/roomkit/internal/gateway/store"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/moderation"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/store"
 )
 
 type fakeIDs struct{ n atomic.Uint64 }

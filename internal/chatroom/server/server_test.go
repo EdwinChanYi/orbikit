@@ -7,9 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/logic"
-	"github.com/yourname/roomkit/internal/chatroom/reqctx"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/logic"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/reqctx"
 )
 
 var _ servicepb.ChatroomServer = (*Server)(nil)

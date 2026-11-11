@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	ChatroomMessage_QueryChatroomMessageHistory_FullMethodName   = "/roomkit.service.ChatroomMessage/QueryChatroomMessageHistory"
-	ChatroomMessage_QueryChatroomMessageHistoryV2_FullMethodName = "/roomkit.service.ChatroomMessage/QueryChatroomMessageHistoryV2"
+	ChatroomMessage_QueryChatroomMessageHistory_FullMethodName   = "/orbikit.service.ChatroomMessage/QueryChatroomMessageHistory"
+	ChatroomMessage_QueryChatroomMessageHistoryV2_FullMethodName = "/orbikit.service.ChatroomMessage/QueryChatroomMessageHistoryV2"
 )
 
 // ChatroomMessageClient is the client API for ChatroomMessage service.
@@ -131,7 +131,7 @@ func _ChatroomMessage_QueryChatroomMessageHistoryV2_Handler(srv interface{}, ctx
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ChatroomMessage_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "roomkit.service.ChatroomMessage",
+	ServiceName: "orbikit.service.ChatroomMessage",
 	HandlerType: (*ChatroomMessageServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

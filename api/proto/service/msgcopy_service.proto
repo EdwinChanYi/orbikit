@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.service;
+package orbikit.service;
 
-option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/servicepb;servicepb";
 
 import "service_comm.proto";
 
@@ -20,7 +20,7 @@ message AppInfoUpdatedRequest {
 }
 
 message AppInfoUpdatedReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 service MsgCopy {

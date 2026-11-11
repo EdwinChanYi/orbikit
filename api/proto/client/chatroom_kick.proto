@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.chatroom_kick;
+package orbikit.client.chatroom_kick;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import public "base_service.proto";
 
@@ -16,7 +16,7 @@ message ChatroomMemberKickReq {
 }
 
 message ChatRoomMemberKickResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 踢人原因

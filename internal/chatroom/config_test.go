@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourname/roomkit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/config"
 )
 
 func TestSampleConfig(t *testing.T) {
@@ -27,10 +27,10 @@ func TestSampleConfig(t *testing.T) {
 		t.Fatalf("durations = %v %v", cfg.EnterTokenTTL, cfg.OfflineLeaveAfter)
 	}
 	want := map[string]string{
-		"broadcast":  "roomkit.room.broadcast",
-		"fullserver": "roomkit.room.fullserver",
-		"kicked":     "roomkit.room.kicked",
-		"event":      "roomkit.room.event",
+		"broadcast":  "orbikit.room.broadcast",
+		"fullserver": "orbikit.room.fullserver",
+		"kicked":     "orbikit.room.kicked",
+		"event":      "orbikit.room.event",
 	}
 	got := map[string]string{
 		"broadcast":  cfg.Topics.Broadcast,

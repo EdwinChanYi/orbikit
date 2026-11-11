@@ -10,10 +10,10 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/internal/gateway/protocol"
-	"github.com/yourname/roomkit/internal/gateway/session"
-	"github.com/yourname/roomkit/internal/gateway/transport"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/session"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/transport"
 )
 
 // echoHandler authenticates on AUTH, echoes ECHO bodies and fails on

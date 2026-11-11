@@ -16,14 +16,14 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/webhook"
-	"github.com/yourname/roomkit/internal/webhook/delivery"
-	"github.com/yourname/roomkit/internal/webhook/server"
-	"github.com/yourname/roomkit/pkg/config"
-	"github.com/yourname/roomkit/pkg/grpcx"
-	"github.com/yourname/roomkit/pkg/kafkax"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/webhook"
+	"github.com/EdwinChanYi/orbikit/internal/webhook/delivery"
+	"github.com/EdwinChanYi/orbikit/internal/webhook/server"
+	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
+	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 func main() {

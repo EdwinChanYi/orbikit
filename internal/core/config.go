@@ -4,10 +4,10 @@ package core
 import (
 	"time"
 
-	"github.com/yourname/roomkit/internal/core/notify"
-	"github.com/yourname/roomkit/pkg/log"
-	"github.com/yourname/roomkit/pkg/mysqlx"
-	"github.com/yourname/roomkit/pkg/redisx"
+	"github.com/EdwinChanYi/orbikit/internal/core/notify"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 // Config is the core service configuration.

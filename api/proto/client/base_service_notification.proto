@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.notification;
+package orbikit.client.notification;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import "chatroom_notification.proto";
 
@@ -19,6 +19,6 @@ enum NotificationType {
 message NotificationContent {
     NotificationType type = 1; //通知类型
     oneof content {
-        roomkit.client.chatroom_notification.ChatroomNotificationContent chatroom_notification_content = 2;
+        orbikit.client.chatroom_notification.ChatroomNotificationContent chatroom_notification_content = 2;
     }
 }

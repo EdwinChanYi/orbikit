@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/yourname/roomkit/internal/core/randstr"
+	"github.com/EdwinChanYi/orbikit/internal/core/randstr"
 )
 
 const tableOptions = "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
@@ -183,7 +183,7 @@ type GdAppParams struct {
 	NoStrictTypes              string
 	StarTypes1                 string
 	StarTypes2                 string
-	BussinessNeedCheckYidunUrl string
+	BusinessModerationCheckUrl string
 	MatchLevel                 uint32
 	MsgLenMax                  int32
 	MsgDigitalCountMax         int32
@@ -216,7 +216,7 @@ func (s *Store) CreateGdApp(ctx context.Context, p GdAppParams) (*GdAppInfo, err
 		StarTypes2:                 p.StarTypes2,
 		MsgLenMax:                  p.MsgLenMax,
 		MsgDigitalCountMax:         p.MsgDigitalCountMax,
-		BussinessNeedCheckYidunUrl: p.BussinessNeedCheckYidunUrl,
+		BusinessModerationCheckUrl: p.BusinessModerationCheckUrl,
 		DupliTextCount:             p.DupliTextCount,
 		TextCountExpire:            p.TextCountExpire,
 		IsBlackDupliUser:           p.IsBlackDupliUser,
@@ -243,7 +243,7 @@ func gdAppUpdateColumns(p GdAppParams) map[string]any {
 		"star_types2":                    p.StarTypes2,
 		"msg_len_max":                    p.MsgLenMax,
 		"msg_digital_count_max":          p.MsgDigitalCountMax,
-		"bussiness_need_check_yidun_url": p.BussinessNeedCheckYidunUrl,
+		"business_moderation_check_url": p.BusinessModerationCheckUrl,
 		"dupli_text_count":               p.DupliTextCount,
 		"text_count_expire":              p.TextCountExpire,
 		"is_black_dupli_user":            p.IsBlackDupliUser,

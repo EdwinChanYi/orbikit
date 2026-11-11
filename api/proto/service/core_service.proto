@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.service;
+package orbikit.service;
 
-option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/servicepb;servicepb";
 
 import "service_comm.proto";
 
@@ -39,7 +39,7 @@ message CreateAppRequest {
 }
 
 message CreateAppReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     AppInfo info = 2;
 }
 
@@ -49,7 +49,7 @@ message QueryAppInfoRequest {
 }
 
 message QueryAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     AppInfo info = 2;
 }
 
@@ -60,7 +60,7 @@ message ApplyClientLoginTokenRequest {
 }
 
 message ApplyClientLoginTokenReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string login_token = 2;
 }
 
@@ -70,7 +70,7 @@ message GetClientLoginTokenInfoRequest {
 }
 
 message GetClientLoginTokenInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string app_id = 2;
     int64 uid = 3;
 }
@@ -83,7 +83,7 @@ message DeleteClientLoginTokenReq {
 }
 
 message DeleteClientLoginTokenResp {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message IsAppValidRequest {
@@ -92,7 +92,7 @@ message IsAppValidRequest {
 }
 
 message IsAppValidReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     bool is_valid = 2;
 }
 
@@ -114,7 +114,7 @@ message UpdateAppInfoRequest {
     string media_app_secret = 15;   // 媒体应用密钥
 }
 message UpdateAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     AppInfo info = 2;
 }
 
@@ -126,7 +126,7 @@ message RestraintUserOperatorRequest {
 }
 
 message RestraintUserOperatorReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message GetAppSecretRequest {
@@ -134,7 +134,7 @@ message GetAppSecretRequest {
     string msg_trace_id = 2;
 }
 message GetAppSecretReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string secret = 2;
     string msg_cp_url = 3;
     string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
@@ -159,7 +159,7 @@ message GetAllAppMsgCpQPSRequest {
     string msg_trace_id = 1;
 }
 message GetAllAppMsgCpQPSReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated AppMsgCpQPS qps = 2;
 }
 
@@ -168,7 +168,7 @@ message UpdateAppCacheInfoRequest {
     string msg_trace_id = 2;
 }
 message UpdateAppCacheInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,12 +197,12 @@ message GdAppInfo {
     string star_types1 = 21;        // 特定类型的所有敏感词标星类型列表
     bool mark_star2 = 22;           // 是否开启特定类型的特定敏感词标星
     string star_types2 = 23;        // 特定类型的特定敏感词标星类型列表
-    uint32 app_type = 24;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    uint32 app_type = 24;           // (已废弃)反垃圾应用类型
     string no_strict_types = 25;    // 不需要返回拼音匹配结果的敏感词类型列表
     string media_app_secret = 26;   // 媒体应用密钥
     int32 msg_len_max = 27;         // 文本消息长度限制
     int32 msg_digital_count_max = 28;   // 文本消息里面数字个数限制
-    string bussiness_need_check_yidun_url = 29;  // 业务判断是否需要检测易盾反垃圾url
+    string business_moderation_check_url = 29;  // 业务方判断是否需要内容审核的回调 url
     int32 text_count_expire = 30;  // 文本计数时长
     int32 dupli_text_count = 31;  // 重复计数
     bool is_black_dupli_user = 32;  // 是否拉黑发重复消息用户
@@ -225,14 +225,14 @@ message CreateGdAppRequest {
     string star_types1 = 13;        // 特定类型的所有敏感词标星类型列表
     bool mark_star2 = 14;           // 是否开启特定类型的特定敏感词标星
     string star_types2 = 15;        // 特定类型的特定敏感词标星类型列表
-    uint32 app_type = 16;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
-    string yx_app_key = 17;         // (已废弃)云信反垃圾 AppKey
-    string yx_app_secret = 18;      // (已废弃)云信反垃圾 AppSecret
+    uint32 app_type = 16;           // (已废弃)反垃圾应用类型
+    string third_party_app_key = 17;         // (已废弃)第三方反垃圾 AppKey
+    string third_party_app_secret = 18;      // (已废弃)第三方反垃圾 AppSecret
     string no_strict_types = 19;    // 不需要返回拼音匹配结果的敏感词类型列表
     string media_app_secret = 20;   // 媒体应用密钥
     int32 msg_len_max = 21;         // 文本消息长度限制
     int32 msg_digital_count_max = 22;   // 文本消息里面数字个数限制
-    string bussiness_need_check_yidun_url = 23;  // 业务判断是否需要检测易盾反垃圾url
+    string business_moderation_check_url = 23;  // 业务方判断是否需要内容审核的回调 url
     int32 text_count_expire = 24;  // 文本计数时长
     int32 dupli_text_count = 25;  // 重复计数
     bool is_black_dupli_user = 26;  // 是否拉黑发重复消息用户
@@ -240,7 +240,7 @@ message CreateGdAppRequest {
 }
 
 message CreateGdAppReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     GdAppInfo info = 2;
 }
 message UpdateGdAppInfoRequest {
@@ -265,21 +265,21 @@ message UpdateGdAppInfoRequest {
     string star_types1 = 19;        // 特定类型的所有敏感词标星类型列表
     bool mark_star2 = 20;           // 是否开启特定类型的特定敏感词标星
     string star_types2 = 21;        // 特定类型的特定敏感词标星类型列表
-    uint32 app_type = 22;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
-    string yx_app_key = 23;         // (已废弃)云信反垃圾 AppKey
-    string yx_app_secret = 24;      // (已废弃)云信反垃圾 AppSecret
+    uint32 app_type = 22;           // (已废弃)反垃圾应用类型
+    string third_party_app_key = 23;         // (已废弃)第三方反垃圾 AppKey
+    string third_party_app_secret = 24;      // (已废弃)第三方反垃圾 AppSecret
     string no_strict_types = 25;    // 不需要返回拼音匹配结果的敏感词类型列表
     string media_app_secret = 26;   // 媒体应用密钥
     int32 msg_len_max = 27;         // 文本消息长度限制
     int32 msg_digital_count_max = 28;   // 文本消息里面数字个数限制
-    string bussiness_need_check_yidun_url = 29;  // 业务判断是否需要检测易盾反垃圾url
+    string business_moderation_check_url = 29;  // 业务方判断是否需要内容审核的回调 url
     int32 text_count_expire = 30;  // 文本计数时长
     int32 dupli_text_count = 31;  // 重复计数
     bool is_black_dupli_user = 32;  // 是否拉黑发重复消息用户
     bool is_add_word_store = 33;  // 是否将用户重复词添加进词库
 }
 message UpdateGdAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     GdAppInfo info = 2;
 }
 message GetGdAppSecretRequest {     // 根据反垃圾 app id 获取反垃圾应用信息(反垃圾服务用)
@@ -287,7 +287,7 @@ message GetGdAppSecretRequest {     // 根据反垃圾 app id 获取反垃圾应
     string msg_trace_id = 2;
 }
 message GetGdAppSecretReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string secret = 2;
     string msg_cp_url = 3;
     string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
@@ -305,12 +305,12 @@ message GetGdAppSecretReply {
     string star_types1 = 16;        // 特定类型的所有敏感词标星类型列表
     bool mark_star2 = 17;           // 是否开启特定类型的特定敏感词标星
     string star_types2 = 18;        // 特定类型的特定敏感词标星类型列表
-    uint32 app_type = 19;           // (已废弃)反垃圾应用类型：0 - 无界自研反垃圾，1 - 云信反垃圾
+    uint32 app_type = 19;           // (已废弃)反垃圾应用类型
     string no_strict_types = 20;    // 不需要返回拼音匹配结果的敏感词类型列表
     string media_app_secret = 21;   // 媒体应用密钥
     int32 msg_len_max = 22;         // 文本消息长度限制
     int32 msg_digital_count_max = 23;   // 文本消息里面数字个数限制
-    string bussiness_need_check_yidun_url = 24;  // 业务判断是否需要检测易盾反垃圾url
+    string business_moderation_check_url = 24;  // 业务方判断是否需要内容审核的回调 url
     int32 text_count_expire = 25;  // 文本计数时长
     int32 dupli_text_count = 26;  // 重复计数
     bool is_black_dupli_user = 27;  // 是否拉黑发重复消息用户
@@ -321,7 +321,7 @@ message GetGdAppSecretOfAppRequest {    // 根据聊天室appID获取反垃圾�
     string msg_trace_id = 2;
 }
 message GetGdAppSecretOfAppReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string secret = 2;
     string msg_cp_url = 3;
     string types = 4;               // 抄送信息类型（ChatroomMsgType）开关，用逗号分隔
@@ -341,7 +341,7 @@ message QueryGdAppInfoRequest {
 }
 
 message QueryGdAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     GdAppInfo info = 2;
 }
 
@@ -364,15 +364,15 @@ message CreatePcAppRequest {
     string name = 1;
     string desc = 2;
     string gd_app_id = 3;       // 反垃圾应用 ID
-    string yx_app_key = 4;      // 云信反垃圾 AppKey
-    string yx_app_secret = 5;   // 云信反垃圾 AppSecret
+    string third_party_app_key = 4;      // 第三方应用 AppKey
+    string third_party_app_secret = 5;   // 第三方应用 AppSecret
     string msg_trace_id = 6;
     string business_url = 7;    // 业务反垃圾 URL
     bool err_pass = 8;          // 业务出错时是否放行
 }
 
 message CreatePcAppReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     PcAppInfo info = 2;
 }
 
@@ -387,7 +387,7 @@ message UpdatePcAppInfoRequest {
 }
 
 message UpdatePcAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     PcAppInfo info = 2;
 }
 
@@ -398,7 +398,7 @@ message BindPcFilterAppRequest {
 }
 
 message BindPcFilterAppReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     PcAppInfo info = 2;
 }
 
@@ -413,7 +413,7 @@ message QueryPcAppInfoByAppIDRequest {
 }
 
 message QueryPcAppInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     PcAppInfo info = 2;
 }
 

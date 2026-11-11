@@ -6,8 +6,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 const userLockWait = 10 * time.Second

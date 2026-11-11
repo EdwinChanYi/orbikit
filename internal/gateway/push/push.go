@@ -11,11 +11,11 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/gateway/convert"
-	"github.com/yourname/roomkit/internal/gateway/session"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/convert"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/session"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Topics names the consumed Kafka topics.

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.service;
+package orbikit.service;
 
-option go_package = "github.com/yourname/roomkit/api/gen/servicepb;servicepb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/servicepb;servicepb";
 
 import "service_comm.proto";
 
@@ -27,7 +27,7 @@ message UpdateAppCustomInfoKeyFilterRequest {
 }
 
 message UpdateAppCustomInfoKeyFilterReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 创建房间
@@ -40,7 +40,7 @@ message CreateChatroomRequest {
 }
 
 message CreateChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 封/解封 房间
@@ -52,7 +52,7 @@ message BlockChatroomRequest {
 }
 
 message BlockChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message RolePermission {
@@ -73,7 +73,7 @@ message CreateRoleRequest {
 }
 
 message CreateRoleReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 message QueryRoleRequest {
     string app_id = 1;
@@ -87,7 +87,7 @@ message role {
     bool keep_on_closed = 4;
 }
 message QueryRoleReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated role roles = 2;
 }
 message ModifyRoleRequest {
@@ -98,7 +98,7 @@ message ModifyRoleRequest {
     bool keep_on_closed = 5;
 }
 message ModifyRoleReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message RemoveUserRoleRequest {
@@ -109,7 +109,7 @@ message RemoveUserRoleRequest {
     string msg_trace_id = 5;
 }
 message RemoveUserRoleReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 设置用户角色
@@ -122,7 +122,7 @@ message SetRoleRequest {
 }
 
 message SetRoleReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 开启房间
@@ -134,7 +134,7 @@ message OpenChatroomRequest {
 }
 
 message OpenChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 关闭房间
@@ -145,7 +145,7 @@ message CloseChatroomRequest {
 }
 
 message CloseChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message ApplyEnterChatroomTokenRequest {
@@ -157,7 +157,7 @@ message ApplyEnterChatroomTokenRequest {
 }
 
 message ApplyEnterChatroomTokenReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string token = 2;
 }
 
@@ -204,7 +204,7 @@ message ChatroomMemberInfo {
 }
 
 message EnterChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     ChatroomInfo room_info = 2;
     ChatroomMemberInfo yourself_info = 3;
 }
@@ -218,7 +218,7 @@ message LeaveChatroomRequest {
 }
 
 message LeaveChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 锁/解锁 mic位
@@ -232,7 +232,7 @@ message BlockMicRequest {
 }
 
 message BlockMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated MicInfo mic_info = 2;
 }
 
@@ -247,7 +247,7 @@ message MuteMicRequest {
 }
 
 message MuteMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated MicInfo mic_info = 2;
 }
 
@@ -268,7 +268,7 @@ message MicInfo {
 }
 
 message QueryMicInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated MicInfo mic_info = 2;
 }
 
@@ -282,7 +282,7 @@ message UpdateMicTokenRequest {
 }
 
 message UpdateMicTokenReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message SpaceInfos {
@@ -302,7 +302,7 @@ message UpdateMicSpaceRequest {
 }
 
 message UpdateMicSpaceReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 message SpaceInfosExt {
     int32 index = 1;
@@ -315,7 +315,7 @@ message UpdateMicSpaceExtRequest {
     string msg_trace_id = 4;
 }
 message UpdateMicSpaceExtReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 message InviteMicRequest {
     string app_id = 1;
@@ -327,7 +327,7 @@ message InviteMicRequest {
 }
 
 message InviteMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message KickMicRequest {
@@ -341,7 +341,7 @@ message KickMicRequest {
 }
 
 message KickMicMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message UpMicRequest {
@@ -353,7 +353,7 @@ message UpMicRequest {
 }
 
 message UpMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message DownMicRequest {
@@ -365,7 +365,7 @@ message DownMicRequest {
 }
 
 message DownMicReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message SubscribeChatroomBroadcastRequest {
@@ -446,7 +446,7 @@ message ChatroomMsgRequest {
 }
 
 message ChatroomMsgReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string msg_id = 2;
 }
 message FullServiceBroadcastMsgRequest {
@@ -465,7 +465,7 @@ message FullServiceBroadcastMsgRequest {
 
 }
 message FullServiceBroadcastMsgReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string msg_id = 2;
 }
 message ChatroomBcst {
@@ -551,7 +551,7 @@ message BatchLeaveChatroomRequest {
 }
 
 message BatchLeaveChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message MuteChatroomRequest {
@@ -564,7 +564,7 @@ message MuteChatroomRequest {
 }
 
 message MuteChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -580,7 +580,7 @@ message BlockChatroomMemberRequest {
 }
 
 message BlockChatroomMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message KickChatroomMemberRequest {
@@ -596,7 +596,7 @@ message KickChatroomMemberRequest {
 }
 
 message KickChatroomMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message MuteChatroomMemberRequest {
@@ -611,7 +611,7 @@ message MuteChatroomMemberRequest {
 }
 
 message MuteChatroomMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -655,7 +655,7 @@ message FetchHumanChatroomMemberRequest {
 }
 
 message FetchHumanChatroomMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated HumanInfo members = 2;
 }
 
@@ -709,7 +709,7 @@ message MemberOpTime {
 }
 
 message FetchChatroomMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated ChatroomMemberInfo members = 2;
     map<int64, MemberOpTime> muted_time = 3;
     map<int64, MemberOpTime> kicked_time = 4;
@@ -723,7 +723,7 @@ message EditChatroomInfoRequest {
 }
 
 message EditChatroomInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message EditChatroomInfoByMemberRequest {
@@ -736,7 +736,7 @@ message EditChatroomInfoByMemberRequest {
 }
 
 message EditChatroomInfoByMemberReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message FetchOpExtRequest {
@@ -747,7 +747,7 @@ message FetchOpExtRequest {
 }
 
 message FetchOpExtReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     map<string, string> ext = 2;
 }
 
@@ -758,7 +758,7 @@ message GetChatroomInfoRequest {
 }
 
 message GetChatroomInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     ChatroomInfo room_info = 2;
 }
 
@@ -770,7 +770,7 @@ message UserOnlineRequest {
 }
 
 message UserOnlineReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message UserOfflineRequest {
@@ -781,7 +781,7 @@ message UserOfflineRequest {
 }
 
 message UserOfflineReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message AddRobotUserInfoRequest {
@@ -791,7 +791,7 @@ message AddRobotUserInfoRequest {
 }
 
 message AddRobotUserInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message RemoveRobotUserInfoRequest {
@@ -801,7 +801,7 @@ message RemoveRobotUserInfoRequest {
 }
 
 message RemoveRobotUserInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message AddRobotToChatroomRequest {
@@ -814,7 +814,7 @@ message AddRobotToChatroomRequest {
 }
 
 message AddRobotToChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message RoomRobotInfo {
@@ -831,7 +831,7 @@ message BatchAddRobotToChatroomRequest {
 }
 
 message BatchAddRobotToChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message RemoveRobotFromChatroomRequest {
@@ -842,7 +842,7 @@ message RemoveRobotFromChatroomRequest {
 }
 
 message RemoveRobotFromChatroomReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message GetChatroomIdByChatroomMemberCountRequest {
@@ -860,7 +860,7 @@ message ChatroomMemberCountInfo {
 }
 
 message GetChatroomIdByChatroomMemberCountReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated ChatroomMemberCountInfo room_info = 2;
 }
 
@@ -873,7 +873,7 @@ message GetChatroomIdByUsedMicCountRequest {
 }
 
 message GetChatroomIdByUsedMicCountReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated ChatroomMemberCountInfo room_info = 2;
 }
 
@@ -884,7 +884,7 @@ message GetUserCurrentChatroomListRequest {
 }
 
 message GetUserCurrentChatroomListReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated ChatroomMemberCountInfo room_info = 2;
 }
 
@@ -896,7 +896,7 @@ message UpdateUserChatroomInfoRequest {
 }
 
 message UpdateUserChatroomInfoReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 message ChatRoomIdentityInfo {
@@ -912,7 +912,7 @@ message RestraintUserOperRequest {
 }
 
 message RestraintUserOperReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 // 踢人原因
@@ -948,7 +948,7 @@ message RestrainUserMsg {
 
 message UploadClientLogMsg {
     int64 uid = 1;
-    int32 log_type = 2; // 日志类型：roomkit.client.LogType
+    int32 log_type = 2; // 日志类型：orbikit.client.LogType
     int64 log_date = 3; // 日志日期，unixtime 精确到日，单位：毫秒
     string upload_token = 4; // 上传令牌
 }
@@ -1005,7 +1005,7 @@ message UserMicTimeRequest {
 }
 
 message UserMicTimeReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated OnMicInfo mic_info = 2;
 }
 
@@ -1039,7 +1039,7 @@ message UserAtRoomTimeRequest {
 }
 
 message UserAtRoomTimeReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     repeated AtRoomInfo room_info = 2;
 }
 
@@ -1053,7 +1053,7 @@ message UploadClientLogRequest {
 }
 
 message UploadClientLogReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
     string request_id = 2;
 }
 
@@ -1063,7 +1063,7 @@ message UploadClientLogStatusRequest {
     string msg_trace_id = 3;
 }
 message UploadClientLogStatusReply {
-    roomkit.service.UnifiedResponse ret = 1;
+    orbikit.service.UnifiedResponse ret = 1;
 }
 
 service Chatroom {

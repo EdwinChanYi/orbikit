@@ -9,12 +9,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/yourname/roomkit/internal/gateway/moderation"
-	"github.com/yourname/roomkit/internal/gateway/protocol"
-	"github.com/yourname/roomkit/internal/gateway/push"
-	"github.com/yourname/roomkit/pkg/kafkax"
-	"github.com/yourname/roomkit/pkg/log"
-	"github.com/yourname/roomkit/pkg/redisx"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/moderation"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/push"
+	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 // Config is the gateway configuration.
@@ -123,10 +123,10 @@ func DefaultConfig() Config {
 		Redis: redisx.Config{Addrs: []string{"localhost:6379"}, PoolSize: 64},
 		Kafka: KafkaConfig{Config: kafkax.Config{Brokers: []string{"localhost:9092"}}},
 		Topics: push.Topics{
-			Broadcast:  "roomkit.room.broadcast",
-			FullServer: "roomkit.room.fullserver",
-			Kicked:     "roomkit.room.kicked",
-			Event:      "roomkit.room.event",
+			Broadcast:  "orbikit.room.broadcast",
+			FullServer: "orbikit.room.fullserver",
+			Kicked:     "orbikit.room.kicked",
+			Event:      "orbikit.room.event",
 		},
 		Moderation: moderation.Config{Type: moderation.TypeNone},
 	}

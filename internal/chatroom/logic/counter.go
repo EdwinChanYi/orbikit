@@ -6,8 +6,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 func onlineUserCount(ctx context.Context, appID string, roomID int64) (int64, error) {

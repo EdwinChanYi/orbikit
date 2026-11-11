@@ -7,9 +7,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/internal/gateway/session"
-	"github.com/yourname/roomkit/internal/gateway/store"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/session"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/store"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Kicker removes a session that was signed in elsewhere.

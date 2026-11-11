@@ -19,27 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Core_CreateApp_FullMethodName               = "/roomkit.service.Core/CreateApp"
-	Core_QueryAppInfo_FullMethodName            = "/roomkit.service.Core/QueryAppInfo"
-	Core_IsAppValid_FullMethodName              = "/roomkit.service.Core/IsAppValid"
-	Core_ApplyClientLoginToken_FullMethodName   = "/roomkit.service.Core/ApplyClientLoginToken"
-	Core_GetClientLoginTokenInfo_FullMethodName = "/roomkit.service.Core/GetClientLoginTokenInfo"
-	Core_DeleteClientLoginToken_FullMethodName  = "/roomkit.service.Core/DeleteClientLoginToken"
-	Core_UpdateAppInfo_FullMethodName           = "/roomkit.service.Core/UpdateAppInfo"
-	Core_RestraintUserOperator_FullMethodName   = "/roomkit.service.Core/RestraintUserOperator"
-	Core_GetAppSecret_FullMethodName            = "/roomkit.service.Core/GetAppSecret"
-	Core_GetAllAppMsgCpQPS_FullMethodName       = "/roomkit.service.Core/GetAllAppMsgCpQPS"
-	Core_UpdateAppCacheInfo_FullMethodName      = "/roomkit.service.Core/UpdateAppCacheInfo"
-	Core_CreateGdApp_FullMethodName             = "/roomkit.service.Core/CreateGdApp"
-	Core_UpdateGdAppInfo_FullMethodName         = "/roomkit.service.Core/UpdateGdAppInfo"
-	Core_GetGdAppSecret_FullMethodName          = "/roomkit.service.Core/GetGdAppSecret"
-	Core_QueryGdAppInfo_FullMethodName          = "/roomkit.service.Core/QueryGdAppInfo"
-	Core_GetGdAppOfAppSecret_FullMethodName     = "/roomkit.service.Core/GetGdAppOfAppSecret"
-	Core_CreatePcApp_FullMethodName             = "/roomkit.service.Core/CreatePcApp"
-	Core_UpdatePcAppInfo_FullMethodName         = "/roomkit.service.Core/UpdatePcAppInfo"
-	Core_BindPcFilterApp_FullMethodName         = "/roomkit.service.Core/BindPcFilterApp"
-	Core_QueryPcAppInfo_FullMethodName          = "/roomkit.service.Core/QueryPcAppInfo"
-	Core_QueryPcAppInfoByAppID_FullMethodName   = "/roomkit.service.Core/QueryPcAppInfoByAppID"
+	Core_CreateApp_FullMethodName               = "/orbikit.service.Core/CreateApp"
+	Core_QueryAppInfo_FullMethodName            = "/orbikit.service.Core/QueryAppInfo"
+	Core_IsAppValid_FullMethodName              = "/orbikit.service.Core/IsAppValid"
+	Core_ApplyClientLoginToken_FullMethodName   = "/orbikit.service.Core/ApplyClientLoginToken"
+	Core_GetClientLoginTokenInfo_FullMethodName = "/orbikit.service.Core/GetClientLoginTokenInfo"
+	Core_DeleteClientLoginToken_FullMethodName  = "/orbikit.service.Core/DeleteClientLoginToken"
+	Core_UpdateAppInfo_FullMethodName           = "/orbikit.service.Core/UpdateAppInfo"
+	Core_RestraintUserOperator_FullMethodName   = "/orbikit.service.Core/RestraintUserOperator"
+	Core_GetAppSecret_FullMethodName            = "/orbikit.service.Core/GetAppSecret"
+	Core_GetAllAppMsgCpQPS_FullMethodName       = "/orbikit.service.Core/GetAllAppMsgCpQPS"
+	Core_UpdateAppCacheInfo_FullMethodName      = "/orbikit.service.Core/UpdateAppCacheInfo"
+	Core_CreateGdApp_FullMethodName             = "/orbikit.service.Core/CreateGdApp"
+	Core_UpdateGdAppInfo_FullMethodName         = "/orbikit.service.Core/UpdateGdAppInfo"
+	Core_GetGdAppSecret_FullMethodName          = "/orbikit.service.Core/GetGdAppSecret"
+	Core_QueryGdAppInfo_FullMethodName          = "/orbikit.service.Core/QueryGdAppInfo"
+	Core_GetGdAppOfAppSecret_FullMethodName     = "/orbikit.service.Core/GetGdAppOfAppSecret"
+	Core_CreatePcApp_FullMethodName             = "/orbikit.service.Core/CreatePcApp"
+	Core_UpdatePcAppInfo_FullMethodName         = "/orbikit.service.Core/UpdatePcAppInfo"
+	Core_BindPcFilterApp_FullMethodName         = "/orbikit.service.Core/BindPcFilterApp"
+	Core_QueryPcAppInfo_FullMethodName          = "/orbikit.service.Core/QueryPcAppInfo"
+	Core_QueryPcAppInfoByAppID_FullMethodName   = "/orbikit.service.Core/QueryPcAppInfoByAppID"
 )
 
 // CoreClient is the client API for Core service.
@@ -777,7 +777,7 @@ func _Core_QueryPcAppInfoByAppID_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Core_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "roomkit.service.Core",
+	ServiceName: "orbikit.service.Core",
 	HandlerType: (*CoreServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

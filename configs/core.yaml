@@ -24,7 +24,7 @@ log:
 
 mysql:
   # MySQL DSN；需要 parseTime=true 才能读取时间字段，表使用 utf8mb4
-  dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/roomkit?charset=utf8mb4&parseTime=true&loc=Local"
+  dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/orbikit?charset=utf8mb4&parseTime=true&loc=Local"
   max_open_conns: 32
   max_idle_conns: 16
 

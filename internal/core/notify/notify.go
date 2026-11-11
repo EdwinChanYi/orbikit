@@ -11,9 +11,9 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/pkg/grpcx"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Config lists the instances to notify. Every instance must be listed

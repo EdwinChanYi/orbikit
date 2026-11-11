@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.chatroom_notification;
+package orbikit.client.chatroom_notification;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import "chatroom.proto";
 import "chatroom_member.proto";
@@ -33,19 +33,19 @@ enum ChatroomEventType {
 
 // 通知事件包含的聊天室成员
 message ChatroomNotificationGroup {
-    repeated roomkit.client.chatroom_member.ChatroomMemberBaseInfo members = 1; // 通知中相关人员信息
+    repeated orbikit.client.chatroom_member.ChatroomMemberBaseInfo members = 1; // 通知中相关人员信息
 }
 
 // 聊天室通知内容
 message ChatroomNotificationContent {
     ChatroomEventType event_type                                                    = 1; // 聊天室通知事件类型
-    roomkit.client.chatroom_member.ChatroomMemberBaseInfo source            = 2; // 操作者
+    orbikit.client.chatroom_member.ChatroomMemberBaseInfo source            = 2; // 操作者
     map<string,string> remote_ext                                                   = 3; // 此字段如果是duration大于的时候,才会生效,聊天室服务器会持久化存储
     map<string,string> notify_ext                                                   = 4; // 通知信息扩展字段 当event_type为CHATROOM_EVENTTYPE_ROLECHANGE的时候，里面是一个{"new_role_id":"","old_role_id":""}的键值对
     oneof ext {
-        roomkit.client.chatroom.Chatroom chatroom                           = 5; // 客户端收到针对聊天室信息更新的通知, 这个的时候这个字段就有值
+        orbikit.client.chatroom.Chatroom chatroom                           = 5; // 客户端收到针对聊天室信息更新的通知, 这个的时候这个字段就有值
         ChatroomNotificationGroup targets                                           = 6; // 客户端收到针对聊天室成员信息更新的通知（昵称，头像，角色，是否禁言 等）, 这个时候这个字段就有值
-        roomkit.client.chatroom_micro.ChatroomMicroNotification micros      = 7; // 客户端收到针对聊天室麦位信息变更（麦位上的人，状态 等） 这个时候这个字段就有值
+        orbikit.client.chatroom_micro.ChatroomMicroNotification micros      = 7; // 客户端收到针对聊天室麦位信息变更（麦位上的人，状态 等） 这个时候这个字段就有值
     }
 }
 

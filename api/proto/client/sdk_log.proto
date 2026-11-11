@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client;
+package orbikit.client;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import public "base_service.proto";
 
@@ -27,7 +27,7 @@ message UploadLogBroadcast {
     int64 uid      = 1; //需要服务器发uid过来，SDK内部不知道uid
     int64 time     = 2; //需要日志的时间
     LogType type   = 3; //日志类型
-    string upload_token = 4; // 上传七牛的token
+    string upload_token = 4; // 对象存储上传凭证
     int64 id       = 5; //广播唯一id
 }
 
@@ -37,10 +37,10 @@ message UploadLogReportReq {
     string desc               = 2; //文字详细描述
     string device_id          = 3; //设备id
     int64 id       = 4; //广播唯一id
-    string file_url               = 5; //文件在七牛的url
+    string file_url               = 5; //文件在对象存储中的url
 }
 
 //请求结果
 message UploadLogReportResp {
-    roomkit.client.UnifiedResponse ret         = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret         = 1; // 响应信息
 }

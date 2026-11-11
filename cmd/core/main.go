@@ -16,17 +16,17 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core"
-	"github.com/yourname/roomkit/internal/core/logic"
-	"github.com/yourname/roomkit/internal/core/notify"
-	"github.com/yourname/roomkit/internal/core/server"
-	"github.com/yourname/roomkit/internal/core/store"
-	"github.com/yourname/roomkit/pkg/config"
-	"github.com/yourname/roomkit/pkg/grpcx"
-	"github.com/yourname/roomkit/pkg/log"
-	"github.com/yourname/roomkit/pkg/mysqlx"
-	"github.com/yourname/roomkit/pkg/redisx"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core"
+	"github.com/EdwinChanYi/orbikit/internal/core/logic"
+	"github.com/EdwinChanYi/orbikit/internal/core/notify"
+	"github.com/EdwinChanYi/orbikit/internal/core/server"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
 func main() {

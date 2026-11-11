@@ -2,7 +2,7 @@
 
 // Run with a disposable Redis:
 //
-//	ROOMKIT_TEST_REDIS=localhost:6379 go test -tags redis_integration ./internal/chatroom/logic/
+//	ORBIKIT_TEST_REDIS=localhost:6379 go test -tags redis_integration ./internal/chatroom/logic/
 package logic
 
 import (
@@ -12,15 +12,15 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
 )
 
 func setupRankRedis(t *testing.T) (context.Context, string) {
 	t.Helper()
-	addr := os.Getenv("ROOMKIT_TEST_REDIS")
+	addr := os.Getenv("ORBIKIT_TEST_REDIS")
 	if addr == "" {
-		t.Skip("ROOMKIT_TEST_REDIS is not set")
+		t.Skip("ORBIKIT_TEST_REDIS is not set")
 	}
 	ctx := context.Background()
 	c := redis.NewClient(&redis.Options{Addr: addr})

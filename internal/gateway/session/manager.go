@@ -9,10 +9,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/internal/gateway/protocol"
-	"github.com/yourname/roomkit/internal/gateway/transport"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/transport"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // Manager owns all sessions of the process.

@@ -13,14 +13,14 @@ import (
 	"github.com/sony/sonyflake"
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 const (
 	leaseTTL     = 10 * time.Minute
 	renewEvery   = 3 * time.Minute
 	maxAttempts  = 64
-	leaseKeyBase = "roomkit:machine_id:"
+	leaseKeyBase = "orbikit:machine_id:"
 )
 
 // Generator issues IDs until Close is called.

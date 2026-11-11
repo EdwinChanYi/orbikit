@@ -6,7 +6,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/yourname/roomkit/internal/chatroom/logic"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/logic"
 )
 
 const interval = time.Second

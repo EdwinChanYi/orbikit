@@ -11,8 +11,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 const (

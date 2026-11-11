@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
 )
 
 func TestKeysFormat(t *testing.T) {

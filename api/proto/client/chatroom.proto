@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.chatroom;
+package orbikit.client.chatroom;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import public "base_service.proto";
 import public "chatroom_member.proto";
@@ -30,8 +30,8 @@ message EnterChatroomReq {
 }
 
 message EnterChatroomResp {
-    roomkit.client.UnifiedResponse ret                       = 1; // 响应信息
-    roomkit.client.chatroom_member.ChatroomMemberBaseInfo me = 2; // 自己在该房间的房间信息
+    orbikit.client.UnifiedResponse ret                       = 1; // 响应信息
+    orbikit.client.chatroom_member.ChatroomMemberBaseInfo me = 2; // 自己在该房间的房间信息
     Chatroom chatroom                                                = 3; // 房间信息
 }
 
@@ -40,7 +40,7 @@ message GetLastOperationExtReq{
     int64 room_id = 1;
 }
 message GetLastOperationExtResp {
-    roomkit.client.UnifiedResponse ret                       = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret                       = 1; // 响应信息
     map<string,string> remote_ext                                    = 2; // 被操作的时候操作人设置禁区的ext
 }
 
@@ -50,7 +50,7 @@ message ExitChatroomReq {
 }
 
 message ExitChatroomResp {
-    roomkit.client.UnifiedResponse ret                  = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret                  = 1; // 响应信息
 }
 
 message BatchExitChatroomReq {
@@ -58,7 +58,7 @@ message BatchExitChatroomReq {
 }
 
 message BatchExitChatroomResp {
-    roomkit.client.UnifiedResponse ret                  = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret                  = 1; // 响应信息
     repeated int64 error_room_id = 2;
 }
 
@@ -79,7 +79,7 @@ message Chatroom {
 }
 
 message FetchChatroomInfoResp {
-    roomkit.client.UnifiedResponse ret  = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret  = 1; // 响应信息
     Chatroom chatroom                           = 2; // 房间信息
 }
 
@@ -105,5 +105,5 @@ message ChatroomUpdateReq {
 }
 
 message ChatroomUpdateResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }

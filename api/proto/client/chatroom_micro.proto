@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.chatroom_micro;
+package orbikit.client.chatroom_micro;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import "chatroom_member.proto";
 import public "base_service.proto";
@@ -20,7 +20,7 @@ message ChatroomMicro {
     int32 position                                                                = 1; // 麦的序号
     MicroPositionStatus position_status                                           = 2; // 麦位的状态
     MicroPositionMicStatus micro_status                                           = 3; // 麦位的麦克风状态
-    roomkit.client.chatroom_member.ChatroomMemberBaseInfo chatroom_member = 4; // 房间用户信息对象，带CustomInfo
+    orbikit.client.chatroom_member.ChatroomMemberBaseInfo chatroom_member = 4; // 房间用户信息对象，带CustomInfo
     map<string,string> ext                                                        = 5; // 麦序扩展字段，一般交由服务端修改最好
 }
 
@@ -30,7 +30,7 @@ message QueryChatroomMicroReq {
 }
 message QueryChatroomMicroResp {
     repeated ChatroomMicro room_micros         = 1; // 房间麦序
-    roomkit.client.UnifiedResponse ret = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret = 2; // 响应信息
 }
 
 // 更新麦位令牌
@@ -39,7 +39,7 @@ message UpdateChatroomMicroTokenReq {
     int64 room_id  = 2; // 房间ID
 }
 message UpdateChatroomMicroTokenResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 邀请上麦（需要 EDIT_MICRO 权限）CmdId : CHATROOM_POSITION_INVITE
@@ -49,7 +49,7 @@ message InviteChatroomMicroReq {
     int64 room_id  = 3; // 房间ID
 }
 message InviteChatroomMicroResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 踢人下麦（需要 EDIT_MICRO 权限）CmdId : CHATROOM_POSITION_KICK
@@ -59,7 +59,7 @@ message KickChatroomMicroReq {
     int64 position = 3; // 麦位
 }
 message KickChatroomMicroResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 上麦（需要看是否能上）CmdId : CHATROOM_POSITION_UP
@@ -69,7 +69,7 @@ message UpChatroomMicroReq {
 }
 
 message UpChatroomMicroResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 下麦 CmdId : CHATROOM_POSITION_DOWN
@@ -79,7 +79,7 @@ message DownChatroomMicroReq {
 }
 
 message DownChatroomMicroResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 麦序状态
@@ -118,5 +118,5 @@ message EditMicroPositionInfoReq {
 // 修改麦序信息返回
 message EditMicroPositionInfoRes {
     repeated ChatroomMicro room_micros          = 1; // 房间麦序信息
-    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret  = 2; // 响应信息
 }

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client.chatroom_member;
+package orbikit.client.chatroom_member;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import public "base_service.proto";
 
@@ -46,7 +46,7 @@ message GetChatroomMemberByTypeReq {
 }
 message GetChatroomMemberByTypeResp {
     repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
-    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret  = 2; // 响应信息
 }
 
 //根据角色查询成员
@@ -62,7 +62,7 @@ message GetChatroomMemberByRoleReq {
 }
 message GetChatroomMemberByRoleResp {
     repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
-    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret  = 2; // 响应信息
 }
 
 
@@ -75,7 +75,7 @@ message GetChatroomMemberByIdsReq {
 
 message GetChatroomMemberByIdsResp {
     repeated ChatroomMemberInfo members         = 1; // 查询结果(成员列表)
-    roomkit.client.UnifiedResponse ret  = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret  = 2; // 响应信息
 }
 
 // 根据用户ID或者昵称关键字进行前置模糊查询聊天室成员 CmdId : CHATROOM_FETCH_MEMBER_BY_KEYWORDS
@@ -88,7 +88,7 @@ message GetChatroomMemberByKeywordReq {
 
 message GetChatroomMemberByKeywordResp {
     repeated ChatroomMemberInfo members        = 1; // 查询结果(成员列表)
-    roomkit.client.UnifiedResponse ret = 2; // 响应信息
+    orbikit.client.UnifiedResponse ret = 2; // 响应信息
 }
 
 // 禁言状态
@@ -144,7 +144,7 @@ message ChatroomMemberUpdatedField {
 //}
 //
 //message SettingChatroomManagerResp {
-//    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+//    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 //}
 
 // 设置黑名单 CmdId : CHATROOM_MEMBER_BLOCK
@@ -153,7 +153,7 @@ message SettingChatroomInBlackReq {
 }
 
 message SettingChatroomInBlackResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 设置禁言 CmdId : CHATROOM_MEMBER_MUTE
@@ -163,5 +163,5 @@ message SettingMuteMessageReq {
 }
 
 message SettingMuteMessageResp {
-    roomkit.client.UnifiedResponse ret = 1; // 响应信息
+    orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }

@@ -6,7 +6,7 @@ package transport
 import (
 	"time"
 
-	"github.com/yourname/roomkit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
 )
 
 // Conn is a packet-oriented client connection.

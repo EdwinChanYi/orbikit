@@ -3,8 +3,8 @@ package server
 import (
 	"testing"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
 )
 
 func TestNormalizeDupli(t *testing.T) {

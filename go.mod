@@ -1,4 +1,4 @@
-module github.com/yourname/roomkit
+module github.com/EdwinChanYi/orbikit
 
 go 1.22
 

@@ -6,8 +6,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
 )
 
 type gdAppRequest interface {
@@ -18,7 +18,7 @@ type gdAppRequest interface {
 	GetNoStrictTypes() string
 	GetStarTypes1() string
 	GetStarTypes2() string
-	GetBussinessNeedCheckYidunUrl() string
+	GetBusinessModerationCheckUrl() string
 	GetMatchLevel() uint32
 	GetMsgLenMax() int32
 	GetMsgDigitalCountMax() int32
@@ -42,7 +42,7 @@ func gdAppParams(req gdAppRequest) store.GdAppParams {
 		NoStrictTypes:              req.GetNoStrictTypes(),
 		StarTypes1:                 req.GetStarTypes1(),
 		StarTypes2:                 req.GetStarTypes2(),
-		BussinessNeedCheckYidunUrl: req.GetBussinessNeedCheckYidunUrl(),
+		BusinessModerationCheckUrl: req.GetBusinessModerationCheckUrl(),
 		MatchLevel:                 req.GetMatchLevel(),
 		MsgLenMax:                  req.GetMsgLenMax(),
 		MsgDigitalCountMax:         req.GetMsgDigitalCountMax(),
@@ -139,7 +139,7 @@ func (s *Server) GetGdAppSecret(ctx context.Context, req *servicepb.GetGdAppSecr
 		StarTypes2:                 app.StarTypes2,
 		MsgLenMax:                  app.MsgLenMax,
 		MsgDigitalCountMax:         app.MsgDigitalCountMax,
-		BussinessNeedCheckYidunUrl: app.BussinessNeedCheckYidunUrl,
+		BusinessModerationCheckUrl: app.BusinessModerationCheckUrl,
 		TextCountExpire:            app.TextCountExpire,
 		DupliTextCount:             app.DupliTextCount,
 		IsBlackDupliUser:           app.IsBlackDupliUser,

@@ -9,9 +9,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/model"
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/model"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
 )
 
 var readCommitted = &sql.TxOptions{Isolation: sql.LevelReadCommitted}

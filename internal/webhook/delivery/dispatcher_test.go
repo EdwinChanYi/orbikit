@@ -16,7 +16,7 @@ import (
 	"github.com/IBM/sarama"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 func bcst(appID string) *servicepb.ChatroomBcst {

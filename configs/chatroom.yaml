@@ -42,7 +42,7 @@ redis:
 
 mysql:
   # MySQL DSN；表使用 utf8mb4，启动时自动建表/补列
-  dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/roomkit?charset=utf8mb4&parseTime=true&loc=Local"
+  dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/orbikit?charset=utf8mb4&parseTime=true&loc=Local"
   # 最大打开连接数
   max_open_conns: 32
   # 最大空闲连接数
@@ -55,10 +55,10 @@ kafka:
 # 生产的 topic，需与 gateway 的消费配置一致
 topics:
   # 房间广播（servicepb.ChatroomBcst）：房间事件与房间消息
-  broadcast: roomkit.room.broadcast
+  broadcast: orbikit.room.broadcast
   # 应用内全服广播（servicepb.ChatroomBcst）
-  fullserver: roomkit.room.fullserver
+  fullserver: orbikit.room.fullserver
   # 被踢出房间通知（servicepb.ChatRoomMemberBeKickedBcst）：踢人、拉黑、关房
-  kicked: roomkit.room.kicked
+  kicked: orbikit.room.kicked
   # 杂项事件（servicepb.ChatRoomMiscEventMsg）：封禁用户
-  event: roomkit.room.event
+  event: orbikit.room.event

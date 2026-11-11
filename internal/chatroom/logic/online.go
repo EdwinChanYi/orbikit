@@ -7,11 +7,11 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/chatroom/lock"
-	"github.com/yourname/roomkit/internal/chatroom/rediskey"
-	"github.com/yourname/roomkit/internal/chatroom/reqctx"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/lock"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/rediskey"
+	"github.com/EdwinChanYi/orbikit/internal/chatroom/reqctx"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 const roomTaskTimeout = 30 * time.Second

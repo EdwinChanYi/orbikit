@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/time/rate"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 // Limiters keeps one token bucket per (app, message type). It is safe for

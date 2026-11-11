@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	MsgCopy_AppInfoUpdated_FullMethodName = "/roomkit.service.MsgCopy/AppInfoUpdated"
+	MsgCopy_AppInfoUpdated_FullMethodName = "/orbikit.service.MsgCopy/AppInfoUpdated"
 )
 
 // MsgCopyClient is the client API for MsgCopy service.
@@ -97,7 +97,7 @@ func _MsgCopy_AppInfoUpdated_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MsgCopy_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "roomkit.service.MsgCopy",
+	ServiceName: "orbikit.service.MsgCopy",
 	HandlerType: (*MsgCopyServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

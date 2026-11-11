@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
 )
 
 // ErrAppNotFound is returned by an AppSource when the app is not registered.

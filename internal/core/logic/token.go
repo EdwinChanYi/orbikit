@@ -12,9 +12,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/randstr"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/randstr"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // KEYS[1] user -> token, KEYS[2] restrain flag; ARGV[1] token, ARGV[2] "appID,uid".

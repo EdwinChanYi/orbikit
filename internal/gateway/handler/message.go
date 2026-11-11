@@ -5,10 +5,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/gateway/convert"
-	"github.com/yourname/roomkit/internal/gateway/moderation"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/convert"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/moderation"
 )
 
 func (s *Service) sendMessage(ctx context.Context, r *Request, body []byte) *clientpb.SendMessageResp {

@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/yourname/roomkit/api/gen/servicepb"
-	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/EdwinChanYi/orbikit/api/gen/servicepb"
+	"github.com/EdwinChanYi/orbikit/internal/core/store"
 )
 
 func appToPB(a *store.AppInfo) *servicepb.AppInfo {
@@ -66,7 +66,7 @@ func gdAppToPB(a *store.GdAppInfo) *servicepb.GdAppInfo {
 		StarTypes2:                 a.StarTypes2,
 		MsgLenMax:                  a.MsgLenMax,
 		MsgDigitalCountMax:         a.MsgDigitalCountMax,
-		BussinessNeedCheckYidunUrl: a.BussinessNeedCheckYidunUrl,
+		BusinessModerationCheckUrl: a.BusinessModerationCheckUrl,
 		TextCountExpire:            a.TextCountExpire,
 		DupliTextCount:             a.DupliTextCount,
 		IsBlackDupliUser:           a.IsBlackDupliUser,

@@ -1,4 +1,4 @@
-// Command gateway-client is a minimal long-link client for the roomkit
+// Command gateway-client is a minimal long-link client for the orbikit
 // gateway: it connects over TCP or WebSocket, authenticates, enters a room,
 // optionally sends a text message and prints every push it receives.
 //
@@ -26,8 +26,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
 )
 
 type options struct {

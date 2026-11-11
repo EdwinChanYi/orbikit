@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client;
+package orbikit.client;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 import "error_code.proto";
 
@@ -19,7 +19,7 @@ enum ClientType {
 }
 
 message UnifiedResponse {
-  roomkit.client.ErrorCode error_code = 1; // 错误码
+  orbikit.client.ErrorCode error_code = 1; // 错误码
   string error_msg                            = 2; // 错误信息
 }
 
@@ -79,7 +79,7 @@ message LoginOutReq {
 
 // 退出登录响应 CmdId : LOGOUT
 message LoginOutResp {
-  roomkit.client.UnifiedResponse ret = 1; // 响应信息
+  orbikit.client.UnifiedResponse ret = 1; // 响应信息
 }
 
 // 被踢通知 CmdId : CHATROOM_HAS_BEEN_KICKED

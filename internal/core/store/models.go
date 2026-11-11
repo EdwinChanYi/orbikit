@@ -50,7 +50,7 @@ type GdAppInfo struct {
 	StarTypes2                 string    `gorm:"column:star_types2;type:varchar(255);not null;default:''"`
 	MsgLenMax                  int32     `gorm:"column:msg_len_max;type:int(10);not null;default:0"`
 	MsgDigitalCountMax         int32     `gorm:"column:msg_digital_count_max;type:int(10);not null;default:6"`
-	BussinessNeedCheckYidunUrl string    `gorm:"column:bussiness_need_check_yidun_url;type:varchar(255);not null;default:''"`
+	BusinessModerationCheckUrl string    `gorm:"column:business_moderation_check_url;type:varchar(255);not null;default:''"`
 	MediaAppId                 string    `gorm:"column:media_app_id;type:varchar(64);not null;default:''"`
 	GdAppId                    string    `gorm:"column:gd_app_id;type:varchar(64);not null;default:''"`
 	TextCountExpire            int32     `gorm:"column:text_count_expire;type:int(10) unsigned;not null;default:0"`

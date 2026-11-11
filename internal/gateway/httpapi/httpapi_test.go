@@ -9,7 +9,7 @@ import (
 
 	"github.com/xxtea/xxtea-go/xxtea"
 
-	"github.com/yourname/roomkit/internal/gateway/store"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/store"
 )
 
 type fakeUsers map[string]*store.UserInfo

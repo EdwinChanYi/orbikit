@@ -31,7 +31,7 @@ func TestModelSchemas(t *testing.T) {
 			"id", "app_id", "app_secret", "name", "msg_cp_url", "text_cp_url", "custom_cp_url", "desc",
 			"types", "qps", "text_qps", "custom_qps", "match_level", "no_strict_types", "need_match_base",
 			"mark_star", "mark_star1", "star_types1", "mark_star2", "star_types2", "msg_len_max",
-			"msg_digital_count_max", "bussiness_need_check_yidun_url", "media_app_id", "gd_app_id",
+			"msg_digital_count_max", "business_moderation_check_url", "media_app_id", "gd_app_id",
 			"text_count_expire", "dupli_text_count", "is_black_dupli_user", "is_add_word_store",
 			"created_at", "updated_at",
 		}},

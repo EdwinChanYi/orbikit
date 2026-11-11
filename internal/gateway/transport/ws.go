@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 
-	"github.com/yourname/roomkit/internal/gateway/protocol"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 // WSOptions configures the WebSocket listener.

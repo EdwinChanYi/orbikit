@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package roomkit.client;
+package orbikit.client;
 
-option go_package = "github.com/yourname/roomkit/api/gen/clientpb;clientpb";
+option go_package = "github.com/EdwinChanYi/orbikit/api/gen/clientpb;clientpb";
 
 enum CmdId {
   NOT_USED                            = 0;   // 前方高能,不能用这个

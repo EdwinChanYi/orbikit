@@ -19,10 +19,10 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/yourname/roomkit/api/gen/clientpb"
-	"github.com/yourname/roomkit/internal/gateway/handler"
-	"github.com/yourname/roomkit/internal/gateway/store"
-	"github.com/yourname/roomkit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/api/gen/clientpb"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/handler"
+	"github.com/EdwinChanYi/orbikit/internal/gateway/store"
+	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
 const (

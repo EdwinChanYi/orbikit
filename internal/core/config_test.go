@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yourname/roomkit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/config"
 )
 
 func TestExampleConfigLoads(t *testing.T) {
@@ -19,7 +19,7 @@ func TestExampleConfigLoads(t *testing.T) {
 	if len(cfg.Notify.WebhookTargets) != 1 || cfg.Notify.WebhookTargets[0] != "localhost:9004" || len(cfg.Notify.CorePeers) != 0 {
 		t.Fatalf("notify = %+v", cfg.Notify)
 	}
-	if want := "root:pw@tcp(localhost:3306)/roomkit?charset=utf8mb4&parseTime=true&loc=Local"; cfg.MySQL.DSN != want {
+	if want := "root:pw@tcp(localhost:3306)/orbikit?charset=utf8mb4&parseTime=true&loc=Local"; cfg.MySQL.DSN != want {
 		t.Fatalf("dsn = %s", cfg.MySQL.DSN)
 	}
 	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" {
