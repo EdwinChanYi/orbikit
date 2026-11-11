@@ -1,0 +1,46 @@
+# core 服务配置：多租户应用管理、登录 token 签发/校验、用户封禁。
+# 支持 ${ENV} 形式引用环境变量。
+
+# Core gRPC 监听地址
+grpc_addr: ":9001"
+# pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6061"
+debug_addr: ""
+# 应用信息内存缓存时长；查询失败或应用不存在时固定缓存 1 分钟
+cache_expire: 60s
+# 优雅退出的最长等待时间
+shutdown_timeout: 10s
+
+log:
+  # 日志级别：debug / info / warn / error
+  level: info
+  # 日志文件路径，为空则输出到标准输出
+  file: ""
+  # 单个日志文件最大 MB
+  max_size_mb: 1024
+  # 日志保留天数
+  max_age_days: 30
+  # true 使用便于阅读的控制台格式，false 使用 JSON
+  console: true
+
+mysql:
+  # MySQL DSN；需要 parseTime=true 才能读取时间字段，表使用 utf8mb4
+  dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/roomkit?charset=utf8mb4&parseTime=true&loc=Local"
+  max_open_conns: 32
+  max_idle_conns: 16
+
+redis:
+  # 单个地址为单机模式，多个地址为集群模式
+  addrs: ["localhost:6379"]
+  password: "${REDIS_PASSWORD}"
+  db: 0
+  pool_size: 64
+
+# 应用配置变更后的通知目标。每个实例都要单独列出：
+# dns:/// 形式的负载均衡地址只会命中其中一个实例。
+notify:
+  # 单次通知调用超时
+  timeout: 5s
+  # 所有 webhook 实例的 gRPC 地址（调用 MsgCopy.AppInfoUpdated 刷新抄送配置）
+  webhook_targets: ["localhost:9004"]
+  # 其他 core 实例的 gRPC 地址（调用 Core.UpdateAppCacheInfo 清缓存），不含本实例
+  core_peers: []

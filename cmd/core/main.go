@@ -1,0 +1,133 @@
+// Command core runs the core service: app registry, login tokens and user bans.
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"net"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/yourname/roomkit/internal/core"
+	"github.com/yourname/roomkit/internal/core/logic"
+	"github.com/yourname/roomkit/internal/core/notify"
+	"github.com/yourname/roomkit/internal/core/server"
+	"github.com/yourname/roomkit/internal/core/store"
+	"github.com/yourname/roomkit/pkg/config"
+	"github.com/yourname/roomkit/pkg/grpcx"
+	"github.com/yourname/roomkit/pkg/log"
+	"github.com/yourname/roomkit/pkg/mysqlx"
+	"github.com/yourname/roomkit/pkg/redisx"
+)
+
+func main() {
+	cfgPath := flag.String("config", "configs/core.yaml", "path to the config file")
+	flag.Parse()
+	if err := run(*cfgPath); err != nil {
+		fmt.Fprintln(os.Stderr, "core:", err)
+		os.Exit(1)
+	}
+}
+
+func run(cfgPath string) error {
+	cfg := core.DefaultConfig()
+	if err := config.Load(cfgPath, &cfg); err != nil {
+		return err
+	}
+	if err := log.Init(cfg.Log, "core"); err != nil {
+		return err
+	}
+	defer log.Sync()
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	db, err := mysqlx.New(cfg.MySQL)
+	if err != nil {
+		return err
+	}
+	if sqlDB, err := db.DB(); err == nil {
+		defer sqlDB.Close()
+	}
+	st := store.New(db)
+	if err := st.AutoMigrate(ctx); err != nil {
+		return fmt.Errorf("auto migrate: %w", err)
+	}
+
+	rdb, err := redisx.New(ctx, cfg.Redis)
+	if err != nil {
+		return err
+	}
+	defer rdb.Close()
+
+	notifier, err := notify.New(cfg.Notify)
+	if err != nil {
+		return err
+	}
+	defer notifier.Close()
+
+	apps := logic.NewAppService(st, cfg.CacheExpire)
+	srv := server.New(st, apps,
+		logic.NewTokenService(rdb, apps),
+		logic.NewRestrainService(st, rdb),
+		notifier)
+
+	gs := grpcx.NewServer()
+	servicepb.RegisterCoreServer(gs, srv)
+	lis, err := net.Listen("tcp", cfg.GRPCAddr)
+	if err != nil {
+		return err
+	}
+
+	debug := startDebugServer(cfg.DebugAddr)
+
+	serveErr := make(chan error, 1)
+	go func() { serveErr <- gs.Serve(lis) }()
+	log.L().Info("core started", zap.String("grpc_addr", cfg.GRPCAddr), zap.String("debug_addr", cfg.DebugAddr))
+
+	select {
+	case <-ctx.Done():
+	case err := <-serveErr:
+		return fmt.Errorf("grpc serve: %w", err)
+	}
+	log.L().Info("core shutting down")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+	if debug != nil {
+		_ = debug.Shutdown(shutdownCtx)
+	}
+	stopped := make(chan struct{})
+	go func() {
+		gs.GracefulStop()
+		close(stopped)
+	}()
+	select {
+	case <-stopped:
+	case <-shutdownCtx.Done():
+		gs.Stop()
+	}
+	return nil
+}
+
+func startDebugServer(addr string) *http.Server {
+	if addr == "" {
+		return nil
+	}
+	s := &http.Server{Addr: addr, ReadHeaderTimeout: 5 * time.Second}
+	go func() {
+		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.L().Error("debug server", zap.Error(err))
+		}
+	}()
+	return s
+}

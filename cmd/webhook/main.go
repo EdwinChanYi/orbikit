@@ -1,0 +1,140 @@
+// Command webhook copies chatroom messages to the HTTP callbacks registered by each app.
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"net"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/yourname/roomkit/api/gen/servicepb"
+	"github.com/yourname/roomkit/internal/webhook"
+	"github.com/yourname/roomkit/internal/webhook/delivery"
+	"github.com/yourname/roomkit/internal/webhook/server"
+	"github.com/yourname/roomkit/pkg/config"
+	"github.com/yourname/roomkit/pkg/grpcx"
+	"github.com/yourname/roomkit/pkg/kafkax"
+	"github.com/yourname/roomkit/pkg/log"
+)
+
+func main() {
+	cfgPath := flag.String("config", "configs/webhook.yaml", "path to the config file")
+	flag.Parse()
+	if err := run(*cfgPath); err != nil {
+		fmt.Fprintln(os.Stderr, "webhook:", err)
+		os.Exit(1)
+	}
+}
+
+func run(cfgPath string) error {
+	cfg := webhook.DefaultConfig()
+	if err := config.Load(cfgPath, &cfg); err != nil {
+		return err
+	}
+	if err := log.Init(cfg.Log, "webhook"); err != nil {
+		return err
+	}
+	defer log.Sync()
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	coreConn, err := grpcx.Dial(cfg.Core.Target)
+	if err != nil {
+		return fmt.Errorf("dial core: %w", err)
+	}
+	defer coreConn.Close()
+
+	apps := delivery.NewAppCache(
+		&delivery.CoreSource{Client: servicepb.NewCoreClient(coreConn), Timeout: cfg.Core.Timeout},
+		cfg.Cache.Expire, cfg.Cache.NotFoundExpire)
+	copier := delivery.NewCopier(apps, delivery.NewLimiters(), delivery.NewSender(cfg.Delivery.SenderConfig))
+	dispatcher := delivery.NewDispatcher(cfg.Delivery.WorkersPerApp, cfg.Delivery.QueueSize, copier.Handle)
+
+	group, err := kafkax.NewConsumerGroup(cfg.Kafka.Config, cfg.Kafka.GroupID)
+	if err != nil {
+		return fmt.Errorf("kafka consumer group: %w", err)
+	}
+
+	gs := grpcx.NewServer()
+	servicepb.RegisterMsgCopyServer(gs, server.New(apps))
+	lis, err := net.Listen("tcp", cfg.GRPCAddr)
+	if err != nil {
+		_ = group.Close()
+		return err
+	}
+
+	debug := startDebugServer(cfg.DebugAddr)
+
+	serveErr := make(chan error, 1)
+	go func() { serveErr <- gs.Serve(lis) }()
+
+	consumeCtx, stopConsume := context.WithCancel(ctx)
+	consumed := make(chan struct{})
+	go func() {
+		defer close(consumed)
+		kafkax.Consume(consumeCtx, group, []string{cfg.Topics.Broadcast}, delivery.KafkaHandler(dispatcher))
+	}()
+
+	log.L().Info("webhook started",
+		zap.String("grpc_addr", cfg.GRPCAddr),
+		zap.String("topic", cfg.Topics.Broadcast),
+		zap.String("group_id", cfg.Kafka.GroupID))
+
+	var runErr error
+	select {
+	case <-ctx.Done():
+	case err := <-serveErr:
+		runErr = fmt.Errorf("grpc serve: %w", err)
+	}
+	log.L().Info("webhook shutting down")
+
+	stopConsume()
+	<-consumed
+	if err := group.Close(); err != nil {
+		log.L().Warn("close kafka consumer group", zap.Error(err))
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+	dispatcher.Close(shutdownCtx)
+	if n := dispatcher.Dropped(); n > 0 {
+		log.L().Warn("webhook messages dropped during run", zap.Uint64("dropped", n))
+	}
+	if debug != nil {
+		_ = debug.Shutdown(shutdownCtx)
+	}
+	stopped := make(chan struct{})
+	go func() {
+		gs.GracefulStop()
+		close(stopped)
+	}()
+	select {
+	case <-stopped:
+	case <-shutdownCtx.Done():
+		gs.Stop()
+	}
+	return runErr
+}
+
+func startDebugServer(addr string) *http.Server {
+	if addr == "" {
+		return nil
+	}
+	s := &http.Server{Addr: addr, ReadHeaderTimeout: 5 * time.Second}
+	go func() {
+		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.L().Error("debug server", zap.Error(err))
+		}
+	}()
+	return s
+}
