@@ -337,7 +337,7 @@ func (x *GetChatroomMemberByTypeResp) GetRet() *UnifiedResponse {
 	return nil
 }
 
-//根据角色查询成员
+// 根据角色查询成员
 type GetChatroomMemberByRoleReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -867,7 +867,7 @@ type ChatroomMemberBaseInfo struct {
 	ChatroomRemoteExt map[string]string `protobuf:"bytes,5,rep,name=chatroom_remote_ext,json=chatroomRemoteExt,proto3" json:"chatroom_remote_ext,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"` // 聊天室人员扩展字段,由业务服务器设置
 	SearchKeys        map[string]string `protobuf:"bytes,6,rep,name=search_keys,json=searchKeys,proto3" json:"search_keys,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`                        // 模糊搜索使用的字段,Key/Value为随意值 ,建议是兔兔号+昵称
 	Role              []int32           `protobuf:"varint,7,rep,packed,name=role,proto3" json:"role,omitempty"`                                                                                                                                      // 聊天室角色，业务可自定义，多重身份。
-	//    map<int32,bool> privileges              = 7; // role的角色权限 key为Privilege枚举的int32类型 value是布尔值
+	// map<int32,bool> privileges              = 7; // role的角色权限 key为Privilege枚举的int32类型 value是布尔值
 	IsInBlockList     bool        `protobuf:"varint,8,opt,name=is_in_block_list,json=isInBlockList,proto3" json:"is_in_block_list,omitempty"`            // 是否在黑名单中
 	MuteStatus        *MuteStatus `protobuf:"bytes,9,opt,name=mute_status,json=muteStatus,proto3" json:"mute_status,omitempty"`                          // 禁言状态
 	KickStatus        *KickStatus `protobuf:"bytes,10,opt,name=kick_status,json=kickStatus,proto3" json:"kick_status,omitempty"`                         // 被踢状态

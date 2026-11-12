@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-//设备类型
+// 设备类型
 type ClientType int32
 
 const (
@@ -149,7 +149,7 @@ func (LoginStep) EnumDescriptor() ([]byte, []int) {
 	return file_base_service_proto_rawDescGZIP(), []int{1}
 }
 
-//被踢出登录态
+// 被踢出登录态
 type LoginKickReason int32
 
 const (
@@ -199,7 +199,7 @@ func (LoginKickReason) EnumDescriptor() ([]byte, []int) {
 	return file_base_service_proto_rawDescGZIP(), []int{2}
 }
 
-//垃圾检测类型
+// 垃圾检测类型
 type GDType int32
 
 const (
@@ -812,7 +812,7 @@ func (x *CacheResponseData) GetRepeatedCnt() int32 {
 	return 0
 }
 
-//垃圾检测结果保存
+// 垃圾检测结果保存
 type GarbageDetectInfo struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -884,7 +884,7 @@ func (x *GarbageDetectInfo) GetOrgPicture() string {
 	return ""
 }
 
-//用来查询用户长连接信息的
+// 用来查询用户长连接信息的
 type ShowUserConnReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -940,7 +940,7 @@ func (x *ShowUserConnReq) GetUid() int64 {
 	return 0
 }
 
-//用来查询用户长连接信息的
+// 用来查询用户长连接信息的
 type ShowUserConnResp struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -996,7 +996,7 @@ func (x *ShowUserConnResp) GetUsers() []*UserConnInfo {
 	return nil
 }
 
-//用户长连接信息
+// 用户长连接信息
 type UserConnInfo struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

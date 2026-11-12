@@ -64,7 +64,8 @@ func TestTTLCacheExpiry(t *testing.T) {
 
 	loads := 0
 	load := func() (int, time.Duration) { loads++; return 2, time.Minute }
-	if c.GetOrLoad("k", load) != 2 || c.GetOrLoad("k", load) != 2 || loads != 1 {
+	first, second := c.GetOrLoad("k", load), c.GetOrLoad("k", load)
+	if first != 2 || second != 2 || loads != 1 {
 		t.Fatalf("loads = %d, want 1", loads)
 	}
 	c.Delete("k")
@@ -149,10 +150,12 @@ func TestAppServiceCaching(t *testing.T) {
 	fs := &fakeAppStore{apps: map[string]*store.AppInfo{"a": {AppId: "a", Qps: 5}}}
 	svc := NewAppService(fs, time.Minute)
 
-	if !svc.IsAppValid(ctx, "a") || !svc.IsAppValid(ctx, "a") {
+	validOnce, validTwice := svc.IsAppValid(ctx, "a"), svc.IsAppValid(ctx, "a")
+	if !validOnce || !validTwice {
 		t.Fatal("app a should be valid")
 	}
-	if svc.IsAppValid(ctx, "missing") || svc.IsAppValid(ctx, "missing") {
+	missingOnce, missingTwice := svc.IsAppValid(ctx, "missing"), svc.IsAppValid(ctx, "missing")
+	if missingOnce || missingTwice {
 		t.Fatal("missing app should be invalid")
 	}
 	if fs.queries != 2 {

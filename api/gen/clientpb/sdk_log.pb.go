@@ -72,7 +72,7 @@ func (LogType) EnumDescriptor() ([]byte, []int) {
 	return file_sdk_log_proto_rawDescGZIP(), []int{0}
 }
 
-//上传日志错误结果
+// 上传日志错误结果
 type UploadLogResult int32
 
 const (
@@ -125,7 +125,7 @@ func (UploadLogResult) EnumDescriptor() ([]byte, []int) {
 	return file_sdk_log_proto_rawDescGZIP(), []int{1}
 }
 
-//服务器下发上传日志广播
+// 服务器下发上传日志广播
 type UploadLogBroadcast struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -205,7 +205,7 @@ func (x *UploadLogBroadcast) GetId() int64 {
 	return 0
 }
 
-//报告日志上传情况给服务器
+// 报告日志上传情况给服务器
 type UploadLogReportReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -285,7 +285,7 @@ func (x *UploadLogReportReq) GetFileUrl() string {
 	return ""
 }
 
-//请求结果
+// 请求结果
 type UploadLogReportResp struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

@@ -184,7 +184,7 @@ func (MicroPositionOperate) EnumDescriptor() ([]byte, []int) {
 	return file_chatroom_micro_proto_rawDescGZIP(), []int{2}
 }
 
-//麦位变更通知实体
+// 麦位变更通知实体
 type ChatroomMicroNotification struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -256,7 +256,7 @@ func (x *ChatroomMicroNotification) GetNewPosition() int32 {
 	return 0
 }
 
-//单个麦位的实体
+// 单个麦位的实体
 type ChatroomMicro struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

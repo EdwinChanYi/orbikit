@@ -50,7 +50,7 @@ const (
 	CmdId_CHATROOM_FETCH_MEMBER_BY_IDS      CmdId = 1031 // 根据IDS查询房间成员
 	CmdId_CHATROOM_FETCH_MEMBER_BY_KEYWORDS CmdId = 1032 // 根据关键字查询房间成员
 	CmdId_CHATROOM_FETCH_MEMBER_BY_ROLE     CmdId = 1033 // 根据自定义的角色查询房间成员
-	//  CHATROOM_MEMBER_MANAGER                           = 1040; // 房间管理员操作
+	// CHATROOM_MEMBER_MANAGER                           = 1040; // 房间管理员操作
 	CmdId_CHATROOM_MEMBER_KICK  CmdId = 1041 // 踢出聊天室
 	CmdId_CHATROOM_MEMBER_BLOCK CmdId = 1042 // 聊天室黑名单操作
 	CmdId_CHATROOM_MEMBER_MUTE  CmdId = 1043 // 聊天室禁言操作

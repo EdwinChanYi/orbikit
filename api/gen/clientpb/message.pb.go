@@ -1075,7 +1075,7 @@ func (x *MessageBcst) GetMessage() *Message {
 	return nil
 }
 
-//当消息需要客户端已收到回执时候，消息收到的时候sdk需要调此接口告知服务器  cmdid CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE
+// 当消息需要客户端已收到回执时候，消息收到的时候sdk需要调此接口告知服务器  cmdid CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE
 type MessageReceiptForReceiveReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

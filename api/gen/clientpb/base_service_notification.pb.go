@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-//通知类型
+// 通知类型
 type NotificationType int32
 
 const (
@@ -73,7 +73,7 @@ func (NotificationType) EnumDescriptor() ([]byte, []int) {
 	return file_base_service_notification_proto_rawDescGZIP(), []int{0}
 }
 
-//通知内容
+// 通知内容
 type NotificationContent struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

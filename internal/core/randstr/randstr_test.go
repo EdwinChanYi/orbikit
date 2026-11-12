@@ -17,7 +17,8 @@ func TestString(t *testing.T) {
 			}
 		}
 	}
-	if String(32, Alnum) == String(32, Alnum) {
+	left, right := String(32, Alnum), String(32, Alnum)
+	if left == right {
 		t.Fatal("two random strings should differ")
 	}
 	if String(0, Alnum) != "" || String(5, "") != "" {

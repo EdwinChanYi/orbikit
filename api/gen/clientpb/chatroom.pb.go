@@ -132,7 +132,7 @@ func (ChatroomUpdateTag) EnumDescriptor() ([]byte, []int) {
 	return file_chatroom_proto_rawDescGZIP(), []int{1}
 }
 
-//服务器还在每次链接之前回推送这个登录uid在服务器的房间状态
+// 服务器还在每次链接之前回推送这个登录uid在服务器的房间状态
 type ChatroomInStatusBcst struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -307,7 +307,7 @@ func (x *EnterChatroomResp) GetChatroom() *Chatroom {
 	return nil
 }
 
-//查询最后一次被操作的扩展字段,例如,进不了房间错误码是被拉黑,在里面可以存为什么拉黑
+// 查询最后一次被操作的扩展字段,例如,进不了房间错误码是被拉黑,在里面可以存为什么拉黑
 type GetLastOperationExtReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
