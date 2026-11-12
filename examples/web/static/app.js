@@ -17,6 +17,7 @@ let seq = 0;
 let ws;
 let pending = new Map();
 let me = null;
+const names = new Map();
 
 async function loadProto() {
   const desc = await (await fetch("client.json")).json();
@@ -85,6 +86,31 @@ function connect(url) {
   });
 }
 
+const ROOM_EVENT = {
+  1: "进入了房间",
+  2: "离开了房间",
+  19: "上线了",
+  20: "下线了",
+  CHATROOM_EVENTTYPE_ENTER: "进入了房间",
+  CHATROOM_EVENTTYPE_EXIT: "离开了房间",
+  CHATROOM_EVENTTYPE_USERONLINE: "上线了",
+  CHATROOM_EVENTTYPE_USEROFFLINE: "下线了",
+};
+
+function roomNotice(msg) {
+  const room = msg.notification && msg.notification.chatroomNotificationContent;
+  const source = room && room.source;
+  if (source && source.userId && source.roomNickname) names.set(String(source.userId), source.roomNickname);
+  const who = source && (source.roomNickname || source.userId);
+  const action = (room && ROOM_EVENT[room.eventType]) || "有一条房间通知";
+  return who ? who + " " + action : action;
+}
+
+function senderName(uid) {
+  if (String(uid) === String(me && me.uid)) return "我";
+  return names.get(String(uid)) || "用户 " + uid;
+}
+
 function onPacket(p) {
   const waiter = pending.get(p.seq);
   if (waiter) {
@@ -94,10 +120,14 @@ function onPacket(p) {
     return;
   }
   if (p.cmd === CMD.MESSAGE) {
-    const msg = decode("orbikit.client.message.MessageBcst", p.body).message;
+    const msg = decode("orbikit.client.message.Message", p.body);
     if (!msg) return;
+    if (msg.messageType === 3) {
+      addLine("system", "", roomNotice(msg));
+      return;
+    }
     const mine = String(msg.from) === String(me.uid);
-    addLine(mine ? "mine" : "", mine ? "我" : "用户 " + msg.from, msg.text || "[非文本消息]");
+    addLine(mine ? "mine" : "", senderName(msg.from), msg.text || "[非文本消息]");
   } else if (p.cmd === CMD.KICK) {
     setStatus("已在其他地方登录，本页已断开");
   } else if (p.cmd === CMD.ROOM_KICKED) {
@@ -200,6 +230,7 @@ $("composer").addEventListener("submit", async (ev) => {
     }));
     const resp = decode("orbikit.client.message.SendMessageResp", reply.body);
     if (!retOK(resp.ret)) addLine("system", "", "发送失败：" + (resp.ret && resp.ret.errorMsg));
+    else addLine("mine", "我", text);
   } catch (err) {
     addLine("system", "", err.message);
   }

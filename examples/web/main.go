@@ -64,7 +64,11 @@ func serve(addr, coreAddr, chatroomAddr, wsURL string) error {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/join", demo.join)
-	mux.Handle("/", http.FileServer(http.FS(static)))
+	files := http.FileServer(http.FS(static))
+	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache")
+		files.ServeHTTP(w, r)
+	}))
 
 	shown := addr
 	if strings.HasPrefix(addr, ":") {
@@ -79,10 +83,11 @@ type demo struct {
 	room  servicepb.ChatroomClient
 	wsURL string
 
-	mu    sync.Mutex
-	appID string
-	rooms map[int64]struct{}
-	seq   atomic.Int64
+	mu        sync.Mutex
+	appID     string
+	roleReady bool
+	rooms     map[int64]struct{}
+	seq       atomic.Int64
 }
 
 type joinRequest struct {
@@ -142,11 +147,14 @@ func (d *demo) prepare(ctx context.Context, nick string, uid, roomID int64) (*jo
 	if err := d.ensureRoom(ctx, appID, roomID, uid); err != nil {
 		return nil, err
 	}
+	if err := d.ensureMemberRole(ctx, appID); err != nil {
+		return nil, err
+	}
 	enter, err := d.room.ApplyEnterChatroomToken(ctx, &servicepb.ApplyEnterChatroomTokenRequest{
 		AppId:      appID,
 		RoomId:     roomID,
 		Uid:        uid,
-		MemberInfo: &servicepb.ChatroomMemberInfo{Uid: uid, Nickname: nick},
+		MemberInfo: &servicepb.ChatroomMemberInfo{Uid: uid, Nickname: nick, RoleId: []int32{memberRoleID}},
 	})
 	if err := rpcErr("申请进房令牌", enter.GetRet(), err); err != nil {
 		return nil, err
@@ -174,6 +182,30 @@ func (d *demo) ensureApp(ctx context.Context) (string, error) {
 	}
 	d.appID = created.GetInfo().GetAppId()
 	return d.appID, nil
+}
+
+const memberRoleID int32 = 1
+
+func (d *demo) ensureMemberRole(ctx context.Context, appID string) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.roleReady {
+		return nil
+	}
+	reply, err := d.room.CreateRole(ctx, &servicepb.CreateRoleRequest{
+		AppId:  appID,
+		Name:   "member",
+		RoleId: int64(memberRoleID),
+	})
+	if err != nil {
+		return fmt.Errorf("创建角色失败：%w", err)
+	}
+	code := reply.GetRet().GetErrorCode()
+	if code != servicepb.ErrorCode_SUCCESS && code != servicepb.ErrorCode_CHATROOM_ROLE_EXIST {
+		return fmt.Errorf("创建角色失败：%s %s", code, reply.GetRet().GetErrorMsg())
+	}
+	d.roleReady = true
+	return nil
 }
 
 func (d *demo) ensureRoom(ctx context.Context, appID string, roomID, owner int64) error {

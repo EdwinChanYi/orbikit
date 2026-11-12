@@ -40,7 +40,7 @@ WebSocket 建议直接用 `plain`，传输加密交给 wss。
 
 | cmdId | 包体 | 何时 |
 |---|---|---|
-| 1070 | `MessageBcst` | 房间消息、全服消息 |
+| 1070 | `Message` | 房间消息、全服消息 |
 | 1060 | `ChatRoomMemberBeKickedBcst` | 被踢出房间 |
 | 1004 | `ChatroomInStatusBcst` | 登录后，告知还在哪些房间 |
 | 802 | `LoginKickedBcst` | 被其他端挤下线，随后断开 |

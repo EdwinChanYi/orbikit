@@ -7,6 +7,7 @@
   --muted: #b3a394;
   --accent: #e07a3d;
   --mine: #2c4a3e;
+  accent-color: var(--accent);
 }
 
 * { box-sizing: border-box; }
@@ -51,11 +52,17 @@ label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
 
 input {
   border: 1px solid var(--line);
-  background: var(--ink);
+  background: #2a231c;
   color: var(--text);
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px #e07a3d;
 }
 
 button {

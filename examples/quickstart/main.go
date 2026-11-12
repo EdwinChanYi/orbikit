@@ -65,6 +65,10 @@ func run(ctx context.Context, coreAddr, chatroomAddr, appID, appName string, uid
 	}
 	fmt.Printf("login token:   uid=%d token=%s\n", uid, login.GetLoginToken())
 
+	if err := ensureMemberRole(ctx, room, appID); err != nil {
+		return err
+	}
+
 	created, err := room.CreateChatroom(ctx, &servicepb.CreateChatroomRequest{
 		AppId:    appID,
 		NeedOpen: true,
@@ -84,7 +88,7 @@ func run(ctx context.Context, coreAddr, chatroomAddr, appID, appName string, uid
 		AppId:      appID,
 		RoomId:     roomID,
 		Uid:        uid,
-		MemberInfo: &servicepb.ChatroomMemberInfo{Uid: uid, Nickname: fmt.Sprintf("user-%d", uid)},
+		MemberInfo: &servicepb.ChatroomMemberInfo{Uid: uid, Nickname: fmt.Sprintf("user-%d", uid), RoleId: []int32{memberRoleID}},
 	})
 	if err := check("ApplyEnterChatroomToken", enter.GetRet(), err); err != nil {
 		return err
@@ -94,6 +98,26 @@ func run(ctx context.Context, coreAddr, chatroomAddr, appID, appName string, uid
 	fmt.Println("join the room over WebSocket:")
 	fmt.Printf("  go run ./examples/gateway-client -transport ws -app %s -uid %d -token %s -room %d -room-token %s -msg hello\n",
 		appID, uid, login.GetLoginToken(), roomID, enter.GetToken())
+	return nil
+}
+
+const memberRoleID int32 = 1
+
+// ensureMemberRole creates the audience role used by the sample clients.
+// Entering a room requires a role id, and that role must already exist for the app.
+func ensureMemberRole(ctx context.Context, room servicepb.ChatroomClient, appID string) error {
+	reply, err := room.CreateRole(ctx, &servicepb.CreateRoleRequest{
+		AppId:  appID,
+		Name:   "member",
+		RoleId: int64(memberRoleID),
+	})
+	if err != nil {
+		return fmt.Errorf("CreateRole: %w", err)
+	}
+	code := reply.GetRet().GetErrorCode()
+	if code != servicepb.ErrorCode_SUCCESS && code != servicepb.ErrorCode_CHATROOM_ROLE_EXIST {
+		return errors.New("CreateRole: " + code.String() + " " + reply.GetRet().GetErrorMsg())
+	}
 	return nil
 }
 
