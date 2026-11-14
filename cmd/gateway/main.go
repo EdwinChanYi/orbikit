@@ -32,7 +32,10 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/idgen"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
+
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -59,6 +62,22 @@ func run(cfgPath string) error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	local, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return err
+	}
+	if _, err := nacos.Overlay(ctx, cfg.Nacos.Client(), "gateway.yaml", &cfg); err != nil {
+		log.L().Warn("nacos overlay", zap.Error(err))
+	}
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("invalid config: %w", err)
+	}
+	if cfg.Log.Level != "" {
+		if err := log.SetLevel(cfg.Log.Level); err != nil {
+			log.L().Warn("nacos log level", zap.Error(err))
+		}
+	}
 
 	rdb, err := redisx.New(ctx, cfg.Redis)
 	if err != nil {
@@ -106,6 +125,38 @@ func run(cfgPath string) error {
 	}, handler.Options{
 		RPCTimeout:     cfg.RPCTimeout,
 		MessageReceipt: cfg.MessageReceipt,
+	})
+	current := string(local)
+	go nacos.Start(ctx, "gateway", cfg.Nacos, local, func(content string) {
+		hot, restart, err := nacos.Classify("gateway", []byte(current), []byte(content))
+		if err != nil {
+			log.L().Warn("nacos classify", zap.Error(err))
+			return
+		}
+		for _, change := range hot {
+			switch change.Path {
+			case "log.level":
+				if err := log.SetLevel(change.Value); err != nil {
+					log.L().Warn("nacos log level", zap.Error(err))
+				}
+			case "moderation":
+				var mod moderation.Config
+				if err := yaml.Unmarshal([]byte(change.Value), &mod); err != nil {
+					log.L().Warn("nacos moderation", zap.Error(err))
+					continue
+				}
+				next, err := moderation.New(mod)
+				if err != nil {
+					log.L().Warn("nacos moderation", zap.Error(err))
+					continue
+				}
+				svc.SetModerator(next)
+			}
+		}
+		if len(restart) > 0 {
+			log.L().Info("restart required", zap.Strings("paths", restart))
+		}
+		current = content
 	})
 
 	serveErr := make(chan error, 3)

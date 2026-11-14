@@ -26,6 +26,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -51,6 +52,19 @@ func run(cfgPath string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	local, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return err
+	}
+	if _, err := nacos.Overlay(ctx, cfg.Nacos.Client(), "core.yaml", &cfg); err != nil {
+		log.L().Warn("nacos overlay", zap.Error(err))
+	}
+	if cfg.Log.Level != "" {
+		if err := log.SetLevel(cfg.Log.Level); err != nil {
+			log.L().Warn("nacos log level", zap.Error(err))
+		}
+	}
+
 	db, err := mysqlx.New(cfg.MySQL)
 	if err != nil {
 		return err
@@ -71,6 +85,33 @@ func run(cfgPath string) error {
 
 	bus := appnotify.New(rdb, cfg.Notify)
 	apps := logic.NewAppService(st, cfg.CacheExpire)
+	current := string(local)
+	go nacos.Start(ctx, "core", cfg.Nacos, local, func(content string) {
+		hot, restart, err := nacos.Classify("core", []byte(current), []byte(content))
+		if err != nil {
+			log.L().Warn("nacos classify", zap.Error(err))
+			return
+		}
+		for _, change := range hot {
+			switch change.Path {
+			case "log.level":
+				if err := log.SetLevel(change.Value); err != nil {
+					log.L().Warn("nacos log level", zap.Error(err))
+				}
+			case "cache_expire":
+				ttl, err := time.ParseDuration(change.Value)
+				if err != nil {
+					log.L().Warn("nacos cache_expire", zap.Error(err))
+					continue
+				}
+				apps.SetCacheExpire(ttl)
+			}
+		}
+		if len(restart) > 0 {
+			log.L().Info("restart required", zap.Strings("paths", restart))
+		}
+		current = content
+	})
 	go bus.Run(ctx, func(req *servicepb.AppInfoUpdatedRequest) {
 		apps.InvalidateApp(req.GetAppId())
 	})

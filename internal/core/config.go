@@ -7,6 +7,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -25,6 +26,7 @@ type Config struct {
 	MySQL  mysqlx.Config    `yaml:"mysql"`
 	Redis  redisx.Config    `yaml:"redis"`
 	Notify appnotify.Config `yaml:"notify"`
+	Nacos  nacos.NacosConfig `yaml:"nacos"`
 }
 
 // DefaultConfig returns the defaults applied before the config file is loaded.

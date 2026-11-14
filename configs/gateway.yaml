@@ -118,3 +118,9 @@ moderation:
       Authorization: "Bearer ${MODERATION_TOKEN}"
     # 调用失败（超时、非 2xx、响应无法解析）时：allow 放行原文，reject 拒绝发送
     on_error: reject
+
+nacos:
+  enabled: false
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}

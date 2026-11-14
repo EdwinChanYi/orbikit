@@ -8,6 +8,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -28,6 +29,7 @@ type Config struct {
 	Core     CoreConfig       `yaml:"core"`
 	Cache    CacheConfig      `yaml:"cache"`
 	Delivery DeliveryConfig   `yaml:"delivery"`
+	Nacos    nacos.NacosConfig `yaml:"nacos"`
 }
 
 // KafkaConfig selects the cluster and the shared consumer group.

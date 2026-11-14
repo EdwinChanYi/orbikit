@@ -66,3 +66,9 @@ delivery:
   max_retry_backoff: 2s
   # 是否跳过回调地址的 TLS 证书校验（仅用于自签名证书的测试环境）
   insecure_skip_verify: false
+
+nacos:
+  enabled: false
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}

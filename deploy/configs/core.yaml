@@ -41,3 +41,9 @@ redis:
 # 集群部署时请让发布和订阅落在同一节点，或使用单机 Redis。
 notify:
   channel: orbikit:app_config
+
+nacos:
+  enabled: false
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}

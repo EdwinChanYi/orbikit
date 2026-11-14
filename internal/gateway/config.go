@@ -14,6 +14,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/gateway/push"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -46,6 +47,7 @@ type Config struct {
 	Kafka      KafkaConfig       `yaml:"kafka"`
 	Topics     push.Topics       `yaml:"topics"`
 	Moderation moderation.Config `yaml:"moderation"`
+	Nacos      nacos.NacosConfig `yaml:"nacos"`
 }
 
 // TCPConfig configures the raw TCP long link.

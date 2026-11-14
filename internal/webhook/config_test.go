@@ -29,4 +29,7 @@ func TestExampleConfigLoads(t *testing.T) {
 	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" || cfg.Notify.Channel != "orbikit:app_config" {
 		t.Fatalf("redis/notify = %+v %+v", cfg.Redis, cfg.Notify)
 	}
+	if cfg.Nacos.Enabled {
+		t.Fatal("nacos should be disabled")
+	}
 }

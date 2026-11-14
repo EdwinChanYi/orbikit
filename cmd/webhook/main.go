@@ -25,6 +25,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -50,6 +51,19 @@ func run(cfgPath string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	local, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return err
+	}
+	if _, err := nacos.Overlay(ctx, cfg.Nacos.Client(), "webhook.yaml", &cfg); err != nil {
+		log.L().Warn("nacos overlay", zap.Error(err))
+	}
+	if cfg.Log.Level != "" {
+		if err := log.SetLevel(cfg.Log.Level); err != nil {
+			log.L().Warn("nacos log level", zap.Error(err))
+		}
+	}
+
 	coreConn, err := grpcx.Dial(cfg.Core.Target)
 	if err != nil {
 		return fmt.Errorf("dial core: %w", err)
@@ -65,6 +79,40 @@ func run(cfgPath string) error {
 	apps := delivery.NewAppCache(
 		&delivery.CoreSource{Client: servicepb.NewCoreClient(coreConn), Timeout: cfg.Core.Timeout},
 		cfg.Cache.Expire, cfg.Cache.NotFoundExpire)
+	current := string(local)
+	go nacos.Start(ctx, "webhook", cfg.Nacos, local, func(content string) {
+		hot, restart, err := nacos.Classify("webhook", []byte(current), []byte(content))
+		if err != nil {
+			log.L().Warn("nacos classify", zap.Error(err))
+			return
+		}
+		var expire, notFound time.Duration
+		for _, change := range hot {
+			switch change.Path {
+			case "log.level":
+				if err := log.SetLevel(change.Value); err != nil {
+					log.L().Warn("nacos log level", zap.Error(err))
+				}
+			case "cache.expire":
+				expire, err = time.ParseDuration(change.Value)
+				if err != nil {
+					log.L().Warn("nacos cache.expire", zap.Error(err))
+				}
+			case "cache.not_found_expire":
+				notFound, err = time.ParseDuration(change.Value)
+				if err != nil {
+					log.L().Warn("nacos cache.not_found_expire", zap.Error(err))
+				}
+			}
+		}
+		if expire > 0 || notFound > 0 {
+			apps.SetTTL(expire, notFound)
+		}
+		if len(restart) > 0 {
+			log.L().Info("restart required", zap.Strings("paths", restart))
+		}
+		current = content
+	})
 	go appnotify.New(rdb, cfg.Notify).Run(ctx, func(req *servicepb.AppInfoUpdatedRequest) {
 		server.Apply(apps, req)
 	})

@@ -9,6 +9,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -33,7 +34,8 @@ type Config struct {
 	Redis  redisx.Config `yaml:"redis"`
 	MySQL  mysqlx.Config `yaml:"mysql"`
 	Kafka  kafkax.Config `yaml:"kafka"`
-	Topics event.Topics  `yaml:"topics"`
+	Topics event.Topics   `yaml:"topics"`
+	Nacos  nacos.NacosConfig `yaml:"nacos"`
 }
 
 // DefaultConfig returns the values used for settings missing from the file.

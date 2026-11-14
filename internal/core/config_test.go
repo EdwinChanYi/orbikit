@@ -22,4 +22,7 @@ func TestExampleConfigLoads(t *testing.T) {
 	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" {
 		t.Fatalf("redis = %+v", cfg.Redis)
 	}
+	if cfg.Nacos.Enabled {
+		t.Fatal("nacos should be disabled")
+	}
 }

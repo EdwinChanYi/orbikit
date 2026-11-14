@@ -23,6 +23,9 @@ func TestSampleConfig(t *testing.T) {
 	if cfg.Redis.Password != "redis-secret" {
 		t.Fatalf("redis password not expanded: %q", cfg.Redis.Password)
 	}
+	if cfg.Nacos.Enabled {
+		t.Fatal("nacos should be disabled")
+	}
 	if cfg.EnterTokenTTL != 300*time.Second || cfg.OfflineLeaveAfter != 60*time.Second {
 		t.Fatalf("durations = %v %v", cfg.EnterTokenTTL, cfg.OfflineLeaveAfter)
 	}

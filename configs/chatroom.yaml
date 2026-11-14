@@ -62,3 +62,9 @@ topics:
   kicked: orbikit.room.kicked
   # 杂项事件（servicepb.ChatRoomMiscEventMsg）：封禁用户
   event: orbikit.room.event
+
+nacos:
+  enabled: false
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}
