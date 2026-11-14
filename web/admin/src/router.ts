@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "./views/Login.vue";
+import Cluster from "./views/Cluster.vue";
+import Overview from "./views/Overview.vue";
 import Section from "./views/Section.vue";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: "/login", name: "login", component: Login },
-    { path: "/", name: "总览", component: Section },
+    { path: "/", name: "总览", component: Overview },
     { path: "/config", name: "配置", component: Section },
-    { path: "/cluster", name: "集群", component: Section },
+    { path: "/cluster", name: "集群", component: Cluster },
     { path: "/logs", name: "日志", component: Section },
     { path: "/release", name: "发布", component: Section },
   ],
