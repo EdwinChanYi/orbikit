@@ -75,6 +75,10 @@ services:
       context: ..
       args: { SERVICE: core }
     command: ["-config", "/app/configs/core.yaml"]
+    environment:
+      MYSQL_PASSWORD: orbikit
+      REDIS_PASSWORD: ""
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -85,6 +89,10 @@ services:
       context: ..
       args: { SERVICE: chatroom }
     command: ["-config", "/app/configs/chatroom.yaml"]
+    environment:
+      MYSQL_PASSWORD: orbikit
+      REDIS_PASSWORD: ""
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -97,6 +105,10 @@ services:
       context: ..
       args: { SERVICE: webhook }
     command: ["-config", "/app/configs/webhook.yaml"]
+    environment:
+      MYSQL_PASSWORD: orbikit
+      REDIS_PASSWORD: ""
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
     depends_on:
       redis: { condition: service_healthy }
       kafka-init: { condition: service_completed_successfully }
@@ -108,6 +120,10 @@ services:
       context: ..
       args: { SERVICE: gateway }
     command: ["-config", "/app/configs/gateway.yaml"]
+    environment:
+      MYSQL_PASSWORD: orbikit
+      REDIS_PASSWORD: ""
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
     ports:
       - "8000:8000"
       - "8001:8001"
@@ -138,9 +154,20 @@ services:
     environment:
       MYSQL_PASSWORD: orbikit
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
     depends_on:
       mysql: { condition: service_healthy }
       builder: { condition: service_started }
+
+  nacos:
+    image: nacos/nacos-server:v2.5.5
+    profiles: ["nacos"]
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "true"
+      NACOS_AUTH_TOKEN: SecretKey012345678901234567890123456789012345678901234567890123456789
+      NACOS_AUTH_IDENTITY_KEY: serverIdentity
+      NACOS_AUTH_IDENTITY_VALUE: security
 
   tools-quickstart:
     image: golang:1.27.4
