@@ -106,6 +106,29 @@ func TestStatusRoutes(t *testing.T) {
 	})
 }
 
+type hangingSource struct{}
+
+func (hangingSource) Cluster(ctx context.Context) (Cluster, error) {
+	<-ctx.Done()
+	return Interpret("", 0, nil, nil, ctx.Err()), nil
+}
+
+func TestClusterReadReturnsFaultWhenEtcdHangs(t *testing.T) {
+	handler := NewHandler(View{Source: hangingSource{}})
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/cluster", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	var cluster Cluster
+	if err := json.Unmarshal(rec.Body.Bytes(), &cluster); err != nil {
+		t.Fatal(err)
+	}
+	if cluster.Status != "fault" || cluster.Instances != nil {
+		t.Fatalf("cluster = %+v", cluster)
+	}
+}
+
 func operatorCookie(t *testing.T, store auth.Store, expires time.Time) *http.Cookie {
 	t.Helper()
 	raw := make([]byte, 32)

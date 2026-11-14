@@ -1,9 +1,13 @@
 package status
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 )
+
+const clusterReadTimeout = 2 * time.Second
 
 // View is what the status pages encode. Overview reads containers through
 // BuilderURL. Cluster reads the etcd snapshot from Source.
@@ -31,9 +35,14 @@ func readCluster(r *http.Request, view View) Cluster {
 	if view.Source == nil {
 		return Cluster{Status: "fault", Error: ErrEtcd.Error()}
 	}
-	snap, err := view.Source.Cluster(r.Context())
+	ctx, cancel := context.WithTimeout(r.Context(), clusterReadTimeout)
+	defer cancel()
+	snap, err := view.Source.Cluster(ctx)
 	if err != nil && snap.Status == "" {
 		return Cluster{Status: "fault", Error: err.Error()}
+	}
+	if snap.Status == "" {
+		return Cluster{Status: "fault", Error: ErrEtcd.Error()}
 	}
 	return snap
 }
