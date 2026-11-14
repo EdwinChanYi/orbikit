@@ -9,6 +9,13 @@ shutdown_timeout: 10s
 # 管理库 orbikit_admin，与业务库 orbikit 分开
 mysql_dsn: "root:${MYSQL_PASSWORD}@tcp(localhost:3306)/orbikit_admin?charset=utf8mb4&parseTime=true&loc=Local"
 
+# builder 查询容器 name、status、running、image_id
+builder_url: http://127.0.0.1:8092
+# 已注册实例所在的 etcd
+etcd:
+  endpoints: ["127.0.0.1:2379"]
+  prefix: /orbikit/services
+
 log:
   # 日志级别：debug / info / warn / error
   level: info

@@ -4,6 +4,7 @@ package admin
 import (
 	"time"
 
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
 
@@ -13,6 +14,11 @@ type Config struct {
 	HTTPAddr string `yaml:"http_addr"`
 	// MySQLDSN opens the orbikit_admin database.
 	MySQLDSN string `yaml:"mysql_dsn"`
+	// BuilderURL is the builder base URL. Overview reads
+	// {BuilderURL}/v1/containers/{name}.
+	BuilderURL string `yaml:"builder_url"`
+	// Etcd lists registered service instances.
+	Etcd discovery.Config `yaml:"etcd"`
 	// Log is the process logger configuration.
 	Log log.Config `yaml:"log"`
 	// ShutdownTimeout bounds graceful shutdown.
