@@ -23,6 +23,7 @@ type Cell = {
 
 const rows = ref<ServiceRow[]>([]);
 const failed = ref(false);
+const settled = ref(false);
 
 const containerCell: Record<string, Cell> = {
   running: { text: "运行中", cls: "status-ok" },
@@ -38,7 +39,15 @@ const grpcCell: Record<string, Cell> = {
   unknown: { text: "未知", cls: "status-unknown" },
 };
 
-const etcdFault = computed(() => failed.value || rows.value.some((row) => row.instances == null));
+const etcdStatus = computed((): Cell => {
+  if (!settled.value) {
+    return { text: "未知", cls: "status-unknown" };
+  }
+  if (failed.value || rows.value.some((row) => row.instances == null)) {
+    return { text: "故障", cls: "status-fault" };
+  }
+  return { text: "正常", cls: "status-ok" };
+});
 
 function labeled(map: Record<string, Cell>, value: string): Cell {
   return map[value] ?? { text: value, cls: "status-unknown" };
@@ -72,6 +81,8 @@ onMounted(async () => {
     rows.value = Array.isArray(body.services) ? body.services : [];
   } catch {
     failed.value = true;
+  } finally {
+    settled.value = true;
   }
 });
 </script>
@@ -79,7 +90,7 @@ onMounted(async () => {
 <template>
   <p>
     etcd
-    <span :class="etcdFault ? 'status-fault' : 'status-ok'">{{ etcdFault ? "故障" : "正常" }}</span>
+    <span :class="etcdStatus.cls">{{ etcdStatus.text }}</span>
   </p>
   <table v-if="!failed">
     <thead>

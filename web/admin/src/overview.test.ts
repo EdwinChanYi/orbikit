@@ -185,6 +185,20 @@ describe("Overview", () => {
     }
   });
 
+  it("shows 未知 and not 正常 before the overview request settles", () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = () => new Promise(() => {});
+    try {
+      const wrapper = mount(Overview);
+      expect(wrapper.text()).toContain("未知");
+      expect(wrapper.text()).not.toContain("正常");
+      const etcd = wrapper.findAll("p").find((node) => node.text().includes("etcd"));
+      expect(etcd?.find(".status-unknown").text()).toBe("未知");
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
   it("shows 故障 when the overview request fails", async () => {
     const original = globalThis.fetch;
     globalThis.fetch = async () => new Response("no", { status: 500 });
