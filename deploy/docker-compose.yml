@@ -117,6 +117,19 @@ services:
       core: { condition: service_started }
       chatroom: { condition: service_started }
 
+  admin:
+    <<: *service
+    build:
+      context: ..
+      args: { SERVICE: admin }
+    command: ["-config", "/app/configs/admin.yaml"]
+    ports: ["8091:8091"]
+    environment:
+      MYSQL_PASSWORD: orbikit
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+    depends_on:
+      mysql: { condition: service_healthy }
+
   tools-quickstart:
     image: golang:1.27.4
     profiles: ["tools"]

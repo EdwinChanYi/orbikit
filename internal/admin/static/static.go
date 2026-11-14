@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Vite writes web/admin/dist. This directive only embeds the dist directory beside this file.
+// Vite writes this directory from web/admin (build.outDir). Embed cannot see files outside the package.
 //
 //go:embed all:dist
 var dist embed.FS

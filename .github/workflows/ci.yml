@@ -13,6 +13,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci && npm test && npm run build
+        working-directory: web/admin
       - run: go vet ./...
       - run: go test -race ./...
       - run: go build ./...
@@ -47,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [core, chatroom, gateway, webhook]
+        service: [core, chatroom, gateway, webhook, admin]
     steps:
       - uses: actions/checkout@v4
       - run: docker build --build-arg SERVICE=${{ matrix.service }} .

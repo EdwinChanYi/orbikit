@@ -1,4 +1,4 @@
-SERVICES := core chatroom gateway webhook
+SERVICES := core chatroom gateway webhook admin
 GOBIN    := $(shell go env GOPATH)/bin
 
 .PHONY: all build test lint proto tools up down $(SERVICES)
