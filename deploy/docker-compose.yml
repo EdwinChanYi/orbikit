@@ -117,6 +117,16 @@ services:
       core: { condition: service_started }
       chatroom: { condition: service_started }
 
+  builder:
+    <<: *service
+    user: root
+    build:
+      context: ..
+      args: { SERVICE: builder }
+    command: ["-config", "/app/configs/builder.yaml"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   admin:
     <<: *service
     build:
@@ -129,6 +139,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
     depends_on:
       mysql: { condition: service_healthy }
+      builder: { condition: service_started }
 
   tools-quickstart:
     image: golang:1.27.4
