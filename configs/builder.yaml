@@ -1,0 +1,10 @@
+http_addr: ":8092"
+socket: /var/run/docker.sock
+project: orbikit
+shutdown_timeout: 10s
+log:
+  level: info
+  file: ""
+  max_size_mb: 1024
+  max_age_days: 30
+  console: true
