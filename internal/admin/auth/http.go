@@ -92,7 +92,6 @@ func (h *handler) logout(w http.ResponseWriter, r *http.Request) {
 	if c, err := r.Cookie(CookieName); err == nil {
 		if hash, ok := sessionHash(c.Value); ok {
 			if err := h.store.DeleteSession(r.Context(), hash); err != nil {
-				clearSessionCookie(w)
 				writeUnauthorized(w)
 				return
 			}

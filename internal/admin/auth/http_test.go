@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -61,5 +62,46 @@ func TestLoginThenMe(t *testing.T) {
 	h.ServeHTTP(rec, me)
 	if rec.Code != http.StatusOK || strings.TrimSpace(rec.Body.String()) != `{"username":"admin"}` {
 		t.Fatalf("me = %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+// errDeleteStore delegates to Memory and fails only DeleteSession.
+type errDeleteStore struct {
+	Store
+}
+
+func (errDeleteStore) DeleteSession(context.Context, []byte) error {
+	return errors.New("delete session")
+}
+
+func TestLogoutKeepsCookieWhenDeleteFails(t *testing.T) {
+	hash, err := bcrypt.GenerateFromPassword([]byte("secret"), bcrypt.MinCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mem := NewMemory()
+	if err := mem.EnsureOperator(context.Background(), hash); err != nil {
+		t.Fatal(err)
+	}
+	h := NewHandler(errDeleteStore{Store: mem}, []byte("secret"), func() time.Time { return time.Unix(0, 0) })
+	login := httptest.NewRequest(http.MethodPost, "/api/login", strings.NewReader(`{"password":"secret"}`))
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, login)
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("login status = %d, body %s", rec.Code, rec.Body.String())
+	}
+	cookie := rec.Result().Cookies()
+	if len(cookie) != 1 || cookie[0].Value == "" {
+		t.Fatalf("cookie = %+v", cookie)
+	}
+	logout := httptest.NewRequest(http.MethodPost, "/api/logout", nil)
+	logout.AddCookie(cookie[0])
+	rec = httptest.NewRecorder()
+	h.ServeHTTP(rec, logout)
+	if rec.Code != http.StatusUnauthorized || strings.TrimSpace(rec.Body.String()) != `{"error":"登录失败"}` {
+		t.Fatalf("logout = %d %s", rec.Code, rec.Body.String())
+	}
+	if cleared := rec.Result().Cookies(); len(cleared) != 0 {
+		t.Fatalf("delete failure cleared cookie: %+v", cleared)
 	}
 }
