@@ -25,10 +25,11 @@ func (s *Service) sendMessage(ctx context.Context, r *Request, body []byte) *cli
 		msg.MessageId = r.TraceID
 	}
 
-	moderated := msg.Text != "" && !isNone(s.Moderator)
+	moderator := s.currentModerator()
+	moderated := msg.Text != "" && !isNone(moderator)
 	s.Store.IncrDailyMsg(ctx, r.AppID, moderated)
 	if moderated {
-		res, err := s.Moderator.CheckText(ctx, r.AppID, r.UID, roomID, msg.Text)
+		res, err := moderator.CheckText(ctx, r.AppID, r.UID, roomID, msg.Text)
 		if err != nil {
 			r.Log.Error("moderation failed", zap.Error(err), zap.Int64("room_id", roomID))
 			return &clientpb.SendMessageResp{Ret: ret(clientpb.ErrorCode_MARS_AGENT_GD_HTTP_ERR)}

@@ -53,6 +53,27 @@ func offlineStore() *store.Store {
 	return store.New(rdb)
 }
 
+type verdictModerator struct{ allowed bool }
+
+func (v verdictModerator) CheckText(context.Context, string, int64, int64, string) (moderation.Result, error) {
+	return moderation.Result{Allowed: v.allowed}, nil
+}
+
+func TestSetModeratorReplacesTheChecker(t *testing.T) {
+	s := &Service{Deps: Deps{Moderator: verdictModerator{allowed: true}}}
+	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || !res.Allowed {
+		t.Fatalf("initial = %+v, %v", res, err)
+	}
+	s.SetModerator(verdictModerator{allowed: false})
+	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || res.Allowed {
+		t.Fatalf("swapped = %+v, %v", res, err)
+	}
+	s.SetModerator(nil)
+	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || res.Allowed {
+		t.Fatalf("nil swap = %+v, %v", res, err)
+	}
+}
+
 func newTestService(chat servicepb.ChatroomClient, mod moderation.Moderator) *Service {
 	return New(Deps{
 		Chatroom:  chat,

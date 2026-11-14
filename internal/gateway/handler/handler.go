@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -48,8 +49,25 @@ type Deps struct {
 // Service dispatches client commands.
 type Service struct {
 	Deps
-	opts   Options
-	routes map[clientpb.CmdId]*Route
+	opts      Options
+	routes    map[clientpb.CmdId]*Route
+	moderator atomic.Value
+}
+
+// SetModerator replaces the moderator used by later checks.
+// A nil moderator leaves the current one in place.
+func (s *Service) SetModerator(m moderation.Moderator) {
+	if m == nil {
+		return
+	}
+	s.moderator.Store(m)
+}
+
+func (s *Service) currentModerator() moderation.Moderator {
+	if v := s.moderator.Load(); v != nil {
+		return v.(moderation.Moderator)
+	}
+	return s.Moderator
 }
 
 // New wires a Service and registers every command.
