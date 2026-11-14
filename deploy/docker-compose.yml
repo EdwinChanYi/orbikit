@@ -125,6 +125,7 @@ services:
       args: { SERVICE: builder }
     command: ["-config", "/app/configs/builder.yaml"]
     volumes:
+      - ./configs:/app/configs:ro
       - /var/run/docker.sock:/var/run/docker.sock
 
   admin:

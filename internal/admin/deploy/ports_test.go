@@ -55,7 +55,7 @@ func TestBuilderAloneMountsDockerSocket(t *testing.T) {
 	if builder.User != "root" {
 		t.Fatalf("builder user = %q", builder.User)
 	}
-	if len(builder.Volumes) != 1 || builder.Volumes[0] != "/var/run/docker.sock:/var/run/docker.sock" {
+	if len(builder.Volumes) != 2 || builder.Volumes[0] != "./configs:/app/configs:ro" || builder.Volumes[1] != "/var/run/docker.sock:/var/run/docker.sock" {
 		t.Fatalf("builder volumes = %v", builder.Volumes)
 	}
 	for _, volume := range doc.Services["admin"].Volumes {
