@@ -4,6 +4,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import router from "./router";
 import Cluster from "./views/Cluster.vue";
+import Config from "./views/Config.vue";
 import Overview from "./views/Overview.vue";
 import Section from "./views/Section.vue";
 
@@ -219,7 +220,7 @@ describe("status routes", () => {
     const componentFor = (path: string) => routes.find((route) => route.path === path)?.components?.default;
     expect(componentFor("/")).toBe(Overview);
     expect(componentFor("/cluster")).toBe(Cluster);
-    expect(componentFor("/config")).toBe(Section);
+    expect(componentFor("/config")).toBe(Config);
     expect(componentFor("/logs")).toBe(Section);
     expect(componentFor("/release")).toBe(Section);
 
