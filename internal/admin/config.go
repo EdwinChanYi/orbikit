@@ -6,6 +6,7 @@ import (
 
 	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 )
 
 // Config is the admin service configuration.
@@ -19,6 +20,8 @@ type Config struct {
 	BuilderURL string `yaml:"builder_url"`
 	// Etcd lists registered service instances.
 	Etcd discovery.Config `yaml:"etcd"`
+	// Nacos is the optional config center. Disabled leaves the config page empty.
+	Nacos nacos.NacosConfig `yaml:"nacos"`
 	// Log is the process logger configuration.
 	Log log.Config `yaml:"log"`
 	// ShutdownTimeout bounds graceful shutdown.

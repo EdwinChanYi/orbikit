@@ -18,10 +18,12 @@ import (
 
 	"github.com/EdwinChanYi/orbikit/internal/admin"
 	"github.com/EdwinChanYi/orbikit/internal/admin/auth"
+	"github.com/EdwinChanYi/orbikit/internal/admin/nacosapi"
 	"github.com/EdwinChanYi/orbikit/internal/admin/static"
 	"github.com/EdwinChanYi/orbikit/internal/admin/status"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 )
 
 const defaultAdminPassword = "123456"
@@ -82,7 +84,7 @@ func run(cfgPath string) error {
 		return err
 	}
 	srv := &http.Server{
-		Handler:           routes(store, []byte(password), cfg.BuilderURL, snapshots),
+		Handler:           routes(store, []byte(password), cfg.BuilderURL, snapshots, cfg.Nacos.Client()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	log.L().Info("admin started", zap.String("http_addr", cfg.HTTPAddr))
@@ -118,7 +120,7 @@ func operatorPassword() string {
 // routes serves overview and cluster behind the session cookie, then the
 // login API, then the UI. The status paths are registered before /api/
 // so the login mux does not swallow them.
-func routes(store auth.Store, password []byte, builderURL string, etcdSource status.Source) http.Handler {
+func routes(store auth.Store, password []byte, builderURL string, etcdSource status.Source, configs *nacos.Client) http.Handler {
 	statusHandler := status.NewHandler(status.View{
 		BuilderURL: builderURL,
 		Health:     status.GRPCHealth{},
@@ -127,6 +129,7 @@ func routes(store auth.Store, password []byte, builderURL string, etcdSource sta
 	mux := http.NewServeMux()
 	mux.Handle("/api/overview", auth.RequireSession(store, nil, statusHandler))
 	mux.Handle("/api/cluster", auth.RequireSession(store, nil, statusHandler))
+	mux.Handle("/api/config/", auth.RequireSession(store, nil, nacosapi.NewHandler(configs)))
 	mux.Handle("/api/", auth.NewHandler(store, password, nil))
 	mux.Handle("/", static.Handler())
 	return mux

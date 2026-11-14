@@ -16,6 +16,12 @@ etcd:
   endpoints: ["127.0.0.1:2379"]
   prefix: /orbikit/services
 
+nacos:
+  enabled: false
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}
+
 log:
   # 日志级别：debug / info / warn / error
   level: info
