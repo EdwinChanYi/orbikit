@@ -121,6 +121,7 @@ func operatorPassword() string {
 func routes(store auth.Store, password []byte, builderURL string, etcdSource status.Source) http.Handler {
 	statusHandler := status.NewHandler(status.View{
 		BuilderURL: builderURL,
+		Health:     status.GRPCHealth{},
 		Source:     etcdSource,
 	})
 	mux := http.NewServeMux()
