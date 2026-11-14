@@ -75,7 +75,6 @@ services:
       context: ..
       args: { SERVICE: core }
     command: ["-config", "/app/configs/core.yaml"]
-    ports: ["9001:9001"]
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -86,7 +85,6 @@ services:
       context: ..
       args: { SERVICE: chatroom }
     command: ["-config", "/app/configs/chatroom.yaml"]
-    ports: ["9002:9002"]
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -113,12 +111,20 @@ services:
     ports:
       - "8000:8000"
       - "8001:8001"
-      - "8080:8080"
     depends_on:
       redis: { condition: service_healthy }
       kafka-init: { condition: service_completed_successfully }
       core: { condition: service_started }
       chatroom: { condition: service_started }
+
+  tools-quickstart:
+    image: golang:1.27.4
+    profiles: ["tools"]
+    working_dir: /src
+    volumes: ["..:/src"]
+    entrypoint: ["go", "run", "./examples/quickstart", "-core", "core:9001", "-chatroom", "chatroom:9002"]
+    environment:
+      GOPROXY: https://proxy.golang.org,direct
 
 volumes:
   mysql-data:

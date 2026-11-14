@@ -54,7 +54,13 @@ make up            # 等价于 docker compose -f deploy/docker-compose.yml up -d
 
 国内网络可以在构建时指定 Go 代理：`docker compose -f deploy/docker-compose.yml build --build-arg GOPROXY=https://goproxy.cn,direct`。
 
-服务启动后，用 quickstart 扮演业务服务器：创建应用、签发登录 token、建房并申请进房 token：
+服务启动后，用 quickstart 扮演业务服务器：创建应用、签发登录 token、建房并申请进房 token。`make up` 之后 `core` 和 `chatroom` 不再向宿主机发布 gRPC 端口，宿主机已经连不上 `localhost:9001`，因此在 compose 网络中运行：
+
+```bash
+docker compose -f deploy/docker-compose.yml run --rm tools-quickstart -uid 10001 -room 1001
+```
+
+本机 `go run ./cmd/core -config configs/core.yaml` 时，quickstart 仍使用默认的 `localhost:9001`：
 
 ```bash
 go run ./examples/quickstart -uid 10001 -room 1001
@@ -69,11 +75,13 @@ go run ./examples/gateway-client -transport ws -app <app_id> -uid 10001 \
 
 再开一个终端，用另一个 uid 重复上面两步，就能看到两个客户端互相收到房间消息。
 
-也可以直接用浏览器。再开一个终端：
+也可以直接用浏览器。本机 `go run ./cmd/core -config configs/core.yaml` 时，再开一个终端：
 
 ```bash
 go run ./examples/web
 ```
+
+`examples/web` 对着 compose 使用时同样要加入该网络，并传 `-core core:9001`（chatroom 使用 `-chatroom chatroom:9002`）。浏览器访问的 `8090` 由这个示例进程自己监听，不在本任务映射网关 `8080`。
 
 打开 <http://localhost:8090>，两个浏览器窗口用不同昵称进入同一个房间号即可对话。页面走的是网关的 WebSocket 协议，`examples/web` 只负责创建应用、签发令牌。
 
