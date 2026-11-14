@@ -19,9 +19,12 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/admin"
 	"github.com/EdwinChanYi/orbikit/internal/admin/auth"
 	"github.com/EdwinChanYi/orbikit/internal/admin/static"
+	"github.com/EdwinChanYi/orbikit/internal/admin/status"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 )
+
+const defaultAdminPassword = "123456"
 
 func main() {
 	cfgPath := flag.String("config", "configs/admin.yaml", "path to the config file")
@@ -42,9 +45,9 @@ func run(cfgPath string) error {
 	}
 	defer log.Sync()
 
-	password := os.Getenv("ADMIN_PASSWORD")
-	if password == "" {
-		return errors.New("ADMIN_PASSWORD is required")
+	password := operatorPassword()
+	if os.Getenv("ADMIN_PASSWORD") == "" {
+		log.L().Info("ADMIN_PASSWORD is unset, using the default password")
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -62,12 +65,24 @@ func run(cfgPath string) error {
 		return fmt.Errorf("ensure operator: %w", err)
 	}
 
+	snapshots, err := status.Open(
+		cfg.Etcd.Endpoints,
+		cfg.Etcd.Username,
+		cfg.Etcd.Password,
+		cfg.Etcd.DialTimeout,
+		cfg.Etcd.Prefix,
+	)
+	if err != nil {
+		return fmt.Errorf("etcd: %w", err)
+	}
+	defer status.Close(snapshots)
+
 	ln, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
 		return err
 	}
 	srv := &http.Server{
-		Handler:           routes(store, []byte(password)),
+		Handler:           routes(store, []byte(password), cfg.BuilderURL, snapshots),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	log.L().Info("admin started", zap.String("http_addr", cfg.HTTPAddr))
@@ -92,9 +107,25 @@ func run(cfgPath string) error {
 	return runErr
 }
 
-// routes sends /api/ to the login API and every other path to the UI.
-func routes(store auth.Store, password []byte) http.Handler {
+// operatorPassword returns ADMIN_PASSWORD, or 123456 when it is unset or empty.
+func operatorPassword() string {
+	if password := os.Getenv("ADMIN_PASSWORD"); password != "" {
+		return password
+	}
+	return defaultAdminPassword
+}
+
+// routes serves overview and cluster behind the session cookie, then the
+// login API, then the UI. The status paths are registered before /api/
+// so the login mux does not swallow them.
+func routes(store auth.Store, password []byte, builderURL string, etcdSource status.Source) http.Handler {
+	statusHandler := status.NewHandler(status.View{
+		BuilderURL: builderURL,
+		Source:     etcdSource,
+	})
 	mux := http.NewServeMux()
+	mux.Handle("/api/overview", auth.RequireSession(store, nil, statusHandler))
+	mux.Handle("/api/cluster", auth.RequireSession(store, nil, statusHandler))
 	mux.Handle("/api/", auth.NewHandler(store, password, nil))
 	mux.Handle("/", static.Handler())
 	return mux

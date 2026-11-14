@@ -122,6 +122,33 @@ func (h *handler) me(w http.ResponseWriter, r *http.Request) {
 	_, _ = io.WriteString(w, meBody)
 }
 
+// RequireSession allows next only when the session cookie is still valid.
+// A missing, malformed, expired, or unreadable session is rejected with the
+// login failure body. A nil now uses time.Now.
+func RequireSession(store Store, now func() time.Time, next http.Handler) http.Handler {
+	if now == nil {
+		now = time.Now
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(CookieName)
+		if err != nil {
+			writeUnauthorized(w)
+			return
+		}
+		hash, ok := sessionHash(cookie.Value)
+		if !ok {
+			writeUnauthorized(w)
+			return
+		}
+		valid, err := store.SessionValid(r.Context(), hash, now())
+		if err != nil || !valid {
+			writeUnauthorized(w)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // sessionHash hashes the raw token carried in the cookie as lowercase hex.
 func sessionHash(value string) ([]byte, bool) {
 	raw, err := hex.DecodeString(value)

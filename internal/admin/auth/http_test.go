@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -103,5 +105,117 @@ func TestLogoutKeepsCookieWhenDeleteFails(t *testing.T) {
 	}
 	if cleared := rec.Result().Cookies(); len(cleared) != 0 {
 		t.Fatalf("delete failure cleared cookie: %+v", cleared)
+	}
+}
+
+func TestRequireSession(t *testing.T) {
+	now := time.Unix(1_700_000_000, 0)
+	store := NewMemory()
+	var called bool
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		w.WriteHeader(http.StatusOK)
+	})
+	h := RequireSession(store, func() time.Time { return now }, next)
+
+	t.Run("no cookie", func(t *testing.T) {
+		called = false
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/overview", nil))
+		assertUnauthorized(t, rec)
+		if called {
+			t.Fatal("next was called")
+		}
+	})
+
+	t.Run("malformed cookie", func(t *testing.T) {
+		called = false
+		req := httptest.NewRequest(http.MethodGet, "/api/overview", nil)
+		req.AddCookie(&http.Cookie{Name: CookieName, Value: "not-a-session"})
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		assertUnauthorized(t, rec)
+		if called {
+			t.Fatal("next was called")
+		}
+	})
+
+	t.Run("expired session", func(t *testing.T) {
+		called = false
+		req := httptest.NewRequest(http.MethodGet, "/api/overview", nil)
+		req.AddCookie(sessionCookie(t, store, now.Add(-time.Second)))
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		assertUnauthorized(t, rec)
+		if called {
+			t.Fatal("next was called")
+		}
+	})
+
+	t.Run("store error", func(t *testing.T) {
+		broken := RequireSession(errValidStore{Store: store}, func() time.Time { return now }, next)
+		req := httptest.NewRequest(http.MethodGet, "/api/cluster", nil)
+		req.AddCookie(sessionCookie(t, store, now.Add(time.Hour)))
+		rec := httptest.NewRecorder()
+		broken.ServeHTTP(rec, req)
+		assertUnauthorized(t, rec)
+	})
+
+	t.Run("valid session", func(t *testing.T) {
+		called = false
+		req := httptest.NewRequest(http.MethodGet, "/api/overview", nil)
+		req.AddCookie(sessionCookie(t, store, now.Add(time.Hour)))
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
+		}
+		if !called {
+			t.Fatal("next was not called")
+		}
+	})
+
+	t.Run("nil clock uses the current time", func(t *testing.T) {
+		called = false
+		live := RequireSession(store, nil, next)
+		req := httptest.NewRequest(http.MethodGet, "/api/overview", nil)
+		req.AddCookie(sessionCookie(t, store, time.Now().Add(time.Hour)))
+		rec := httptest.NewRecorder()
+		live.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK || !called {
+			t.Fatalf("status = %d called %v", rec.Code, called)
+		}
+	})
+}
+
+// errValidStore delegates to Store and fails only SessionValid.
+type errValidStore struct {
+	Store
+}
+
+func (errValidStore) SessionValid(context.Context, []byte, time.Time) (bool, error) {
+	return false, errors.New("session lookup")
+}
+
+func sessionCookie(t *testing.T, store Store, expires time.Time) *http.Cookie {
+	t.Helper()
+	raw := make([]byte, 32)
+	for i := range raw {
+		raw[i] = byte(expires.UnixNano() + int64(i))
+	}
+	sum := sha256.Sum256(raw)
+	if err := store.CreateSession(context.Background(), sum[:], expires); err != nil {
+		t.Fatal(err)
+	}
+	return &http.Cookie{Name: CookieName, Value: hex.EncodeToString(raw)}
+}
+
+func assertUnauthorized(t *testing.T, rec *httptest.ResponseRecorder) {
+	t.Helper()
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, body = %s", rec.Code, rec.Body.String())
+	}
+	if strings.TrimSpace(rec.Body.String()) != `{"error":"登录失败"}` {
+		t.Fatalf("body = %s", rec.Body.String())
 	}
 }
