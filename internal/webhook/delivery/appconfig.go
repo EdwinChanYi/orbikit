@@ -173,18 +173,43 @@ func (c *AppCache) Get(ctx context.Context, appID string) (*AppConfig, error) {
 	}
 
 	cfg, err := c.src.AppConfig(ctx, appID)
+	ttl, negativeTTL := c.currentTTL()
 	switch {
 	case errors.Is(err, ErrAppNotFound):
-		c.store(appID, nil, c.negativeTTL)
+		c.store(appID, nil, negativeTTL)
 		return nil, nil
 	case err != nil:
 		return nil, err
 	}
-	c.store(appID, cfg, c.ttl)
+	c.store(appID, cfg, ttl)
 	return cfg, nil
+}
+
+// SetTTL changes the TTL used by later cache writes.
+// Entries already stored keep their original expiry.
+// A non-positive argument leaves that TTL unchanged. Both non-positive is a no-op.
+func (c *AppCache) SetTTL(ttl, negativeTTL time.Duration) {
+	if ttl <= 0 && negativeTTL <= 0 {
+		return
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if ttl > 0 {
+		c.ttl = ttl
+	}
+	if negativeTTL > 0 {
+		c.negativeTTL = negativeTTL
+	}
+}
+
+func (c *AppCache) currentTTL() (time.Duration, time.Duration) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.ttl, c.negativeTTL
 }
 
 // Put replaces the cached configuration, e.g. after an AppInfoUpdated push.
 func (c *AppCache) Put(appID string, cfg *AppConfig) {
-	c.store(appID, cfg, c.ttl)
+	ttl, _ := c.currentTTL()
+	c.store(appID, cfg, ttl)
 }

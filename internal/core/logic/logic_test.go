@@ -145,6 +145,22 @@ func (f *fakeAppStore) PcAppByAppID(context.Context, string) (*store.PcAppInfo, 
 	return nil, nil
 }
 
+func TestSetCacheExpireAppliesToLaterWrites(t *testing.T) {
+	fs := &fakeAppStore{apps: map[string]*store.AppInfo{"a": {AppId: "a", Qps: 1}}}
+	svc := NewAppService(fs, time.Hour)
+	now := time.Unix(0, 0)
+	svc.apps.now = func() time.Time { return now }
+	svc.SetCacheExpire(time.Millisecond)
+	if app := svc.App(context.Background(), "a"); app == nil || app.Qps != 1 {
+		t.Fatal("first load failed")
+	}
+	fs.apps["a"] = &store.AppInfo{AppId: "a", Qps: 2}
+	now = now.Add(2 * time.Millisecond)
+	if app := svc.App(context.Background(), "a"); app == nil || app.Qps != 2 {
+		t.Fatalf("qps = %+v, want reload after the new ttl", app)
+	}
+}
+
 func TestAppServiceCaching(t *testing.T) {
 	ctx := context.Background()
 	fs := &fakeAppStore{apps: map[string]*store.AppInfo{"a": {AppId: "a", Qps: 5}}}

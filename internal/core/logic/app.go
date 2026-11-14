@@ -3,6 +3,7 @@ package logic
 
 import (
 	"context"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -39,7 +40,7 @@ type AppStore interface {
 // the configured TTL so that changes made by other instances become visible.
 type AppService struct {
 	store  AppStore
-	ttl    time.Duration
+	ttl    atomic.Int64
 	valid  *ttlCache[bool]
 	apps   *ttlCache[*store.AppInfo]
 	gdApps *ttlCache[*store.GdAppInfo]
@@ -48,14 +49,28 @@ type AppService struct {
 
 // NewAppService returns an AppService caching lookups for ttl.
 func NewAppService(st AppStore, ttl time.Duration) *AppService {
-	return &AppService{
+	svc := &AppService{
 		store:  st,
-		ttl:    ttl,
 		valid:  newTTLCache[bool](),
 		apps:   newTTLCache[*store.AppInfo](),
 		gdApps: newTTLCache[*store.GdAppInfo](),
 		pcApps: newTTLCache[*store.PcAppInfo](),
 	}
+	svc.ttl.Store(int64(ttl))
+	return svc
+}
+
+// SetCacheExpire changes the TTL used by later cache writes.
+// Entries already stored keep their original expiry. A non-positive ttl is ignored.
+func (s *AppService) SetCacheExpire(ttl time.Duration) {
+	if ttl <= 0 {
+		return
+	}
+	s.ttl.Store(int64(ttl))
+}
+
+func (s *AppService) cacheTTL() time.Duration {
+	return time.Duration(s.ttl.Load())
 }
 
 // IsAppValid reports whether the chatroom app is registered.
@@ -68,23 +83,23 @@ func (s *AppService) IsAppValid(ctx context.Context, appID string) bool {
 			log.L().Error("query app existence", zap.String("app_id", appID), zap.Error(err))
 			return false, failureTTL
 		}
-		return ok, s.ttl
+		return ok, s.cacheTTL()
 	})
 }
 
 // App returns the chatroom app or nil when it does not exist or cannot be loaded.
 func (s *AppService) App(ctx context.Context, appID string) *store.AppInfo {
-	return getOrLoad(ctx, s.apps, appID, s.ttl, "app", s.store.AppByAppID)
+	return getOrLoad(ctx, s.apps, appID, s.cacheTTL(), "app", s.store.AppByAppID)
 }
 
 // GdApp returns the anti-spam app config or nil.
 func (s *AppService) GdApp(ctx context.Context, appID string) *store.GdAppInfo {
-	return getOrLoad(ctx, s.gdApps, appID, s.ttl, "gd app", s.store.GdAppByAppID)
+	return getOrLoad(ctx, s.gdApps, appID, s.cacheTTL(), "gd app", s.store.GdAppByAppID)
 }
 
 // PcApp returns the private chat app or nil.
 func (s *AppService) PcApp(ctx context.Context, appID string) *store.PcAppInfo {
-	return getOrLoad(ctx, s.pcApps, appID, s.ttl, "pc app", s.store.PcAppByAppID)
+	return getOrLoad(ctx, s.pcApps, appID, s.cacheTTL(), "pc app", s.store.PcAppByAppID)
 }
 
 func getOrLoad[V any](ctx context.Context, c *ttlCache[*V], appID string, ttl time.Duration,
@@ -115,7 +130,7 @@ func (s *AppService) AllAppQPS(ctx context.Context) []*servicepb.AppMsgCpQPS {
 	}
 	ret := make([]*servicepb.AppMsgCpQPS, 0, len(apps))
 	for _, a := range apps {
-		s.apps.Set(a.AppId, a, s.ttl)
+		s.apps.Set(a.AppId, a, s.cacheTTL())
 		ret = append(ret, &servicepb.AppMsgCpQPS{
 			AppId:     a.AppId,
 			Qps:       a.Qps,

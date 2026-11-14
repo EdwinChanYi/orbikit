@@ -30,6 +30,45 @@ func (f *fakeSource) AppConfig(_ context.Context, appID string) (*AppConfig, err
 	return c, nil
 }
 
+func TestSetTTLAppliesToLaterWrites(t *testing.T) {
+	src := &fakeSource{cfg: map[string]*AppConfig{"a": {Secret: "s1"}}}
+	c := NewAppCache(src, time.Hour, time.Minute)
+	now := time.Unix(0, 0)
+	c.now = func() time.Time { return now }
+	ctx := context.Background()
+	c.SetTTL(time.Millisecond, time.Hour)
+
+	if cfg, err := c.Get(ctx, "a"); err != nil || cfg.Secret != "s1" {
+		t.Fatalf("Get = %+v, %v", cfg, err)
+	}
+	src.cfg["a"] = &AppConfig{Secret: "s2"}
+	now = now.Add(2 * time.Millisecond)
+	if cfg, _ := c.Get(ctx, "a"); cfg.Secret != "s2" {
+		t.Fatal("hit must reload after the new ttl")
+	}
+
+	calls := src.calls.Load()
+	if cfg, err := c.Get(ctx, "missing"); cfg != nil || err != nil {
+		t.Fatalf("missing = %+v, %v", cfg, err)
+	}
+	now = now.Add(2 * time.Millisecond)
+	_, _ = c.Get(ctx, "missing")
+	if src.calls.Load() != calls+1 {
+		t.Fatal("negative cache must still be within one hour")
+	}
+
+	c.SetTTL(0, time.Millisecond)
+	if _, err := c.Get(ctx, "other"); err != nil {
+		t.Fatal(err)
+	}
+	now = now.Add(2 * time.Millisecond)
+	before := src.calls.Load()
+	_, _ = c.Get(ctx, "other")
+	if src.calls.Load() != before+1 {
+		t.Fatal("new negative ttl must expire")
+	}
+}
+
 func TestAppCacheTTL(t *testing.T) {
 	src := &fakeSource{cfg: map[string]*AppConfig{"a": {Secret: "s1"}}}
 	c := NewAppCache(src, time.Minute, 10*time.Second)
