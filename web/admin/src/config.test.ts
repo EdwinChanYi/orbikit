@@ -104,4 +104,39 @@ describe("source label", () => {
       globalThis.fetch = original;
     }
   });
+
+  it("shows Nacos after login without a reload", async () => {
+    const original = globalThis.fetch;
+    let authed = false;
+    globalThis.fetch = async (input) => {
+      const url = String(input);
+      if (url === "/api/me") {
+        return new Response(authed ? JSON.stringify({ username: "admin" }) : null, { status: authed ? 200 : 401 });
+      }
+      if (!authed) {
+        return new Response(null, { status: 401 });
+      }
+      return new Response(JSON.stringify({ source: "nacos", enabled: true }), { status: 200 });
+    };
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: "/login", name: "login", component: { template: "<div>login</div>" } },
+        { path: "/", name: "总览", component: { template: "<div />" } },
+      ],
+    });
+    try {
+      await router.push("/login");
+      const wrapper = mount(App, { global: { plugins: [ArcoVue, router] } });
+      await router.isReady();
+      await flushPromises();
+      expect(wrapper.text()).not.toContain("Nacos");
+      authed = true;
+      await router.push("/");
+      await flushPromises();
+      expect(wrapper.text()).toContain("Nacos");
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });

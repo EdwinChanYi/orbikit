@@ -1,25 +1,33 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const sourceLabel = ref("本地配置");
 
-onMounted(async () => {
+async function loadSource() {
   try {
     const res = await fetch("/api/config/source", { credentials: "include" });
     if (!res.ok) {
       return;
     }
     const body = (await res.json()) as { source?: string };
-    if (body.source === "nacos") {
-      sourceLabel.value = "Nacos";
-    }
+    sourceLabel.value = body.source === "nacos" ? "Nacos" : "本地配置";
   } catch {
     sourceLabel.value = "本地配置";
   }
-});
+}
+
+onMounted(loadSource);
+watch(
+  () => route.path,
+  (path) => {
+    if (path !== "/login") {
+      void loadSource();
+    }
+  },
+);
 
 function open(key: string) {
   router.push(key);
