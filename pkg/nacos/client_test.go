@@ -116,6 +116,25 @@ func TestGetPublishHistoryBetaListeners(t *testing.T) {
 	}
 }
 
+func TestHistoryLoadsBodyByNid(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/nacos/v1/auth/login" {
+			_, _ = io.WriteString(w, `{"accessToken":"tok","tokenTtl":18000}`)
+			return
+		}
+		if r.URL.Query().Get("nid") == "1" {
+			_, _ = io.WriteString(w, `{"id":"1","content":"log:\n  level: info\n"}`)
+			return
+		}
+		_, _ = io.WriteString(w, `{"pageItems":[{"id":"1","content":null,"lastModifiedTime":"2026-11-15 00:00:00"}]}`)
+	}))
+	defer srv.Close()
+	revs, err := New(srv.URL, "nacos", "nacos").History(context.Background(), "core.yaml")
+	if err != nil || len(revs) != 1 || revs[0].ID != "1" || revs[0].Content != "log:\n  level: info\n" {
+		t.Fatalf("history = %+v, err = %v", revs, err)
+	}
+}
+
 func TestListenersReadsNacosStatusMap(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/nacos/v1/auth/login" {

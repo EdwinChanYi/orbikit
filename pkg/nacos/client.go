@@ -115,9 +115,38 @@ func (c *Client) History(ctx context.Context, dataID string) ([]Revision, error)
 	}
 	out := make([]Revision, len(decoded.PageItems))
 	for i, item := range decoded.PageItems {
-		out[i] = Revision{ID: item.ID, Content: item.Content, Modified: item.LastModifiedTime}
+		content := item.Content
+		if content == "" && item.ID != "" {
+			var err error
+			content, err = c.historyContent(ctx, dataID, item.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+		out[i] = Revision{ID: item.ID, Content: content, Modified: item.LastModifiedTime}
 	}
 	return out, nil
+}
+
+func (c *Client) historyContent(ctx context.Context, dataID, id string) (string, error) {
+	body, status, err := c.do(ctx, http.MethodGet, "/nacos/v1/cs/history", url.Values{
+		"dataId": {dataID},
+		"group":  {Group},
+		"nid":    {id},
+	}, nil)
+	if err != nil || status != http.StatusOK {
+		if err == nil {
+			err = fmt.Errorf("nacos status %d", status)
+		}
+		return "", err
+	}
+	var decoded struct {
+		Content string `json:"content"`
+	}
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		return "", err
+	}
+	return decoded.Content, nil
 }
 
 // Beta reads the gray release.
