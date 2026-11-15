@@ -23,8 +23,8 @@ func TestSampleConfig(t *testing.T) {
 	if cfg.Redis.Password != "redis-secret" {
 		t.Fatalf("redis password not expanded: %q", cfg.Redis.Password)
 	}
-	if cfg.Nacos.Enabled {
-		t.Fatal("nacos should be disabled")
+	if !cfg.Nacos.Enabled || cfg.Nacos.Addr != "http://nacos:8848" {
+		t.Fatalf("nacos = %+v", cfg.Nacos)
 	}
 	if cfg.EnterTokenTTL != 300*time.Second || cfg.OfflineLeaveAfter != 60*time.Second {
 		t.Fatalf("durations = %v %v", cfg.EnterTokenTTL, cfg.OfflineLeaveAfter)
@@ -45,6 +45,19 @@ func TestSampleConfig(t *testing.T) {
 		if got[k] != v {
 			t.Errorf("topics.%s = %q, want %q", k, got[k], v)
 		}
+	}
+}
+
+func TestDeployConfigUsesEtcd(t *testing.T) {
+	cfg := DefaultConfig()
+	if err := config.Load("../../deploy/configs/chatroom.yaml", &cfg); err != nil {
+		t.Fatal(err)
+	}
+	if cfg.CoreAddr != "etcd:///core" || cfg.Register.Name != "chatroom" || cfg.Register.AdvertiseAddr != "chatroom:9002" {
+		t.Fatalf("discovery = %q %+v", cfg.CoreAddr, cfg.Register)
+	}
+	if !cfg.Etcd.Enabled() || cfg.Etcd.Endpoints[0] != "etcd:2379" {
+		t.Fatalf("etcd = %+v", cfg.Etcd)
 	}
 }
 

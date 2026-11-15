@@ -18,7 +18,7 @@ const Group = "orbikit"
 // DataID returns the Nacos dataId for a platform service.
 func DataID(service string) (string, error) {
 	switch service {
-	case "core", "chatroom", "gateway", "webhook":
+	case "core", "chatroom", "gateway", "webhook", "admin", "builder":
 		return service + ".yaml", nil
 	default:
 		return "", fmt.Errorf("服务名不在允许范围内")
@@ -32,8 +32,9 @@ type Client struct {
 	password string
 	http     *http.Client
 
-	mu    sync.Mutex
-	token string
+	mu         sync.Mutex
+	token      string
+	tokenUntil time.Time
 }
 
 // Revision is one published config body.
@@ -195,9 +196,22 @@ func (c *Client) Listeners(ctx context.Context, dataID string) ([]Listener, erro
 		}
 		return nil, err
 	}
-	var out []Listener
-	if err := json.Unmarshal(body, &out); err != nil {
+	if len(body) > 0 && body[0] == '[' {
+		var out []Listener
+		if err := json.Unmarshal(body, &out); err != nil {
+			return nil, err
+		}
+		return out, nil
+	}
+	var decoded struct {
+		Status map[string]string `json:"lisentersGroupkeyStatus"`
+	}
+	if err := json.Unmarshal(body, &decoded); err != nil {
 		return nil, err
+	}
+	out := make([]Listener, 0, len(decoded.Status))
+	for ip := range decoded.Status {
+		out = append(out, Listener{IP: ip})
 	}
 	return out, nil
 }
@@ -213,6 +227,15 @@ func statusError(status int, err error) error {
 }
 
 func (c *Client) do(ctx context.Context, method, path string, query url.Values, form url.Values) ([]byte, int, error) {
+	body, status, err := c.roundTrip(ctx, method, path, query, form)
+	if status != http.StatusForbidden {
+		return body, status, err
+	}
+	c.clearToken()
+	return c.roundTrip(ctx, method, path, query, form)
+}
+
+func (c *Client) roundTrip(ctx context.Context, method, path string, query url.Values, form url.Values) ([]byte, int, error) {
 	if err := c.login(ctx); err != nil {
 		return nil, 0, err
 	}
@@ -245,10 +268,17 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	return raw, resp.StatusCode, nil
 }
 
+func (c *Client) clearToken() {
+	c.mu.Lock()
+	c.token = ""
+	c.tokenUntil = time.Time{}
+	c.mu.Unlock()
+}
+
 func (c *Client) login(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.token != "" {
+	if c.token != "" && time.Now().Before(c.tokenUntil) {
 		return nil
 	}
 	form := url.Values{}
@@ -266,6 +296,7 @@ func (c *Client) login(ctx context.Context) error {
 	defer resp.Body.Close()
 	var decoded struct {
 		AccessToken string `json:"accessToken"`
+		TokenTTL    int    `json:"tokenTtl"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&decoded); err != nil {
 		return err
@@ -273,6 +304,13 @@ func (c *Client) login(ctx context.Context) error {
 	if decoded.AccessToken == "" {
 		return fmt.Errorf("nacos login failed")
 	}
+	ttl := time.Duration(decoded.TokenTTL) * time.Second
+	if ttl > time.Minute {
+		ttl -= time.Minute
+	} else {
+		ttl = 0
+	}
 	c.token = decoded.AccessToken
+	c.tokenUntil = time.Now().Add(ttl)
 	return nil
 }

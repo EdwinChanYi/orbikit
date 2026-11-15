@@ -55,6 +55,38 @@ func run(cfgPath string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	if _, err := nacos.Overlay(ctx, cfg.Nacos.Client(), "admin.yaml", &cfg); err != nil {
+		log.L().Warn("nacos overlay", zap.Error(err))
+	}
+	if cfg.Log.Level != "" {
+		if err := log.SetLevel(cfg.Log.Level); err != nil {
+			log.L().Warn("nacos log level", zap.Error(err))
+		}
+	}
+	local, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return err
+	}
+	current := string(local)
+	go nacos.Start(ctx, "admin", cfg.Nacos, local, func(content string) {
+		hot, restart, err := nacos.Classify("admin", []byte(current), []byte(content))
+		if err != nil {
+			log.L().Warn("nacos classify", zap.Error(err))
+			return
+		}
+		for _, change := range hot {
+			if change.Path == "log.level" {
+				if err := log.SetLevel(change.Value); err != nil {
+					log.L().Warn("nacos log level", zap.Error(err))
+				}
+			}
+		}
+		if len(restart) > 0 {
+			log.L().Info("restart required", zap.Strings("paths", restart))
+		}
+		current = content
+	})
+
 	store, err := auth.OpenMySQL(ctx, cfg.MySQLDSN)
 	if err != nil {
 		return err

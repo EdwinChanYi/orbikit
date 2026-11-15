@@ -28,6 +28,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/gateway/store"
 	"github.com/EdwinChanYi/orbikit/internal/gateway/transport"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/idgen"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
@@ -92,12 +93,18 @@ func run(cfgPath string) error {
 	}
 	defer ids.Close()
 
-	coreConn, err := grpcx.Dial(cfg.CoreAddr)
+	reg, err := discovery.Open(cfg.Etcd)
+	if err != nil {
+		return err
+	}
+	defer reg.Close()
+
+	coreConn, err := grpcx.DialDiscovered(cfg.CoreAddr, reg)
 	if err != nil {
 		return fmt.Errorf("dial core: %w", err)
 	}
 	defer coreConn.Close()
-	chatroomConn, err := grpcx.Dial(cfg.ChatroomAddr)
+	chatroomConn, err := grpcx.DialDiscovered(cfg.ChatroomAddr, reg)
 	if err != nil {
 		return fmt.Errorf("dial chatroom: %w", err)
 	}

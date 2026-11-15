@@ -38,5 +38,8 @@ func TestExampleConfig(t *testing.T) {
 		if cfg.Log.Level != "info" || cfg.Log.File != "" || !cfg.Log.Console || cfg.Log.MaxSizeMB != 1024 || cfg.Log.MaxAgeDays != 30 {
 			t.Fatalf("%s log = %+v", path, cfg.Log)
 		}
+		if !cfg.Nacos.Enabled || cfg.Nacos.Addr != "http://nacos:8848" {
+			t.Fatalf("%s nacos = %+v", path, cfg.Nacos)
+		}
 	}
 }

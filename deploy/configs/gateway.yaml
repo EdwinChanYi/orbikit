@@ -12,9 +12,12 @@ client_version: 100000000
 # 单个包体最大字节数，超出即断开连接
 max_body_len: 262144
 
-# 下游 gRPC 地址；多实例可用 "dns:///host:port" 做客户端负载均衡
-core_addr: "core:9001"
-chatroom_addr: "chatroom:9002"
+# 下游 gRPC 地址。etcd:///服务名 从 etcd 发现该服务的全部实例并轮询。
+core_addr: "etcd:///core"
+chatroom_addr: "etcd:///chatroom"
+etcd:
+  endpoints: ["etcd:2379"]
+  dial_timeout: 5s
 # 单次下游 gRPC 调用超时（编辑麦位为其 2 倍）
 rpc_timeout: 20s
 # true 时下发的房间消息要求客户端回执（CHATROOM_MESSAGE_RECEIPT_FOR_RECEIVE）
@@ -121,7 +124,7 @@ moderation:
     on_error: reject
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

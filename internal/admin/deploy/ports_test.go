@@ -50,17 +50,20 @@ func TestNacosStaysOffTheHost(t *testing.T) {
 	if got := scalar(nacos, "image"); got != "nacos/nacos-server:v2.5.5" {
 		t.Fatalf("image = %q", got)
 	}
-	profiles := sequence(nacos, "profiles")
-	if len(profiles) != 1 || profiles[0] != "nacos" {
-		t.Fatalf("profiles = %v", profiles)
+	if mappingChild(nacos, "profiles") != nil {
+		t.Fatal("nacos is behind a profile, so the default compose start skips it")
 	}
 	if mappingChild(nacos, "ports") != nil {
 		t.Fatal("nacos publishes a host port")
 	}
 	core := mappingChild(services, "core")
 	depends := mappingChild(core, "depends_on")
-	if mappingChild(depends, "nacos") != nil {
-		t.Fatal("core depends on nacos")
+	if mappingChild(depends, "nacos-seed") == nil {
+		t.Fatal("core does not wait for the Nacos config seed")
+	}
+	builder := mappingChild(services, "builder")
+	if mappingChild(mappingChild(builder, "depends_on"), "nacos-seed") == nil {
+		t.Fatal("builder does not wait for the Nacos config seed")
 	}
 }
 

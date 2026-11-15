@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 )
 
 // Config is the builder service configuration.
@@ -19,6 +20,8 @@ type Config struct {
 	Log log.Config `yaml:"log"`
 	// ShutdownTimeout bounds graceful shutdown.
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
+	// Nacos is the config center. The local file remains the bootstrap.
+	Nacos nacos.NacosConfig `yaml:"nacos"`
 }
 
 // DefaultConfig returns the defaults applied before the config file is loaded.

@@ -4,6 +4,15 @@
 
 # Core gRPC 监听地址
 grpc_addr: ":9001"
+# etcd 服务发现。其他进程用 etcd:///core 找到本实例。
+etcd:
+  endpoints: ["etcd:2379"]
+  dial_timeout: 5s
+  lease_ttl: 10s
+register:
+  name: core
+  # 其他容器可访问的地址。留空则使用通向 etcd 的本机 IP，多副本时不要写成同一个服务名。
+  advertise_addr: core:9001
 # pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6061"
 debug_addr: ""
 # 应用信息内存缓存时长；查询失败或应用不存在时固定缓存 1 分钟
@@ -43,7 +52,7 @@ notify:
   channel: orbikit:app_config
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

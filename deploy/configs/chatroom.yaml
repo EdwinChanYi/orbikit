@@ -6,8 +6,15 @@
 grpc_addr: ":9002"
 # pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6062"
 debug_addr: ""
-# Core gRPC 地址，用于校验应用、封禁用户；多实例可用 "dns:///host:port"
-core_addr: "core:9001"
+# Core gRPC 地址。etcd:///core 从 etcd 发现全部 core 实例并轮询。
+core_addr: "etcd:///core"
+etcd:
+  endpoints: ["etcd:2379"]
+  dial_timeout: 5s
+  lease_ttl: 10s
+register:
+  name: chatroom
+  advertise_addr: chatroom:9002
 # 优雅退出的最长等待时间
 shutdown_timeout: 10s
 # 进房 token 及暂存的成员信息有效期
@@ -65,7 +72,7 @@ topics:
   event: orbikit.room.event
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

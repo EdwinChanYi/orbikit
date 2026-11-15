@@ -22,6 +22,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/webhook/server"
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
@@ -64,7 +65,13 @@ func run(cfgPath string) error {
 		}
 	}
 
-	coreConn, err := grpcx.Dial(cfg.Core.Target)
+	reg, err := discovery.Open(cfg.Etcd)
+	if err != nil {
+		return err
+	}
+	defer reg.Close()
+
+	coreConn, err := grpcx.DialDiscovered(cfg.Core.Target, reg)
 	if err != nil {
 		return fmt.Errorf("dial core: %w", err)
 	}
@@ -129,6 +136,11 @@ func run(cfgPath string) error {
 	servicepb.RegisterMsgCopyServer(gs, server.New(apps))
 	lis, err := net.Listen("tcp", cfg.GRPCAddr)
 	if err != nil {
+		_ = group.Close()
+		return err
+	}
+	if err := discovery.Bind(ctx, reg, lis.Addr(), cfg.Register); err != nil {
+		_ = lis.Close()
 		_ = group.Close()
 		return err
 	}

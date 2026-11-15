@@ -8,3 +8,8 @@ log:
   max_size_mb: 1024
   max_age_days: 30
   console: true
+nacos:
+  enabled: true
+  addr: http://nacos:8848
+  username: nacos
+  password: ${NACOS_PASSWORD}

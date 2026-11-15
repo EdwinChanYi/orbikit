@@ -40,21 +40,45 @@ onMounted(async () => {
 </script>
 
 <template>
-  <template v-if="failed || cluster?.status === 'fault'">
+  <a-card v-if="failed || cluster?.status === 'fault'" :bordered="false" class="panel">
     <p class="status-fault">故障</p>
-    <p v-if="cluster?.error">{{ cluster.error }}</p>
-  </template>
-  <template v-else-if="cluster">
-    <p><span :class="statusCell[cluster.status]?.cls">{{ statusCell[cluster.status]?.text }}</span></p>
-    <p>主节点 {{ cluster.leader }}</p>
-    <p>库大小 {{ cluster.db_size }}</p>
-    <ul>
-      <li v-for="alarm in cluster.alarms ?? []" :key="alarm">{{ alarm }}</li>
-    </ul>
-    <ul>
-      <li v-for="inst in cluster.instances ?? []" :key="`${inst.service}/${inst.id}`">{{ inst.addr }}</li>
-    </ul>
-  </template>
+    <p v-if="cluster?.error" class="error">{{ cluster.error }}</p>
+  </a-card>
+  <div v-else-if="cluster" class="stack">
+    <a-card :bordered="false" class="panel">
+      <div class="stats">
+        <div>
+          <span class="k">状态</span>
+          <span :class="statusCell[cluster.status]?.cls">{{ statusCell[cluster.status]?.text }}</span>
+        </div>
+        <div>
+          <span class="k">主节点</span>
+          {{ cluster.leader }}
+        </div>
+        <div>
+          <span class="k">库大小</span>
+          {{ cluster.db_size }}
+        </div>
+      </div>
+      <p v-for="alarm in cluster.alarms ?? []" :key="alarm" class="alarm">{{ alarm }}</p>
+    </a-card>
+    <a-card :bordered="false" class="panel" title="实例">
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>服务</th>
+            <th>地址</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="inst in cluster.instances ?? []" :key="`${inst.service}/${inst.id}`">
+            <td>{{ inst.service }}</td>
+            <td class="addr">{{ inst.addr }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </a-card>
+  </div>
 </template>
 
 <style>
@@ -62,4 +86,55 @@ onMounted(async () => {
 .status-degraded { color: #ff7d00; }
 .status-fault { color: #f53f3f; }
 .status-unknown { color: #86909c; }
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  border-radius: 8px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.k {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
+.error,
+.alarm {
+  margin: 12px 0 0;
+  color: var(--color-text-2);
+}
+
+.sheet {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sheet th,
+.sheet td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-neutral-3);
+  text-align: left;
+}
+
+.sheet th {
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
+  font-weight: 500;
+}
+
+.addr {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
 </style>

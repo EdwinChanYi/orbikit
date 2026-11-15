@@ -5,5 +5,17 @@ const route = useRoute();
 </script>
 
 <template>
-  <section>{{ route.name }}</section>
+  <a-card :bordered="false" class="panel">
+    <a-empty :description="`${route.name}还没有功能`" />
+  </a-card>
 </template>
+
+<style scoped>
+.panel {
+  min-height: 320px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

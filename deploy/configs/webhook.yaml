@@ -4,6 +4,13 @@
 
 # MsgCopy gRPC 监听地址（core 在应用配置变更时调用 AppInfoUpdated）
 grpc_addr: ":9004"
+etcd:
+  endpoints: ["etcd:2379"]
+  dial_timeout: 5s
+  lease_ttl: 10s
+register:
+  name: webhook
+  advertise_addr: webhook:9004
 # pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6064"
 debug_addr: ""
 # 退出时等待队列中消息投递完成的最长时间，超时后丢弃剩余消息
@@ -41,7 +48,7 @@ topics:
 
 core:
   # core 服务 gRPC 地址，用于按 appId 拉取抄送配置（Core.GetAppSecret）
-  target: "dns:///core:9001"
+  target: "etcd:///core"
   # 单次调用 core 的超时
   timeout: 3s
 
@@ -68,7 +75,7 @@ delivery:
   insecure_skip_verify: false
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

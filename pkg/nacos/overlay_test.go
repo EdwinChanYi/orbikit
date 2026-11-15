@@ -35,6 +35,26 @@ func TestOverlayKeepsLocalFields(t *testing.T) {
 	}
 }
 
+func TestOverlayExpandsEnv(t *testing.T) {
+	t.Setenv("ORB_PORT", ":9001")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/nacos/v1/auth/login" {
+			_, _ = io.WriteString(w, `{"accessToken":"tok","tokenTtl":18000}`)
+			return
+		}
+		_, _ = io.WriteString(w, "grpc_addr: \"${ORB_PORT}\"\n")
+	}))
+	defer srv.Close()
+
+	dst := struct {
+		Addr string `yaml:"grpc_addr"`
+	}{}
+	used, err := Overlay(context.Background(), New(srv.URL, "nacos", "nacos"), "core.yaml", &dst)
+	if err != nil || !used || dst.Addr != ":9001" {
+		t.Fatalf("used = %v, addr = %q, err = %v", used, dst.Addr, err)
+	}
+}
+
 func TestOverlayKeepsLocalWhenRemoteFails(t *testing.T) {
 	var hits int
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

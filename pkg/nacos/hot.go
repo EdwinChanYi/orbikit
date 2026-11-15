@@ -26,6 +26,8 @@ func HotPaths(service string) []string {
 		return []string{"log.level", "cache.expire", "cache.not_found_expire"}
 	case "gateway":
 		return []string{"log.level", "moderation"}
+	case "admin", "builder":
+		return []string{"log.level"}
 	default:
 		return []string{}
 	}

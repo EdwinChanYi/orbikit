@@ -88,32 +88,34 @@ onMounted(async () => {
 </script>
 
 <template>
-  <p>
-    etcd
-    <span :class="etcdStatus.cls">{{ etcdStatus.text }}</span>
-  </p>
-  <table v-if="!failed">
-    <thead>
-      <tr>
-        <th>服务</th>
-        <th>容器</th>
-        <th>gRPC</th>
-        <th>实例</th>
-        <th>镜像</th>
-        <th>最近发布</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in rows" :key="row.name">
-        <td>{{ row.name }}</td>
-        <td :class="labeled(containerCell, row.container).cls">{{ labeled(containerCell, row.container).text }}</td>
-        <td :class="labeled(grpcCell, row.grpc).cls">{{ labeled(grpcCell, row.grpc).text }}</td>
-        <td :class="instanceCell(row).cls">{{ instanceCell(row).text }}</td>
-        <td>{{ row.image_id }}</td>
-        <td :class="releaseCell(row).cls">{{ releaseCell(row).text }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <a-card :bordered="false" class="panel">
+    <p class="etcd-line">
+      etcd
+      <span :class="etcdStatus.cls">{{ etcdStatus.text }}</span>
+    </p>
+    <table v-if="!failed" class="sheet">
+      <thead>
+        <tr>
+          <th>服务</th>
+          <th>容器</th>
+          <th>gRPC</th>
+          <th>实例</th>
+          <th>镜像</th>
+          <th>最近发布</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in rows" :key="row.name">
+          <td class="name">{{ row.name }}</td>
+          <td :class="labeled(containerCell, row.container).cls">{{ labeled(containerCell, row.container).text }}</td>
+          <td :class="labeled(grpcCell, row.grpc).cls">{{ labeled(grpcCell, row.grpc).text }}</td>
+          <td :class="instanceCell(row).cls">{{ instanceCell(row).text }}</td>
+          <td class="image" :title="row.image_id">{{ row.image_id }}</td>
+          <td :class="releaseCell(row).cls">{{ releaseCell(row).text }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </a-card>
 </template>
 
 <style>
@@ -121,4 +123,45 @@ onMounted(async () => {
 .status-degraded { color: #ff7d00; }
 .status-fault { color: #f53f3f; }
 .status-unknown { color: #86909c; }
+
+.panel {
+  border-radius: 8px;
+}
+
+.etcd-line {
+  margin: 0 0 16px;
+  color: var(--color-text-2);
+}
+
+.sheet {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sheet th,
+.sheet td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-neutral-3);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet th {
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
+  font-weight: 500;
+}
+
+.sheet .name {
+  font-weight: 600;
+}
+
+.sheet .image {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  color: var(--color-text-2);
+}
 </style>

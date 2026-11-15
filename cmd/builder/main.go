@@ -18,6 +18,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/builder"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 )
 
 func main() {
@@ -41,6 +42,38 @@ func run(cfgPath string) error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	local, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return err
+	}
+	if _, err := nacos.Overlay(ctx, cfg.Nacos.Client(), "builder.yaml", &cfg); err != nil {
+		log.L().Warn("nacos overlay", zap.Error(err))
+	}
+	if cfg.Log.Level != "" {
+		if err := log.SetLevel(cfg.Log.Level); err != nil {
+			log.L().Warn("nacos log level", zap.Error(err))
+		}
+	}
+	current := string(local)
+	go nacos.Start(ctx, "builder", cfg.Nacos, local, func(content string) {
+		hot, restart, err := nacos.Classify("builder", []byte(current), []byte(content))
+		if err != nil {
+			log.L().Warn("nacos classify", zap.Error(err))
+			return
+		}
+		for _, change := range hot {
+			if change.Path == "log.level" {
+				if err := log.SetLevel(change.Value); err != nil {
+					log.L().Warn("nacos log level", zap.Error(err))
+				}
+			}
+		}
+		if len(restart) > 0 {
+			log.L().Info("restart required", zap.Strings("paths", restart))
+		}
+		current = content
+	})
 
 	ln, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {

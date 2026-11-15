@@ -39,8 +39,8 @@ topics:
   broadcast: "orbikit.room.broadcast"
 
 core:
-  # core 服务 gRPC 地址，用于按 appId 拉取抄送配置（Core.GetAppSecret）
-  target: "dns:///localhost:9001"
+  # core 服务 gRPC 地址。多实例改为 etcd:///core，并配置 etcd.endpoints。
+  target: "localhost:9001"
   # 单次调用 core 的超时
   timeout: 3s
 
@@ -67,7 +67,7 @@ delivery:
   insecure_skip_verify: false
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

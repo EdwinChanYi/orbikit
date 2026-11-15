@@ -87,9 +87,9 @@ func TestPublishGetRollbackAndRejectsUnknown(t *testing.T) {
 	if got != "log:\n  level: old\n" {
 		t.Fatalf("rolled back to %q", got)
 	}
-	rec = get(t, h, cookie, "/api/config/admin")
+	rec = get(t, h, cookie, "/api/config/mysql")
 	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "服务名不在允许范围内") {
-		t.Fatalf("admin = %d %s", rec.Code, rec.Body.String())
+		t.Fatalf("mysql = %d %s", rec.Code, rec.Body.String())
 	}
 }
 

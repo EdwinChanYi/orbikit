@@ -25,7 +25,7 @@ func TestExampleConfig(t *testing.T) {
 	if cfg.MySQLDSN == "" || strings.Contains(cfg.MySQLDSN, "${") {
 		t.Fatalf("dsn = %s", cfg.MySQLDSN)
 	}
-	if cfg.Nacos.Enabled {
-		t.Fatal("nacos should be disabled")
+	if !cfg.Nacos.Enabled || cfg.Nacos.Addr != "http://nacos:8848" {
+		t.Fatalf("nacos = %+v", cfg.Nacos)
 	}
 }

@@ -10,8 +10,14 @@ import (
 )
 
 func TestDataIDRejectsUnknownService(t *testing.T) {
-	if _, err := DataID("admin"); err == nil || !strings.Contains(err.Error(), "服务名不在允许范围内") {
+	if _, err := DataID("mysql"); err == nil || !strings.Contains(err.Error(), "服务名不在允许范围内") {
 		t.Fatalf("err = %v", err)
+	}
+	for _, service := range []string{"admin", "builder"} {
+		id, err := DataID(service)
+		if err != nil || id != service+".yaml" {
+			t.Fatalf("%s id = %q, err = %v", service, id, err)
+		}
 	}
 	id, err := DataID("core")
 	if err != nil || id != "core.yaml" {
@@ -107,6 +113,44 @@ func TestGetPublishHistoryBetaListeners(t *testing.T) {
 	listeners, err := c.Listeners(ctx, "core.yaml")
 	if err != nil || len(listeners) != 1 || listeners[0].IP != "10.0.0.3" {
 		t.Fatalf("listeners = %+v, err = %v", listeners, err)
+	}
+}
+
+func TestListenersReadsNacosStatusMap(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/nacos/v1/auth/login" {
+			_, _ = io.WriteString(w, `{"accessToken":"tok","tokenTtl":18000}`)
+			return
+		}
+		_, _ = io.WriteString(w, `{"collectStatus":200,"lisentersGroupkeyStatus":{"10.0.0.8":"abc"}}`)
+	}))
+	defer srv.Close()
+	listeners, err := New(srv.URL, "nacos", "nacos").Listeners(context.Background(), "core.yaml")
+	if err != nil || len(listeners) != 1 || listeners[0].IP != "10.0.0.8" {
+		t.Fatalf("listeners = %+v, err = %v", listeners, err)
+	}
+}
+
+func TestLoginRefreshesExpiredToken(t *testing.T) {
+	var logins int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/nacos/v1/auth/login" {
+			logins++
+			_, _ = io.WriteString(w, `{"accessToken":"tok","tokenTtl":1}`)
+			return
+		}
+		_, _ = io.WriteString(w, "ok")
+	}))
+	defer srv.Close()
+	c := New(srv.URL, "nacos", "nacos")
+	if _, err := c.Get(context.Background(), "core.yaml"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.Get(context.Background(), "core.yaml"); err != nil {
+		t.Fatal(err)
+	}
+	if logins != 2 {
+		t.Fatalf("logins = %d", logins)
 	}
 }
 

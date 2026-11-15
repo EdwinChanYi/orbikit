@@ -22,7 +22,20 @@ func TestExampleConfigLoads(t *testing.T) {
 	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" {
 		t.Fatalf("redis = %+v", cfg.Redis)
 	}
-	if cfg.Nacos.Enabled {
-		t.Fatal("nacos should be disabled")
+	if !cfg.Nacos.Enabled || cfg.Nacos.Addr != "http://nacos:8848" {
+		t.Fatalf("nacos = %+v", cfg.Nacos)
+	}
+}
+
+func TestDeployConfigRegistersInEtcd(t *testing.T) {
+	cfg := DefaultConfig()
+	if err := config.Load("../../deploy/configs/core.yaml", &cfg); err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Etcd.Enabled() || len(cfg.Etcd.Endpoints) != 1 || cfg.Etcd.Endpoints[0] != "etcd:2379" {
+		t.Fatalf("etcd = %+v", cfg.Etcd)
+	}
+	if cfg.Register.Name != "core" || cfg.Register.AdvertiseAddr != "core:9001" {
+		t.Fatalf("register = %+v", cfg.Register)
 	}
 }

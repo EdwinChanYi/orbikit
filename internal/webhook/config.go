@@ -6,6 +6,7 @@ import (
 
 	"github.com/EdwinChanYi/orbikit/internal/webhook/delivery"
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/nacos"
@@ -21,15 +22,17 @@ type Config struct {
 	// ShutdownTimeout bounds draining queued deliveries on exit.
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 
-	Log      log.Config       `yaml:"log"`
-	Redis    redisx.Config    `yaml:"redis"`
-	Notify   appnotify.Config `yaml:"notify"`
-	Kafka    KafkaConfig      `yaml:"kafka"`
-	Topics   TopicsConfig     `yaml:"topics"`
-	Core     CoreConfig       `yaml:"core"`
-	Cache    CacheConfig      `yaml:"cache"`
-	Delivery DeliveryConfig   `yaml:"delivery"`
-	Nacos    nacos.NacosConfig `yaml:"nacos"`
+	Log      log.Config               `yaml:"log"`
+	Redis    redisx.Config            `yaml:"redis"`
+	Notify   appnotify.Config         `yaml:"notify"`
+	Kafka    KafkaConfig              `yaml:"kafka"`
+	Topics   TopicsConfig             `yaml:"topics"`
+	Core     CoreConfig               `yaml:"core"`
+	Cache    CacheConfig              `yaml:"cache"`
+	Delivery DeliveryConfig           `yaml:"delivery"`
+	Etcd     discovery.Config         `yaml:"etcd"`
+	Register discovery.RegisterConfig `yaml:"register"`
+	Nacos    nacos.NacosConfig        `yaml:"nacos"`
 }
 
 // KafkaConfig selects the cluster and the shared consumer group.
@@ -77,7 +80,7 @@ func DefaultConfig() Config {
 			GroupID: "webhook",
 		},
 		Topics: TopicsConfig{Broadcast: "orbikit.room.broadcast"},
-		Core:   CoreConfig{Target: "dns:///localhost:9001", Timeout: 3 * time.Second},
+		Core:   CoreConfig{Target: "localhost:9001", Timeout: 3 * time.Second},
 		Cache:  CacheConfig{Expire: 60 * time.Second, NotFoundExpire: time.Minute},
 		Delivery: DeliveryConfig{
 			WorkersPerApp: 32,

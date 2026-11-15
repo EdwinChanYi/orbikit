@@ -3,6 +3,10 @@
 
 # Core gRPC 监听地址
 grpc_addr: ":9001"
+# 本机直连不注册 etcd。接入 etcd 时增加：
+# etcd.endpoints: ["127.0.0.1:2379"]
+# register.name: core
+# register.advertise_addr: "127.0.0.1:9001"
 # pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6061"
 debug_addr: ""
 # 应用信息内存缓存时长；查询失败或应用不存在时固定缓存 1 分钟
@@ -42,7 +46,7 @@ notify:
   channel: orbikit:app_config
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

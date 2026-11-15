@@ -5,7 +5,7 @@
 grpc_addr: ":9002"
 # pprof 调试监听地址，为空则不启动，例如 "127.0.0.1:6062"
 debug_addr: ""
-# Core gRPC 地址，用于校验应用、封禁用户；多实例可用 "dns:///host:port"
+# Core gRPC 地址。多实例使用 etcd:///core，并配置 etcd.endpoints。
 core_addr: "localhost:9001"
 # 优雅退出的最长等待时间
 shutdown_timeout: 10s
@@ -64,7 +64,7 @@ topics:
   event: orbikit.room.event
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

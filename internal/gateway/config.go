@@ -12,6 +12,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/gateway/moderation"
 	"github.com/EdwinChanYi/orbikit/internal/gateway/protocol"
 	"github.com/EdwinChanYi/orbikit/internal/gateway/push"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/nacos"
@@ -47,6 +48,7 @@ type Config struct {
 	Kafka      KafkaConfig       `yaml:"kafka"`
 	Topics     push.Topics       `yaml:"topics"`
 	Moderation moderation.Config `yaml:"moderation"`
+	Etcd       discovery.Config  `yaml:"etcd"`
 	Nacos      nacos.NacosConfig `yaml:"nacos"`
 }
 

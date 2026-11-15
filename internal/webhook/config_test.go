@@ -29,7 +29,23 @@ func TestExampleConfigLoads(t *testing.T) {
 	if len(cfg.Redis.Addrs) != 1 || cfg.Redis.Addrs[0] != "localhost:6379" || cfg.Notify.Channel != "orbikit:app_config" {
 		t.Fatalf("redis/notify = %+v %+v", cfg.Redis, cfg.Notify)
 	}
-	if cfg.Nacos.Enabled {
-		t.Fatal("nacos should be disabled")
+	if cfg.Core.Target != "localhost:9001" {
+		t.Fatalf("core target = %s", cfg.Core.Target)
+	}
+	if !cfg.Nacos.Enabled || cfg.Nacos.Addr != "http://nacos:8848" {
+		t.Fatalf("nacos = %+v", cfg.Nacos)
+	}
+}
+
+func TestDeployConfigUsesEtcd(t *testing.T) {
+	cfg := DefaultConfig()
+	if err := config.Load("../../deploy/configs/webhook.yaml", &cfg); err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Core.Target != "etcd:///core" || cfg.Register.Name != "webhook" || cfg.Register.AdvertiseAddr != "webhook:9004" {
+		t.Fatalf("discovery = %q %+v", cfg.Core.Target, cfg.Register)
+	}
+	if !cfg.Etcd.Enabled() || cfg.Etcd.Endpoints[0] != "etcd:2379" {
+		t.Fatalf("etcd = %+v", cfg.Etcd)
 	}
 }

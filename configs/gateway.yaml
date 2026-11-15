@@ -11,7 +11,7 @@ client_version: 100000000
 # 单个包体最大字节数，超出即断开连接
 max_body_len: 262144
 
-# 下游 gRPC 地址；多实例可用 "dns:///host:port" 做客户端负载均衡
+# 下游 gRPC 地址。多实例改为 etcd:///core、etcd:///chatroom，并配置 etcd.endpoints。
 core_addr: "localhost:9001"
 chatroom_addr: "localhost:9002"
 # 单次下游 gRPC 调用超时（编辑麦位为其 2 倍）
@@ -120,7 +120,7 @@ moderation:
     on_error: reject
 
 nacos:
-  enabled: false
+  enabled: true
   addr: http://nacos:8848
   username: nacos
   password: ${NACOS_PASSWORD}

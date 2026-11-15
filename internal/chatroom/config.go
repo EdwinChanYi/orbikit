@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/EdwinChanYi/orbikit/internal/chatroom/event"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
+	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
-	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -30,12 +31,14 @@ type Config struct {
 	// TraceGRPCReply logs every gRPC reply at debug level.
 	TraceGRPCReply bool `yaml:"trace_grpc_reply"`
 
-	Log    log.Config    `yaml:"log"`
-	Redis  redisx.Config `yaml:"redis"`
-	MySQL  mysqlx.Config `yaml:"mysql"`
-	Kafka  kafkax.Config `yaml:"kafka"`
-	Topics event.Topics   `yaml:"topics"`
-	Nacos  nacos.NacosConfig `yaml:"nacos"`
+	Log      log.Config               `yaml:"log"`
+	Redis    redisx.Config            `yaml:"redis"`
+	MySQL    mysqlx.Config            `yaml:"mysql"`
+	Kafka    kafkax.Config            `yaml:"kafka"`
+	Topics   event.Topics             `yaml:"topics"`
+	Etcd     discovery.Config         `yaml:"etcd"`
+	Register discovery.RegisterConfig `yaml:"register"`
+	Nacos    nacos.NacosConfig        `yaml:"nacos"`
 }
 
 // DefaultConfig returns the values used for settings missing from the file.

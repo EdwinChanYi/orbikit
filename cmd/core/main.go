@@ -23,6 +23,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/core/store"
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
@@ -120,10 +121,20 @@ func run(cfgPath string) error {
 		logic.NewRestrainService(st, rdb),
 		bus)
 
+	reg, err := discovery.Open(cfg.Etcd)
+	if err != nil {
+		return err
+	}
+	defer reg.Close()
+
 	gs := grpcx.NewServer()
 	servicepb.RegisterCoreServer(gs, srv)
 	lis, err := net.Listen("tcp", cfg.GRPCAddr)
 	if err != nil {
+		return err
+	}
+	if err := discovery.Bind(ctx, reg, lis.Addr(), cfg.Register); err != nil {
+		_ = lis.Close()
 		return err
 	}
 

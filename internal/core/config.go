@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/EdwinChanYi/orbikit/pkg/appnotify"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
-	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
 	"github.com/EdwinChanYi/orbikit/pkg/nacos"
+	"github.com/EdwinChanYi/orbikit/pkg/mysqlx"
 	"github.com/EdwinChanYi/orbikit/pkg/redisx"
 )
 
@@ -22,11 +23,13 @@ type Config struct {
 	// ShutdownTimeout bounds graceful shutdown.
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
 
-	Log    log.Config       `yaml:"log"`
-	MySQL  mysqlx.Config    `yaml:"mysql"`
-	Redis  redisx.Config    `yaml:"redis"`
-	Notify appnotify.Config `yaml:"notify"`
-	Nacos  nacos.NacosConfig `yaml:"nacos"`
+	Log      log.Config               `yaml:"log"`
+	MySQL    mysqlx.Config            `yaml:"mysql"`
+	Redis    redisx.Config            `yaml:"redis"`
+	Notify   appnotify.Config         `yaml:"notify"`
+	Etcd     discovery.Config         `yaml:"etcd"`
+	Register discovery.RegisterConfig `yaml:"register"`
+	Nacos    nacos.NacosConfig        `yaml:"nacos"`
 }
 
 // DefaultConfig returns the defaults applied before the config file is loaded.

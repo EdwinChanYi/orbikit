@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
-const services = ["core", "chatroom", "gateway", "webhook"];
+const services = ["core", "chatroom", "gateway", "webhook", "admin", "builder"];
 const enabled = ref(false);
 const current = ref("core");
 const content = ref("");

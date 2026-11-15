@@ -29,6 +29,7 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/chatroom/server"
 	"github.com/EdwinChanYi/orbikit/internal/chatroom/watcher"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
+	"github.com/EdwinChanYi/orbikit/pkg/discovery"
 	"github.com/EdwinChanYi/orbikit/pkg/grpcx"
 	"github.com/EdwinChanYi/orbikit/pkg/idgen"
 	"github.com/EdwinChanYi/orbikit/pkg/kafkax"
@@ -118,7 +119,13 @@ func run(cfgPath string) error {
 	}
 	defer producer.Close()
 
-	coreConn, err := grpcx.Dial(cfg.CoreAddr)
+	reg, err := discovery.Open(cfg.Etcd)
+	if err != nil {
+		return err
+	}
+	defer reg.Close()
+
+	coreConn, err := grpcx.DialDiscovered(cfg.CoreAddr, reg)
 	if err != nil {
 		return fmt.Errorf("dial core: %w", err)
 	}
@@ -161,6 +168,12 @@ func run(cfgPath string) error {
 	servicepb.RegisterChatroomServer(gs, server.New())
 	lis, err := net.Listen("tcp", cfg.GRPCAddr)
 	if err != nil {
+		stop()
+		bg.Wait()
+		return err
+	}
+	if err := discovery.Bind(ctx, reg, lis.Addr(), cfg.Register); err != nil {
+		_ = lis.Close()
 		stop()
 		bg.Wait()
 		return err

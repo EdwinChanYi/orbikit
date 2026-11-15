@@ -43,3 +43,18 @@ func TestClassifyChatroomOnlyHotReloadsLogLevel(t *testing.T) {
 		t.Fatalf("restart = %+v", restart)
 	}
 }
+
+func TestClassifyBuilderOnlyHotReloadsLogLevel(t *testing.T) {
+	before := []byte("log:\n  level: info\nhttp_addr: \":8092\"\n")
+	after := []byte("log:\n  level: debug\nhttp_addr: \":8093\"\n")
+	hot, restart, err := Classify("builder", before, after)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(hot) != 1 || hot[0].Path != "log.level" || hot[0].Value != "debug" {
+		t.Fatalf("hot = %+v", hot)
+	}
+	if len(restart) != 1 || restart[0] != "http_addr" {
+		t.Fatalf("restart = %+v", restart)
+	}
+}
