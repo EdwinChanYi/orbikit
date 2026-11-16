@@ -54,18 +54,25 @@ type Service struct {
 	moderator atomic.Value
 }
 
+// moderatorSlot keeps every Store on the same concrete type. atomic.Value
+// panics when two moderators have different dynamic types, which is what a
+// hot reload from none to keyword does.
+type moderatorSlot struct {
+	m moderation.Moderator
+}
+
 // SetModerator replaces the moderator used by later checks.
 // A nil moderator leaves the current one in place.
 func (s *Service) SetModerator(m moderation.Moderator) {
 	if m == nil {
 		return
 	}
-	s.moderator.Store(m)
+	s.moderator.Store(moderatorSlot{m: m})
 }
 
 func (s *Service) currentModerator() moderation.Moderator {
 	if v := s.moderator.Load(); v != nil {
-		return v.(moderation.Moderator)
+		return v.(moderatorSlot).m
 	}
 	return s.Moderator
 }

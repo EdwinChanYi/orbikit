@@ -64,6 +64,10 @@ func TestSetModeratorReplacesTheChecker(t *testing.T) {
 	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || !res.Allowed {
 		t.Fatalf("initial = %+v, %v", res, err)
 	}
+	s.SetModerator(moderation.None{})
+	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || !res.Allowed {
+		t.Fatalf("different type = %+v, %v", res, err)
+	}
 	s.SetModerator(verdictModerator{allowed: false})
 	if res, err := s.currentModerator().CheckText(context.Background(), "a", 1, 1, "hi"); err != nil || res.Allowed {
 		t.Fatalf("swapped = %+v, %v", res, err)
