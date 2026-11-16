@@ -1,17 +1,30 @@
+version: "2"
+
 run:
   timeout: 5m
 
 linters:
+  default: none
   enable:
     - errcheck
     - govet
     - ineffassign
     - staticcheck
     - unused
+    - misspell
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - api/gen
+
+formatters:
+  enable:
     - gofmt
     - goimports
-    - misspell
-
-issues:
-  exclude-dirs:
-    - api/gen
+  exclusions:
+    paths:
+      - api/gen
