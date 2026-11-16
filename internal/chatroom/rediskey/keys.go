@@ -13,6 +13,11 @@ func ChatroomInfo(appID string, roomID int64) string {
 	return fmt.Sprintf("CHATROOM_SERVICE:CHATROOM_INFO:APP_ID:%s:ROOM_ID:%d", appID, roomID)
 }
 
+// AppCustomInfoKeyFilter 应用级自定义资料过滤键（JSON 字符串数组）。
+func AppCustomInfoKeyFilter(appID string) string {
+	return fmt.Sprintf("CHATROOM_SERVICE:APP_CUSTOM_INFO_KEY_FILTER:APP_ID:%s", appID)
+}
+
 // ChatroomIsOpened 房间是否开启（"0"/"1"）。
 func ChatroomIsOpened(appID string, roomID int64) string {
 	return fmt.Sprintf("CHATROOM_SERVICE:CHATROOM_STATUS:APP_ID:%s:ROOM_ID:%d", appID, roomID)

@@ -196,6 +196,31 @@ func TestRandString(t *testing.T) {
 	}
 }
 
+func TestEmptyText(t *testing.T) {
+	text := servicepb.ChatroomMsgType_CHATROOM_MSG_TYPE_TEXT
+	custom := servicepb.ChatroomMsgType_CHATROOM_MSG_TYPE_CUSTOM
+	if !EmptyText(text, "") || !EmptyText(text, "  \n") {
+		t.Fatal("blank text should be rejected")
+	}
+	if EmptyText(text, "hi") || EmptyText(custom, "") {
+		t.Fatal("non-blank text and custom messages should be kept")
+	}
+}
+
+func TestFilterCustomInfo(t *testing.T) {
+	info := map[string]string{"nick": "a", "city": "b"}
+	if got := FilterCustomInfo(info, []string{"nick"}, false); len(got) != 2 || got["city"] != "b" {
+		t.Fatalf("unconfigured filter = %v", got)
+	}
+	got := FilterCustomInfo(info, []string{"nick", "missing"}, true)
+	if len(got) != 1 || got["nick"] != "a" {
+		t.Fatalf("configured filter = %v", got)
+	}
+	if got := FilterCustomInfo(info, nil, true); len(got) != 0 {
+		t.Fatalf("empty filter = %v", got)
+	}
+}
+
 func TestKickedReason(t *testing.T) {
 	at := time.Unix(1, 5)
 	if got := kickedReason(at, 3, servicepb.ChatroomKickReason(2)); got != "1000000005,3,2" {

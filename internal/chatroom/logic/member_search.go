@@ -193,12 +193,18 @@ func (c *ChatroomContainer) queryMembers(name, sqlText string, args ...any) ([]M
 		uids = append(uids, m.Uid)
 	}
 	roles := memberRoleIDsBatch(c.appId, c.roomId, uids)
+	keys, configured, err := appCustomInfoKeyFilter(c.ctx, c.appId)
+	if err != nil {
+		c.ctx.Error(name+" custom info filter err", zap.Error(err))
+		return nil, err
+	}
 	for i := range members {
 		if r, ok := roles[members[i].Uid]; ok {
 			members[i].RoleId = r
 		} else {
 			members[i].RoleId = []int32{}
 		}
+		members[i].CustomInfo = FilterCustomInfo(members[i].CustomInfo, keys, configured)
 	}
 	return members, nil
 }

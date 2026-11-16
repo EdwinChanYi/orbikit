@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -207,6 +208,11 @@ func makeReqToRspBcstMsg(ctx *reqctx.Context, req *servicepb.ChatroomMsgRequest)
 		}
 	}
 	return msg, nil
+}
+
+// EmptyText reports that a text message has no visible content.
+func EmptyText(msgType servicepb.ChatroomMsgType, text string) bool {
+	return msgType == servicepb.ChatroomMsgType_CHATROOM_MSG_TYPE_TEXT && strings.TrimSpace(text) == ""
 }
 
 // SendMsg publishes a member message to the room broadcast topic.

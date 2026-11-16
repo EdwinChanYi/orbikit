@@ -263,11 +263,15 @@ func (c *ChatroomContainer) GetChatroomMemberInfo(uid int64) (servicepb.ErrorCod
 		}
 	}
 
+	keys, configured, err := appCustomInfoKeyFilter(c.ctx, c.appId)
+	if err != nil {
+		return servicepb.ErrorCode_CHATROOM_SERVICE_ERROR, nil, err
+	}
 	return servicepb.ErrorCode_SUCCESS, &servicepb.ChatroomMemberInfo{
 		Uid:               uid,
 		Nickname:          info.Nickname,
 		Avatar:            info.Avatar,
-		CustomInfo:        info.CustomInfo,
+		CustomInfo:        FilterCustomInfo(info.CustomInfo, keys, configured),
 		ChatroomRemoteExt: info.ChatroomRemoteExt,
 		SearchKeys:        info.SearchData,
 		IsReboot:          info.IsRobot,

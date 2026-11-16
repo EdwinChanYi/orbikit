@@ -12,8 +12,8 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/chatroom/logic"
 )
 
-// UpdateAppCustomInfoKeyFilter only validates the app; per-app filters are
-// not stored and the reply keeps the default CHATROOM_SERVICE_ERROR code.
+// UpdateAppCustomInfoKeyFilter stores the app-wide custom info keys. Member
+// reads then keep only those keys.
 func (s *Server) UpdateAppCustomInfoKeyFilter(goCtx context.Context, req *servicepb.UpdateAppCustomInfoKeyFilterRequest) (reply *servicepb.UpdateAppCustomInfoKeyFilterReply, err error) {
 	ctx := newCtx(goCtx, req.GetMsgTraceId(), req.GetAppId())
 	reply = &servicepb.UpdateAppCustomInfoKeyFilterReply{Ret: serviceErr()}
@@ -21,7 +21,15 @@ func (s *Server) UpdateAppCustomInfoKeyFilter(goCtx context.Context, req *servic
 	defer func() { ctx.TraceReply(reply, err) }()
 	defer recoverTo(ctx, "UpdateAppCustomInfoKeyFilter", &reply.Ret)
 
-	_, err = checkApp(ctx, "UpdateAppCustomInfoKeyFilter", req.GetAppId(), &reply.Ret)
+	var ok bool
+	if ok, err = checkApp(ctx, "UpdateAppCustomInfoKeyFilter", req.GetAppId(), &reply.Ret); !ok {
+		return
+	}
+	if err = logic.SetAppCustomInfoKeyFilter(ctx, req.GetAppId(), req.GetCustomInfoKeyFilter()); err != nil {
+		ctx.Error("UpdateAppCustomInfoKeyFilter set err", zap.Error(err))
+		return
+	}
+	reply.Ret = success()
 	return
 }
 

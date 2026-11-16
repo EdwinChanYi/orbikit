@@ -60,6 +60,10 @@ func (s *Server) SendChatroomMsg(goCtx context.Context, req *servicepb.ChatroomM
 	if ok, err = checkApp(ctx, "SendChatroomMsg", req.GetAppId(), &reply.Ret); !ok {
 		return
 	}
+	if logic.EmptyText(req.GetMsgType(), req.GetTextContent()) {
+		reply.Ret = ret(servicepb.ErrorCode_PARAM_ERROR)
+		return
+	}
 	if req.GetFrom() != 0 {
 		if ok, err = canSpeak(ctx, req, &reply.Ret); !ok {
 			return
@@ -83,6 +87,10 @@ func (s *Server) SendFullServiceBroadcastMsg(goCtx context.Context, req *service
 
 	var ok bool
 	if ok, err = checkApp(ctx, "SendFullServiceBroadcastMsg", req.GetAppId(), &reply.Ret); !ok {
+		return
+	}
+	if logic.EmptyText(req.GetMsgType(), req.GetTextContent()) {
+		reply.Ret = ret(servicepb.ErrorCode_PARAM_ERROR)
 		return
 	}
 	code, err := logic.SendFullServiceBroadcastMsg(ctx, req)
