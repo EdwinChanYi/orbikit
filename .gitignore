@@ -9,6 +9,7 @@ web/admin/dist/assets/
 
 # Local config and data
 /configs/*.local.yaml
+/deploy/.env
 *.sqlite
 *.db
 /log/
