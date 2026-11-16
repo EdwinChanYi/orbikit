@@ -27,6 +27,8 @@ func TestDataIDRejectsUnknownService(t *testing.T) {
 
 func TestGetPublishHistoryBetaListeners(t *testing.T) {
 	var published, betaIPs string
+	current := "log:\n  level: debug\n"
+	staleReads := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/nacos/v1/auth/login" {
 			if err := r.ParseForm(); err != nil {
@@ -46,8 +48,13 @@ func TestGetPublishHistoryBetaListeners(t *testing.T) {
 			if r.URL.Query().Get("dataId") != "core.yaml" || r.URL.Query().Get("group") != "orbikit" {
 				t.Errorf("get query = %s", r.URL.RawQuery)
 			}
-			_, _ = io.WriteString(w, "log:\n  level: debug\n")
-		case r.Method == http.MethodPost && r.URL.Path == "/nacos/v1/cs/configs" && r.FormValue("beta") == "":
+			body := current
+			if published != "" && staleReads == 0 {
+				staleReads++
+				body = "log:\n  level: debug\n"
+			}
+			_, _ = io.WriteString(w, body)
+		case r.Method == http.MethodPost && r.URL.Path == "/nacos/v1/cs/configs" && r.FormValue("beta") == "" && r.Header.Get("betaIps") == "":
 			if err := r.ParseForm(); err != nil {
 				t.Errorf("parse publish: %v", err)
 			}
@@ -55,6 +62,7 @@ func TestGetPublishHistoryBetaListeners(t *testing.T) {
 				t.Errorf("publish form = %v", r.Form)
 			}
 			published = r.Form.Get("content")
+			current = published
 			_, _ = io.WriteString(w, "true")
 		case r.Method == http.MethodGet && r.URL.Path == "/nacos/v1/cs/history":
 			q := r.URL.Query()
@@ -62,14 +70,17 @@ func TestGetPublishHistoryBetaListeners(t *testing.T) {
 				t.Errorf("history query = %s", r.URL.RawQuery)
 			}
 			_, _ = io.WriteString(w, `{"totalCount":1,"pageItems":[{"id":"9","content":"log:\n  level: info\n","lastModifiedTime":"2026-11-15 00:00:00"}]}`)
-		case r.Method == http.MethodPost && r.URL.Path == "/nacos/v1/cs/configs" && r.FormValue("beta") == "true":
+		case r.Method == http.MethodPost && r.URL.Path == "/nacos/v1/cs/configs" && r.Header.Get("betaIps") != "":
 			if err := r.ParseForm(); err != nil {
 				t.Errorf("parse beta: %v", err)
 			}
-			betaIPs = r.Form.Get("betaIps")
+			if r.Form.Get("beta") != "" || r.Form.Get("content") != "gray" {
+				t.Errorf("beta form = %v", r.Form)
+			}
+			betaIPs = r.Header.Get("betaIps")
 			_, _ = io.WriteString(w, "true")
 		case r.Method == http.MethodGet && r.URL.Path == "/nacos/v1/cs/configs" && r.URL.Query().Get("beta") == "true":
-			_, _ = io.WriteString(w, `{"content":"gray","betaIps":"10.0.0.8,10.0.0.9"}`)
+			_, _ = io.WriteString(w, `{"code":200,"message":"query beta ok","data":{"content":"gray","betaIps":"10.0.0.8,10.0.0.9"}}`)
 		case r.Method == http.MethodDelete && r.URL.Path == "/nacos/v1/cs/configs":
 			if r.URL.Query().Get("beta") != "true" || r.URL.Query().Get("dataId") != "core.yaml" {
 				t.Errorf("delete query = %s", r.URL.RawQuery)
