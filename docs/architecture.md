@@ -11,7 +11,7 @@ orbikit 把一个房间型实时场景拆成四个进程。业务服务器不接
 | chatroom | 房间、成员、角色、麦位、机器人、消息，结果写入 MySQL / Redis，并把需要下发的事件写入 Kafka | 不直接碰客户端连接 |
 | webhook | 消费房间广播，按应用配置签名后 POST 给业务服务器 | 不产生房间状态 |
 
-依赖是 MySQL、Redis、Kafka。`deploy/docker-compose.yml` 用一套单机把它们和四个进程拉起来。
+依赖是 MySQL、Redis、Kafka、etcd。`deploy/docker-compose.yml` 用一套单机把它们和四个进程拉起来。
 
 ```mermaid
 flowchart LR
@@ -29,6 +29,10 @@ flowchart LR
     gateway --- redis[(Redis)]
     chatroom --- redis
     core --- redis
+    core --- etcd[(etcd)]
+    chatroom --- etcd
+    gateway --- etcd
+    webhook --- etcd
 ```
 
 ## 一次发消息经过哪里
@@ -54,7 +58,8 @@ flowchart LR
 
 - 网关无状态。每个实例的 `kafka.group_id` 必须不同（留空会自动生成），否则会漏推送。
 - webhook 共用一个消费组，一条消息只被一个实例回调。
-- core、chatroom 可以起多份，客户端用 `dns:///服务名:端口` 做轮询。chatroom 多实例时，每个实例都会收到同一条 Redis 过期事件并各广播一次，处理本身是幂等的。
+- core、chatroom、webhook 启动后把自己登记到 etcd，键是 `/orbikit/services/<服务名>/<实例>`，值是其他进程能访问的 `host:port`。租约默认 10 秒并自动续期，进程退出时立刻删除。调用方把地址写成 `etcd:///core` 这样的服务名，gRPC 在当前存活的实例之间轮询。`register.advertise_addr` 留空时，用通向 etcd 的本机地址，这样多副本不会登记成同一个名字。chatroom 多实例时，每个实例都会收到同一条 Redis 过期事件并各广播一次，处理本身是幂等的。
+- 不配置 `etcd.endpoints` 时不注册，调用方继续使用 `host:port` 直连。`configs/*.yaml` 是这条路径，方便本机单个进程调试。`deploy/configs` 走 etcd。
 
 ## 业务扩展点
 
