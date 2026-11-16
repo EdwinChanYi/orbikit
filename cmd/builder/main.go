@@ -16,14 +16,23 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/EdwinChanYi/orbikit/internal/builder"
+	"github.com/EdwinChanYi/orbikit/internal/release"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/nacos"
 )
 
 func main() {
+	releaseID := flag.Uint64("release", 0, "run one release task and exit")
 	cfgPath := flag.String("config", "configs/builder.yaml", "path to the config file")
 	flag.Parse()
+	if *releaseID != 0 {
+		if err := release.RunOnce(*releaseID); err != nil {
+			fmt.Fprintln(os.Stderr, release.FormatRunError(err))
+			os.Exit(1)
+		}
+		return
+	}
 	if err := run(*cfgPath); err != nil {
 		fmt.Fprintln(os.Stderr, "builder:", err)
 		os.Exit(1)
@@ -80,7 +89,14 @@ func run(cfgPath string) error {
 		return err
 	}
 	srv := &http.Server{
-		Handler:           builder.NewHandler(&builder.Docker{Socket: cfg.Socket}, cfg.Project),
+		Handler: builder.NewHandler(&builder.Docker{Socket: cfg.Socket}, cfg.Project, builder.ReleaseEnv{
+			Username: os.Getenv("ORBIKIT_GIT_USERNAME"),
+			Token:    os.Getenv("ORBIKIT_GIT_TOKEN"),
+			AdminDSN: os.Getenv("ADMIN_DSN"),
+			Image:    envOr("ORBIKIT_RELEASE_IMAGE", "orbikit-builder"),
+			Network:  envOr("ORBIKIT_RELEASE_NETWORK", "orbikit_default"),
+			GoProxy:  os.Getenv("GOPROXY"),
+		}, &builder.Docker{Socket: cfg.Socket}),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	log.L().Info("builder started", zap.String("http_addr", cfg.HTTPAddr))
@@ -103,4 +119,11 @@ func run(cfgPath string) error {
 		return err
 	}
 	return runErr
+}
+
+func envOr(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }

@@ -3,10 +3,13 @@ package builder
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/EdwinChanYi/orbikit/internal/release"
 )
 
 type fakeInspector struct {
@@ -21,7 +24,7 @@ func (f *fakeInspector) Inspect(_ context.Context, container string) (Info, erro
 }
 
 func TestHandlerRejectsNamesOutsideWhitelist(t *testing.T) {
-	h := NewHandler(&fakeInspector{}, "orbikit")
+	h := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/containers/admin", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
@@ -35,7 +38,7 @@ func TestHandlerRejectsNamesOutsideWhitelist(t *testing.T) {
 
 func TestHandlerReturnsContainerInfo(t *testing.T) {
 	fake := &fakeInspector{info: Info{Status: "running", Running: true, ImageID: "sha256:abc"}}
-	h := NewHandler(fake, "orbikit")
+	h := NewHandler(fake, "orbikit", ReleaseEnv{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/containers/core", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
@@ -60,7 +63,7 @@ func TestHandlerReturnsContainerInfo(t *testing.T) {
 }
 
 func TestHandlerReportsInspectFailure(t *testing.T) {
-	h := NewHandler(&fakeInspector{err: context.DeadlineExceeded}, "orbikit")
+	h := NewHandler(&fakeInspector{err: context.DeadlineExceeded}, "orbikit", ReleaseEnv{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/containers/core", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
@@ -117,5 +120,82 @@ func TestDockerInspectRejectsUnexpectedStatus(t *testing.T) {
 	info, err := (&Docker{Base: srv.URL, Client: srv.Client()}).Inspect(context.Background(), "orbikit-core-1")
 	if err == nil || info.Status == "missing" {
 		t.Fatalf("info = %+v, err = %v", info, err)
+	}
+}
+
+func TestRefsRequiresCredentialsAndDoesNotEchoTheToken(t *testing.T) {
+	previous := listRemoteRefs
+	t.Cleanup(func() { listRemoteRefs = previous })
+	called := false
+	listRemoteRefs = func(_ context.Context, username, token string) ([]release.RemoteRef, error) {
+		called = true
+		if username != "git" || token != "secret-token" {
+			t.Fatalf("credentials = %s %s", username, token)
+		}
+		return []release.RemoteRef{{Name: "v0.0.2", Ref: "v0.0.2", Kind: "tag"}}, nil
+	}
+	closed := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{}, nil)
+	rec := httptest.NewRecorder()
+	closed.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/v1/releases/refs", nil))
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "缺少 Git 凭证") || called {
+		t.Fatalf("missing = %d called=%v %s", rec.Code, called, rec.Body.String())
+	}
+	h := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{Username: "git", Token: "secret-token"}, nil)
+	rec = httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/v1/releases/refs", nil))
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"ref":"v0.0.2"`) || strings.Contains(rec.Body.String(), "secret-token") {
+		t.Fatalf("refs = %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestReadyDoesNotEchoTheToken(t *testing.T) {
+	h := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{Username: "git", Token: "secret-token"}, nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/v1/releases/ready", nil))
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"configured":true`) || strings.Contains(rec.Body.String(), "secret-token") {
+		t.Fatalf("ready = %d %s", rec.Code, rec.Body.String())
+	}
+	empty := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{}, nil)
+	rec = httptest.NewRecorder()
+	empty.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/v1/releases/ready", nil))
+	if !strings.Contains(rec.Body.String(), `"configured":false`) {
+		t.Fatalf("empty = %s", rec.Body.String())
+	}
+}
+
+func TestStartLaunchesTheOneShotAndReturns(t *testing.T) {
+	var created, requestURI string
+	var started bool
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/containers/create":
+			body, _ := io.ReadAll(r.Body)
+			created = string(body)
+			requestURI = r.URL.RequestURI()
+			w.WriteHeader(http.StatusCreated)
+			_, _ = w.Write([]byte(`{"Id":"abc"}`))
+		case r.URL.Path == "/containers/abc/start":
+			started = true
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+	dock := &Docker{Base: srv.URL, Client: srv.Client(), Socket: "/var/run/docker.sock"}
+	h := NewHandler(&fakeInspector{}, "orbikit", ReleaseEnv{Username: "git", Token: "secret-token", AdminDSN: "dsn", Image: "orbikit-builder", Network: "orbikit_default"}, dock)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/v1/releases/7/start", nil))
+	if rec.Code != http.StatusNoContent || !started {
+		t.Fatalf("status = %d started=%v body=%s", rec.Code, started, rec.Body.String())
+	}
+	if !strings.Contains(requestURI, "name=orbikit-release-7") || !strings.Contains(created, `"Image":"orbikit-builder"`) {
+		t.Fatalf("uri = %s create = %s", requestURI, created)
+	}
+	if !strings.Contains(created, `"-release","7"`) || !strings.Contains(created, `"AutoRemove":true`) || !strings.Contains(created, "secret-token") {
+		t.Fatalf("create = %s", created)
+	}
+	if strings.Contains(rec.Body.String(), "secret-token") {
+		t.Fatal("response leaked the token")
 	}
 }

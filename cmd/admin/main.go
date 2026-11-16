@@ -19,8 +19,10 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/admin"
 	"github.com/EdwinChanYi/orbikit/internal/admin/auth"
 	"github.com/EdwinChanYi/orbikit/internal/admin/nacosapi"
+	"github.com/EdwinChanYi/orbikit/internal/admin/releaseapi"
 	"github.com/EdwinChanYi/orbikit/internal/admin/static"
 	"github.com/EdwinChanYi/orbikit/internal/admin/status"
+	"github.com/EdwinChanYi/orbikit/internal/release"
 	"github.com/EdwinChanYi/orbikit/pkg/config"
 	"github.com/EdwinChanYi/orbikit/pkg/log"
 	"github.com/EdwinChanYi/orbikit/pkg/nacos"
@@ -91,6 +93,10 @@ func run(cfgPath string) error {
 	if err != nil {
 		return err
 	}
+	releases, err := release.OpenMySQL(ctx, cfg.MySQLDSN)
+	if err != nil {
+		return err
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("hash admin password: %w", err)
@@ -116,7 +122,7 @@ func run(cfgPath string) error {
 		return err
 	}
 	srv := &http.Server{
-		Handler:           routes(store, []byte(password), cfg.BuilderURL, snapshots, cfg.Nacos.Client()),
+		Handler:           routes(store, releases, []byte(password), cfg.BuilderURL, snapshots, cfg.Nacos.Client()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	log.L().Info("admin started", zap.String("http_addr", cfg.HTTPAddr))
@@ -152,17 +158,37 @@ func operatorPassword() string {
 // routes serves overview and cluster behind the session cookie, then the
 // login API, then the UI. The status paths are registered before /api/
 // so the login mux does not swallow them.
-func routes(store auth.Store, password []byte, builderURL string, etcdSource status.Source, configs *nacos.Client) http.Handler {
+func routes(store auth.Store, releases *release.MySQL, password []byte, builderURL string, etcdSource status.Source, configs *nacos.Client) http.Handler {
 	statusHandler := status.NewHandler(status.View{
 		BuilderURL: builderURL,
 		Health:     status.GRPCHealth{},
 		Source:     etcdSource,
+		Releases:   releaseReader{store: releases},
 	})
+	releaseHandler := releaseapi.NewHandler(releases, builderURL, nil)
 	mux := http.NewServeMux()
 	mux.Handle("/api/overview", auth.RequireSession(store, nil, statusHandler))
 	mux.Handle("/api/cluster", auth.RequireSession(store, nil, statusHandler))
+	mux.Handle("/api/releases", auth.RequireSession(store, nil, releaseHandler))
+	mux.Handle("/api/releases/", auth.RequireSession(store, nil, releaseHandler))
 	mux.Handle("/api/config/", auth.RequireSession(store, nil, nacosapi.NewHandler(configs)))
 	mux.Handle("/api/", auth.NewHandler(store, password, nil))
 	mux.Handle("/", static.Handler())
 	return mux
+}
+
+type releaseReader struct {
+	store release.Store
+}
+
+func (r releaseReader) Last(ctx context.Context, service string) (*status.ReleaseStamp, error) {
+	task, ok, err := r.store.LatestSuccess(ctx, service)
+	if err != nil || !ok {
+		return nil, err
+	}
+	finished := time.Time{}
+	if task.FinishedAt != nil {
+		finished = *task.FinishedAt
+	}
+	return &status.ReleaseStamp{Ref: task.GitRef, FinishedAt: finished}, nil
 }

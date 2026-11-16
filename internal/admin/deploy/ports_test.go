@@ -129,4 +129,9 @@ func TestBuilderAloneMountsDockerSocket(t *testing.T) {
 			t.Fatal("admin mounts the docker socket")
 		}
 	}
+	for name := range doc.Services {
+		if name == "release" || name == "orbikit-release" {
+			t.Fatalf("one-shot container %s is a compose service", name)
+		}
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // Services is the fixed platform table on the overview page.
@@ -35,7 +36,18 @@ type ServiceRow struct {
 	Instances []Instance `json:"instances"`
 	ImageID   string     `json:"image_id"`
 	// LastRelease is unset until a release exists, so JSON encodes null.
-	LastRelease *string `json:"last_release"`
+	LastRelease *ReleaseStamp `json:"last_release"`
+}
+
+// ReleaseStamp is the newest successful release for one service.
+type ReleaseStamp struct {
+	Ref        string    `json:"ref"`
+	FinishedAt time.Time `json:"finished_at"`
+}
+
+// ReleaseReader supplies the newest successful release. A nil reader leaves the column empty.
+type ReleaseReader interface {
+	Last(ctx context.Context, service string) (*ReleaseStamp, error)
 }
 
 // Overview is the aggregated platform status.

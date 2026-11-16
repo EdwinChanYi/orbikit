@@ -168,6 +168,11 @@ services:
     command: ["-config", "/app/configs/builder.yaml"]
     environment:
       NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
+      ADMIN_DSN: "root:orbikit@tcp(mysql:3306)/orbikit_admin?charset=utf8mb4&parseTime=true&loc=Local"
+      ORBIKIT_GIT_USERNAME: ${ORBIKIT_GIT_USERNAME:-}
+      ORBIKIT_GIT_TOKEN: ${ORBIKIT_GIT_TOKEN:-}
+      ORBIKIT_RELEASE_IMAGE: orbikit-builder
+      ORBIKIT_RELEASE_NETWORK: orbikit_default
     volumes:
       - ./configs:/app/configs:ro
       - /var/run/docker.sock:/var/run/docker.sock

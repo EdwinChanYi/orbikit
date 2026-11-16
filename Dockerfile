@@ -16,7 +16,10 @@ RUN if [ "$SERVICE" = "admin" ]; then \
 RUN test -n "$SERVICE" && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/app ./cmd/${SERVICE}
 
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata && adduser -D -u 10001 orbikit
+ARG SERVICE
+RUN apk add --no-cache ca-certificates tzdata \
+    && if [ "$SERVICE" = "builder" ]; then apk add --no-cache git; fi \
+    && adduser -D -u 10001 orbikit
 USER orbikit
 WORKDIR /app
 COPY --from=build /out/app /app/app

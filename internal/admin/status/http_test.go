@@ -14,6 +14,33 @@ import (
 	"github.com/EdwinChanYi/orbikit/internal/admin/auth"
 )
 
+type stampReader struct{}
+
+func (stampReader) Last(_ context.Context, service string) (*ReleaseStamp, error) {
+	if service != "core" {
+		return nil, nil
+	}
+	return &ReleaseStamp{Ref: "v1.2.3", FinishedAt: time.Date(2026, 11, 15, 15, 10, 0, 0, time.FixedZone("CST", 8*3600))}, nil
+}
+
+func TestOverviewShowsTheLatestRelease(t *testing.T) {
+	builder := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	defer builder.Close()
+	h := NewHandler(View{BuilderURL: builder.URL, Source: fakeSource{snap: Cluster{Status: "ok"}}, Releases: stampReader{}})
+	store := auth.NewMemory()
+	cookie := operatorCookie(t, store, time.Now().Add(time.Hour))
+	mux := http.NewServeMux()
+	mux.Handle("/api/overview", auth.RequireSession(store, nil, h))
+	req := httptest.NewRequest(http.MethodGet, "/api/overview", nil)
+	req.AddCookie(cookie)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+	body := rec.Body.String()
+	if rec.Code != http.StatusOK || !strings.Contains(body, `"ref":"v1.2.3"`) || strings.Count(body, `"last_release":null`) != 3 {
+		t.Fatalf("overview = %d %s", rec.Code, body)
+	}
+}
+
 func TestStatusRoutes(t *testing.T) {
 	builder := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	builderURL := builder.URL

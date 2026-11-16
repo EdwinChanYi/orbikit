@@ -15,6 +15,7 @@ type View struct {
 	BuilderURL string
 	Health     Health
 	Source     Source
+	Releases   ReleaseReader
 }
 
 // NewHandler serves GET /api/overview and GET /api/cluster.
@@ -23,7 +24,16 @@ type View struct {
 func NewHandler(view View) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/overview", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, Collect(r.Context(), view.BuilderURL, view.Health, readCluster(r, view)))
+		overview := Collect(r.Context(), view.BuilderURL, view.Health, readCluster(r, view))
+		if view.Releases != nil {
+			for i, row := range overview.Services {
+				stamp, err := view.Releases.Last(r.Context(), row.Name)
+				if err == nil && stamp != nil {
+					overview.Services[i].LastRelease = stamp
+				}
+			}
+		}
+		writeJSON(w, overview)
 	})
 	mux.HandleFunc("GET /api/cluster", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, readCluster(r, view))
