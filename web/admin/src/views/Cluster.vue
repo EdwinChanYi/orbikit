@@ -25,6 +25,10 @@ const statusCell: Record<string, { text: string; cls: string }> = {
   fault: { text: "故障", cls: "status-fault" },
 };
 
+function statusOf(status: string): { text: string; cls: string } {
+  return statusCell[status] ?? { text: status || "未知", cls: "status-unknown" };
+}
+
 onMounted(async () => {
   try {
     const res = await fetch("/api/cluster", { credentials: "include" });
@@ -49,7 +53,7 @@ onMounted(async () => {
       <div class="stats">
         <div>
           <span class="k">状态</span>
-          <span :class="statusCell[cluster.status]?.cls">{{ statusCell[cluster.status]?.text }}</span>
+          <span :class="statusOf(cluster.status).cls">{{ statusOf(cluster.status).text }}</span>
         </div>
         <div>
           <span class="k">主节点</span>

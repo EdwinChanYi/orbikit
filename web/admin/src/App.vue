@@ -52,15 +52,23 @@ async function logout() {
         <a-menu-item key="/release">发布</a-menu-item>
       </a-menu>
     </a-layout-sider>
-    <a-layout>
+    <a-layout class="main">
       <a-layout-header class="top">
         <span class="title">{{ route.name }}</span>
         <a-space>
           <a-tag>{{ sourceLabel }}</a-tag>
-          <a-tag>容器输出</a-tag>
           <a-button size="small" @click="logout">退出</a-button>
         </a-space>
       </a-layout-header>
+      <nav class="mobile-nav">
+        <a-menu mode="horizontal" :selected-keys="[route.path]" @menu-item-click="open">
+          <a-menu-item key="/">总览</a-menu-item>
+          <a-menu-item key="/config">配置</a-menu-item>
+          <a-menu-item key="/cluster">集群</a-menu-item>
+          <a-menu-item key="/logs">日志</a-menu-item>
+          <a-menu-item key="/release">发布</a-menu-item>
+        </a-menu>
+      </nav>
       <a-layout-content class="content">
         <router-view />
       </a-layout-content>
@@ -97,10 +105,12 @@ body,
 }
 
 .top {
-  height: 56px;
+  height: auto;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 0 24px;
   background: var(--color-bg-2);
   border-bottom: 1px solid var(--color-border-2);
@@ -109,9 +119,37 @@ body,
 .title {
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.mobile-nav {
+  display: none;
+  background: var(--color-bg-2);
+  border-bottom: 1px solid var(--color-border-2);
 }
 
 .content {
   padding: 20px 24px 32px;
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .sider {
+    display: none !important;
+  }
+
+  .mobile-nav {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .top {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+  }
+
+  .content {
+    padding: 12px;
+  }
 }
 </style>

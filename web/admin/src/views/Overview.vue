@@ -13,7 +13,7 @@ type ServiceRow = {
   grpc: string;
   instances: Instance[] | null;
   image_id: string;
-  last_release: string | null;
+  last_release: { ref: string; finished_at: string } | null;
 };
 
 type Cell = {
@@ -63,14 +63,24 @@ function instanceCell(row: ServiceRow): Cell {
   return { text: `${row.instances.length} 个实例`, cls: "" };
 }
 
-function releaseCell(row: ServiceRow): Cell {
-  if (row.last_release == null) {
-    return { text: "尚无发布", cls: "status-unknown" };
+function releaseCell(row: ServiceRow): Cell & { title: string } {
+  const release = row.last_release;
+  if (release == null) {
+    return { text: "尚无发布", title: "尚无发布", cls: "status-unknown" };
   }
-  return { text: row.last_release, cls: "" };
+  const when = release.finished_at ? release.finished_at.slice(0, 16).replace("T", " ") : "";
+  if (!release.ref) {
+    const hex = row.image_id.replace(/^sha256:/, "").slice(0, 12);
+    const text = `${hex} ${when}`.trim();
+    return { text, title: text, cls: "" };
+  }
+  const short = /^[0-9a-fA-F]{40}$/.test(release.ref) ? release.ref.slice(0, 12) : release.ref;
+  const text = `${short} ${when}`.trim();
+  return { text, title: `${release.ref} ${when}`.trim(), cls: "" };
 }
 
-onMounted(async () => {
+async function load() {
+  failed.value = false;
   try {
     const res = await fetch("/api/overview", { credentials: "include" });
     if (!res.ok) {
@@ -84,16 +94,22 @@ onMounted(async () => {
   } finally {
     settled.value = true;
   }
-});
+}
+
+onMounted(load);
 </script>
 
 <template>
   <a-card :bordered="false" class="panel">
-    <p class="etcd-line">
-      etcd
-      <span :class="etcdStatus.cls">{{ etcdStatus.text }}</span>
-    </p>
-    <table v-if="!failed" class="sheet">
+    <div class="sheet-head">
+      <p class="etcd-line">
+        etcd
+        <span :class="etcdStatus.cls">{{ etcdStatus.text }}</span>
+      </p>
+      <a-button size="small" @click="load">刷新</a-button>
+    </div>
+    <div v-if="!failed" class="sheet-scroll">
+    <table class="sheet">
       <thead>
         <tr>
           <th>服务</th>
@@ -111,10 +127,11 @@ onMounted(async () => {
           <td :class="labeled(grpcCell, row.grpc).cls">{{ labeled(grpcCell, row.grpc).text }}</td>
           <td :class="instanceCell(row).cls">{{ instanceCell(row).text }}</td>
           <td class="image" :title="row.image_id">{{ row.image_id }}</td>
-          <td :class="releaseCell(row).cls">{{ releaseCell(row).text }}</td>
+          <td class="release" :class="releaseCell(row).cls" :title="releaseCell(row).title">{{ releaseCell(row).text }}</td>
         </tr>
       </tbody>
     </table>
+    </div>
   </a-card>
 </template>
 
@@ -128,15 +145,28 @@ onMounted(async () => {
   border-radius: 8px;
 }
 
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .etcd-line {
-  margin: 0 0 16px;
+  margin: 0;
   color: var(--color-text-2);
 }
 
+.sheet-scroll {
+  overflow-x: auto;
+}
+
 .sheet {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .sheet th,
@@ -145,8 +175,6 @@ onMounted(async () => {
   border-bottom: 1px solid var(--color-neutral-3);
   text-align: left;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .sheet th {
@@ -160,6 +188,9 @@ onMounted(async () => {
 }
 
 .sheet .image {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 12px;
   color: var(--color-text-2);

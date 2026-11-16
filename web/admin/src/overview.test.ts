@@ -6,6 +6,7 @@ import router from "./router";
 import Cluster from "./views/Cluster.vue";
 import Config from "./views/Config.vue";
 import Overview from "./views/Overview.vue";
+import Release from "./views/Release.vue";
 import Section from "./views/Section.vue";
 
 // GET /api/overview has no top-level etcd field. A registered service with
@@ -200,6 +201,46 @@ describe("Overview", () => {
     }
   });
 
+  it("refreshes and keeps a long release readable", async () => {
+    const original = globalThis.fetch;
+    const ref = "3370e1ce35f9c69f60360e9d2519adaace48010b";
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      return new Response(
+        JSON.stringify({
+          services: [
+            {
+              name: "webhook",
+              container: "running",
+              grpc: "serving",
+              instances: [{ service: "webhook", id: "1", addr: "webhook:9004" }],
+              image_id: "sha256:" + "ab".repeat(32),
+              last_release: { ref, finished_at: "2026-11-15T17:11:45Z" },
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    };
+    try {
+      const wrapper = mount(Overview);
+      await flushPromises();
+      const release = rowNamed(wrapper, "webhook").findAll("td")[5];
+      expect(release.text()).toBe("3370e1ce35f9 2026-11-15 17:11");
+      expect(release.attributes("title")).toContain(ref);
+      expect(release.attributes("title")).toContain("2026-11-15 17:11");
+      expect(wrapper.find(".sheet-scroll").exists()).toBe(true);
+      const refresh = wrapper.findAll("button, a-button").find((button) => button.text() === "刷新");
+      expect(refresh).toBeTruthy();
+      await refresh!.trigger("click");
+      await flushPromises();
+      expect(calls).toBe(2);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
   it("shows 故障 when the overview request fails", async () => {
     const original = globalThis.fetch;
     globalThis.fetch = async () => new Response("no", { status: 500 });
@@ -222,7 +263,7 @@ describe("status routes", () => {
     expect(componentFor("/cluster")).toBe(Cluster);
     expect(componentFor("/config")).toBe(Config);
     expect(componentFor("/logs")).toBe(Section);
-    expect(componentFor("/release")).toBe(Section);
+    expect(componentFor("/release")).toBe(Release);
 
     const original = globalThis.fetch;
     const calls: { url: string; credentials?: RequestCredentials }[] = [];
@@ -233,6 +274,7 @@ describe("status routes", () => {
     try {
       await router.push("/config");
       expect(router.currentRoute.value.path).toBe("/login");
+      expect(router.currentRoute.value.query.redirect).toBe("/config");
       expect(calls).toEqual([{ url: "/api/me", credentials: "include" }]);
     } finally {
       globalThis.fetch = original;

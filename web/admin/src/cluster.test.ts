@@ -93,6 +93,28 @@ describe("Cluster", () => {
     }
   });
 
+  it("shows an unknown status value instead of leaving the cell blank", async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          status: "mystery",
+          leader: "etcd",
+          db_size: 1,
+          alarms: [],
+          instances: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    try {
+      const wrapper = mount(Cluster);
+      await flushPromises();
+      expect(wrapper.text()).toContain("mystery");
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
   it("shows 故障 when the cluster request fails", async () => {
     const original = globalThis.fetch;
     globalThis.fetch = async () => {
